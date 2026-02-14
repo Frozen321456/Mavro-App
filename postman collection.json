@@ -1,0 +1,497 @@
+{
+  "info": {
+    "_postman_id": "8df3712c-584a-4db4-a27a-7882b80fa1f1",
+    "name": "MoveDrop Custom Channel",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "23549857"
+  },
+  "item": [
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Product Deleted",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://coral-frost-45.webhook.cool",
+              "protocol": "https",
+              "host": [
+                "coral-frost-45",
+                "webhook",
+                "cool"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Created",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1,\n    \"order_number\": \"SD6MMDsZK7\",\n    \"status\": \"pending\",\n    \"currency\": \"USD\",\n    \"total\": \"195.00\",\n    \"payment_method\": \"cod\",\n    \"shipping_address\": {\n        \"first_name\": \"Marshall\",\n        \"last_name\": \"Emmerich\",\n        \"email\": \"lila.kuhic@example.com\",\n        \"phone\": \"+18592764597\",\n        \"address_1\": \"222 Joey Dale\",\n        \"address_2\": \"Suite 337\",\n        \"city\": \"West Brisa\",\n        \"state\": \"North Dakota\",\n        \"postcode\": \"36904-8300\",\n        \"country\": \"Saint Kitts and Nevis\"\n    },\n    \"customer_notes\": \"Sed debitis rerum quidem earum.\",\n    \"line_items\": [\n        {\n            \"id\": 1,\n            \"product_id\": 11,\n            \"name\": \"Pure Cotton Round Bed Cover Pure Cotton Round Bed Sheet Bedspread Hotel Mattress Protector Solid Color 2 M 2.2 White\",\n            \"quantity\": 9,\n            \"total\": \"180.00\",\n            \"variations\": [\n                {\n                    \"id\": 1,\n                    \"variation_id\": 716,\n                    \"sku\": \"4662077306708\",\n                    \"quantity\": 3,\n                    \"price\": \"20.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                },\n                {\n                    \"id\": 2,\n                    \"variation_id\": 734,\n                    \"sku\": \"5516740756376\",\n                    \"quantity\": 3,\n                    \"price\": \"20.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                },\n                {\n                    \"id\": 3,\n                    \"variation_id\": 672,\n                    \"sku\": \"4365880662668\",\n                    \"quantity\": 3,\n                    \"price\": \"20.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                }\n            ],\n            \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n        },\n        {\n            \"id\": 2,\n            \"product_id\": 12,\n            \"name\": \"N1-2 [Su Yinyin] Miss Windsor_French Bow Shallow Mouth Ballet Shoes for Women with Flats Shoes\",\n            \"quantity\": 1,\n            \"total\": \"15.00\",\n            \"variations\": [\n                {\n                    \"id\": 4,\n                    \"variation_id\": 762,\n                    \"sku\": \"4857531008109\",\n                    \"quantity\": 1,\n                    \"price\": \"15.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                }\n            ],\n            \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n        }\n    ],\n    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://coral-frost-45.webhook.cool",
+              "protocol": "https",
+              "host": [
+                "coral-frost-45",
+                "webhook",
+                "cool"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Updated",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1,\n    \"order_number\": \"SD6MMDsZK7\",\n    \"status\": \"processing\",\n    \"currency\": \"USD\",\n    \"total\": \"195.00\",\n    \"payment_method\": \"cod\",\n    \"shipping_address\": {\n        \"first_name\": \"Marshall\",\n        \"last_name\": \"Emmerich\",\n        \"email\": \"lila.kuhic@example.com\",\n        \"phone\": \"+18592764597\",\n        \"address_1\": \"222 Joey Dale\",\n        \"address_2\": \"Suite 337\",\n        \"city\": \"West Brisa\",\n        \"state\": \"North Dakota\",\n        \"postcode\": \"36904-8300\",\n        \"country\": \"Saint Kitts and Nevis\"\n    },\n    \"customer_notes\": \"Sed debitis rerum quidem earum.\",\n    \"line_items\": [\n        {\n            \"id\": 1,\n            \"product_id\": 11,\n            \"name\": \"Pure Cotton Round Bed Cover Pure Cotton Round Bed Sheet Bedspread Hotel Mattress Protector Solid Color 2 M 2.2 White\",\n            \"quantity\": 9,\n            \"total\": \"180.00\",\n            \"variations\": [\n                {\n                    \"id\": 1,\n                    \"variation_id\": 716,\n                    \"sku\": \"4662077306708\",\n                    \"quantity\": 3,\n                    \"price\": \"20.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                },\n                {\n                    \"id\": 2,\n                    \"variation_id\": 734,\n                    \"sku\": \"5516740756376\",\n                    \"quantity\": 3,\n                    \"price\": \"20.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                },\n                {\n                    \"id\": 3,\n                    \"variation_id\": 672,\n                    \"sku\": \"4365880662668\",\n                    \"quantity\": 3,\n                    \"price\": \"20.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                }\n            ],\n            \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n        },\n        {\n            \"id\": 2,\n            \"product_id\": 12,\n            \"name\": \"N1-2 [Su Yinyin] Miss Windsor_French Bow Shallow Mouth Ballet Shoes for Women with Flats Shoes\",\n            \"quantity\": 1,\n            \"total\": \"15.00\",\n            \"variations\": [\n                {\n                    \"id\": 4,\n                    \"variation_id\": 762,\n                    \"sku\": \"4857531008109\",\n                    \"quantity\": 1,\n                    \"price\": \"15.00\",\n                    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n                }\n            ],\n            \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n        }\n    ],\n    \"created_at\": \"2025-11-12T12:05:09.000000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://coral-frost-45.webhook.cool",
+              "protocol": "https",
+              "host": [
+                "coral-frost-45",
+                "webhook",
+                "cool"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1 - Add webhooks",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"webhooks\": [\n        {\n            \"name\": \"MoveDrop - Product Deleted\",\n            \"event\": \"product.deleted\",\n            \"delivery_url\": \"https://coral-frost-45.webhook.cool\"\n        },\n        {\n            \"name\": \"MoveDrop - Order Created\",\n            \"event\": \"order.created\",\n            \"delivery_url\": \"https://coral-frost-45.webhook.cool\"\n        },\n        {\n            \"name\": \"MoveDrop - Order Updated\",\n            \"event\": \"order.updated\",\n            \"delivery_url\": \"https://coral-frost-45.webhook.cool\"\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/webhooks",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "webhooks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2- get categories",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/categories?page=9&per_page=10",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "categories"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "9"
+            },
+            {
+              "key": "per_page",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3 - store category",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Tech\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/categories",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "categories"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4 - store product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"Fashion Watch\",\n    \"sku\": \"fsfsfdsfdsfd\",\n    \"description\": \"\u003Cdiv\u003E\\n         \u003Cdiv\u003E\\n          \u003Ch2\u003ESpecification:\u003C/h2\u003E\\n          \u003Cbr/\u003E\\n          \u003Cul\u003E\\n            \u003Cli\u003EWeight: \u003Cb\u003E0.254 kg\u003C/b\u003E\\n            \u003C/li\u003E\\n            \u003Cli\u003EFabric Name: \u003Cb\u003ECotton\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EPattern: \u003Cb\u003Esolid color\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EProcess: \u003Cb\u003ECollage/Stitching\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EOrigin: \u003Cb\u003EGuangzhou\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EStyle: \u003Cb\u003Ebasic\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ECombination form: \u003Cb\u003Esingle piece\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ELong skirt: \u003Cb\u003EMid-Skirt\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESkirt type: \u003Cb\u003EA- Line Skirt\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ECollar: \u003Cb\u003ECrewneck\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESleeve type: \u003Cb\u003EBat Sleeve\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESleeve length: \u003Cb\u003Eshort sleeve\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EWaist: \u003Cb\u003Eloose waist\u003C/b\u003E\u003C/li\u003E\u003Cli\u003Epopular elements: \u003Cb\u003EPocket\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EListing year/season: \u003Cb\u003ESpring 2024\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EMain fabric composition: \u003Cb\u003EPolyester (Polyester)\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EMain fabric composition 2: \u003Cb\u003ESpandex\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EItem No.: \u003Cb\u003E401#\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EBlack\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EWhite\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EWine red\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EArmy Green\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EApricot\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EKhaki\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EOrange\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EDark green\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003Elilac purple\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003Efruit green\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EPink\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EDark blue\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003ERose\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EDark gray\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003Efluorescent color\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003ELight gray\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003ENavy blue\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EAmazon quality! 35 cotton, 60 polyester, 5 spandex\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EWashing water label can replace the ingredients\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EColor: \u003Cb\u003EMost plus size 265 grams!\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESize: \u003Cb\u003ES\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESize: \u003Cb\u003EM\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESize: \u003Cb\u003EL\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESize: \u003Cb\u003EXL\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESize: \u003Cb\u003EXXL\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EStyle Type: \u003Cb\u003EStreet hipster\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EPlacket: \u003Cb\u003EPullover\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EMain fabric composition content: \u003Cb\u003E50% (inclusive)-70% (exclusive)\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EStyle: \u003Cb\u003EEuropean and American wind\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ESkirt Category: \u003Cb\u003EDress\u003C/b\u003E\u003C/li\u003E\u003Cli\u003ECross-border style type: \u003Cb\u003EComfortable leisure\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EWhether cross-border source: \u003Cb\u003EYes\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EMain fabric component 2 content: \u003Cb\u003EBelow 30%\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EMajor Downstream Sales Regions 1: \u003Cb\u003EEurope and America\u003C/b\u003E\u003C/li\u003E\u003Cli\u003EMajor Downstream Sales Regions 2: \u003Cb\u003ESoutheast Asia\u003C/b\u003E\u003C/li\u003E\\n          \u003C/ul\u003E\\n        \u003C/div\u003E\\n         \u003Cbr/\u003E\\n        \u003C/div\u003E\\n          \u003Cdiv\u003E\\n            \u003Ch2\u003EProduct Description:\u003C/h2\u003E\\n            \u003Cbr/\u003E\\n            \u003Cdiv\u003E\u003Cdiv id=\\\"offer-template-0\\\"\u003E\u003C/div\u003E\u003Cdiv style=\\\"width: 790.0px;\\\"\u003E\\r\\n\u003Cdiv class=\\\"sdmap-dynamic-offer-list\\\" style=\\\"display: none;\\\"\u003E{&quot;styleType&quot;:&quot;offer-type-1&quot;,&quot;items&quot;:&quot;752039830422,826469489794,824095230211,824874351068,828843011240,774123677958,706489138851,825977600930,772095198241&quot;,&quot;usemap&quot;:&quot;_sdmap_0&quot;}\u003C/div\u003E\\r\\n\u003Cimg class=\\\"dynamic-backup-img\\\" style=\\\"display: block;width: 100.0%;height: auto;\\\" title=\\\"预览状态下无法点击，发布后，可点击跳转到对应的商品页面\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01XOGQJj1Bs2z8EUUAg_!!0-0-cib.jpg\\\" usemap=\\\"#_sdmap_0\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01CcVRTB1Fz9Vb11R4n_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_1\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01h4erwj1Fz9W4acZ22_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_2\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01aPLrsh1Fz9VXN7eHq_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_3\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01TuGJiR1Fz9VfHf2xz_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_4\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN015vq1521Fz9VbzR98a_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_5\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01IEqSNO1Fz9VZ31Ko3_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_6\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01WlrMQD1Fz9VbzRPlK_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_7\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01v5iDfk1Fz9VgtBAju_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_8\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01H0jFNo1Fz9VSlipyE_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_9\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN019z3lkR1Fz9VSlj6af_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_10\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01xhnmvx1Fz9VSlidVN_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_11\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01RhHXjs1Fz9Vaz47xZ_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_12\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01eO6eqD1Fz9VSljdwy_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_13\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01ld162O1Fz9VSllSDU_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_14\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01Cr5lM51Fz9Vg69G6l_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_15\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN016LcwYO1Fz9Vex9Rw4_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_16\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01WSe04F1Fz9VbzUZSx_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_17\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01XIRivu1Fz9VSlmGHK_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_18\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01kuK9We1Fz9VXNGmNo_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_19\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01arWiSv1Fz9Vg6CToV_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_20\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN014tgVrR1Fz9VYUVgzM_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_21\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01vgDOev1Fz9VbzNmqS_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_22\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01IgHtwK1Fz9VXNKCaI_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_23\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01ieVMdr1Fz9VdvS497_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_24\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01LsEPra1Fz9Vaz7oxi_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_25\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01kzxg5r1Fz9Vd4bA09_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_26\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01wjV8ph1Fz9W8ReZfR_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_27\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01H8nA8h1Fz9W5aTcgv_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_28\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN016SEPWM1Fz9W5aTQDe_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_29\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN014yLsDg1Fz9WAKXbkF_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_30\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01v79ohA1Fz9W4gEmyD_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_31\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01FljB1w1Fz9WAKaI5i_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_32\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01J6qHGH1Fz9W6f64iF_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_33\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN013o3hoF1Fz9XeCW0WQ_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_34\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN0143a0Fv1Fz9Xb2O83n_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_35\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01fIETXh1Fz9Xb2Q8ne_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_36\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01PBlGZ11Fz9XfzyA2c_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_37\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01u8zb1I1Fz9XavR01i_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_38\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN012mCI7z1Fz9XeCVL3Y_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_39\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01XXXwoC1Fz9XfKiXeQ_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_40\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01cTtTMI1Fz9XcfZSGo_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_41\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01BRTxeu1Fz9XZ8f4YW_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_42\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01GHZx6p1Fz9XawuAE0_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_43\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01nxq3jc1Fz9XYi11jN_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_44\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01aS65E51Fz9Y7lZWNw_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_45\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01Jx6ac21Fz9Y8lPVDe_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_46\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01csvgd11Fz9YyZIhTm_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_47\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01tSm0GB1Fz9Z99Heb6_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_48\\\"/\u003E \u003Cimg style=\\\"display: block;width: 100.0%;height: auto;\\\" src=\\\"https://img.alicdn.com/img/ibank/O1CN01887rcX1Fz9ZAUFJ2K_!!2208459190557-0-cib.jpg\\\" usemap=\\\"#_sdmap_49\\\"/\u003E\u003C/div\u003E\u003C/div\u003E\\n          \u003C/div\u003E\\n        \u003C/div\u003E\",\n    \"images\": [\n        {\n            \"is_default\": true,\n            \"src\": \"https://cbu01.alicdn.com/img/ibank/O1CN01cX41a71Fz9Z9O5nmx_!!2208459190557-0-cib.jpg\"\n        },\n        {\n            \"is_default\": false,\n            \"src\": \"https://cbu01.alicdn.com/img/ibank/O1CN01h4erwj1Fz9W4acZ22_!!2208459190557-0-cib.jpg\"\n        },\n        {\n            \"is_default\": false,\n            \"src\": \"https://cbu01.alicdn.com/img/ibank/O1CN01W8zues1Fz9Xb2kDVi_!!2208459190557-0-cib.jpg\"\n        }\n    ],\n    \"category_ids\": [\n        1,\n        2\n    ],\n    \"tags\": [\n        \"fashion\",\n        \"best selling\"\n    ],\n    \"properties\": [\n        {\n            \"name\": \"Color\",\n            \"values\": [\n                \"Black\",\n                \"White\",\n                \"Wine red\",\n                \"Army Green\",\n                \"Apricot\",\n                \"Khaki\",\n                \"Orange\",\n                \"Dark green\",\n                \"lilac purple\",\n                \"fruit green\",\n                \"Pink\",\n                \"Dark blue\",\n                \"rose red\",\n                \"Dark gray\",\n                \"fluorescent color\",\n                \"Light gray\",\n                \"Navy blue\"\n            ]\n        },\n        {\n            \"name\": \"Size\",\n            \"values\": [\n                \"S\",\n                \"M\",\n                \"L\",\n                \"XL\",\n                \"XXL\"\n            ]\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/products",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5 - store product variations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"variations\": [\n        {\n            \"sku\": \"SKU-1\",\n            \"regular_price\": 200.55,\n            \"sale_price\": 150.55,\n            \"date_on_sale_from\": \"2025-11-05 00:00:00\",\n            \"date_on_sale_to\": \"2025-11-25 00:00:00\",\n            \"stock_quantity\": 1000,\n            \"image\": \"https://cbu01.alicdn.com/img/ibank/O1CN01TuGJiR1Fz9VfHf2xz_!!2208459190557-0-cib.jpg\",\n            \"properties\": [\n                {\n                    \"name\": \"Color\",\n                    \"value\": \"Black\"\n                },\n                {\n                    \"name\": \"Size\",\n                    \"value\": \"S\"\n                }\n            ]\n        },\n        {\n            \"sku\": \"SKU-2\",\n            \"regular_price\": 250.55,\n            \"sale_price\": 180.55,\n            \"date_on_sale_from\": \"2025-11-05T00:00:00+06:00\",\n            \"date_on_sale_to\": \"2025-12-06T00:00:00+06:00\",\n            \"stock_quantity\": 1000,\n            \"image\": \"https://cbu01.alicdn.com/img/ibank/O1CN01TuGJiR1Fz9VfHf2xz_!!2208459190557-0-cib.jpg\",\n            \"properties\": [\n                {\n                    \"name\": \"Color\",\n                    \"value\": \"Black\"\n                },\n                {\n                    \"name\": \"Size\",\n                    \"value\": \"M\"\n                }\n            ]\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/products/:id/variations",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "products",
+            ":id",
+            "variations"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6 - delete product",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/products/:id",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "products",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7 - get orders",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/orders",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "order_number",
+              "value": "TNDHGqb8Le",
+              "disabled": true
+            },
+            {
+              "key": "created_at[]",
+              "value": "2025-11-15 00:00:00",
+              "disabled": true
+            },
+            {
+              "key": "created_at[]",
+              "value": "2025-11-16 11:59:00",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8 - update order",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"processing\" // pending, processing, completed, cancelled\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/orders/:id",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "orders",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9 - attach order timelines",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"message\": \"Good news! Your product has arrived at our China warehouse. Shipment will start soon\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{yourBaseApiHost}}/orders/:id/timelines",
+          "host": [
+            "{{yourBaseApiHost}}"
+          ],
+          "path": [
+            "orders",
+            ":id",
+            "timelines"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "test",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "X-API-KEY",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {
+
+        },
+        "requests": {
+
+        },
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {
+
+        },
+        "requests": {
+
+        },
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "yourBaseApiHost",
+      "value": ""
+    }
+  ]
+}
