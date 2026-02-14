@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mavro Essence | Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #111; --accent: #ff5a5f; --bg: #fcfcfc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--primary); padding-top: 130px; overflow-x: hidden; }
+
+        /* Header & Navigation */
+        .header { position: fixed; top: 0; width: 100%; height: 70px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1100; border-bottom: 1px solid #eee; }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-weight: 800; font-size: 22px; text-decoration: none; color: #000; letter-spacing: 2px; }
+        .hamburger { font-size: 22px; cursor: pointer; }
+        .cart-btn { cursor: pointer; background: var(--primary); color: #fff; padding: 10px 22px; border-radius: 50px; font-size: 13px; font-weight: 700; border: none; }
+
+        /* Search & Category Section */
+        .top-bar { position: fixed; top: 70px; width: 100%; background: #fff; z-index: 1000; padding: 10px 5%; border-bottom: 1px solid #f0f0f0; }
+        .search-box { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #eee; background: #f9f9f9; margin-bottom: 10px; outline: none; }
+        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .cat-chip { padding: 8px 20px; background: #f0f0f0; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .cat-chip.active { background: #111; color: #fff; }
+
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 5%; }
+        .p-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s; text-decoration: none; color: inherit; display: block; }
+        .p-img { width: 100%; height: 380px; object-fit: cover; }
+        .p-info { padding: 20px; }
+        .p-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .p-price { font-size: 18px; font-weight: 800; color: var(--accent); }
+
+        /* Side Menus (Left & Right) */
+        .side-nav, .cart-drawer { position: fixed; top: 0; width: 320px; height: 100%; background: #fff; z-index: 2500; transition: 0.4s; padding: 40px 25px; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .side-nav { left: -320px; }
+        .side-nav.active { left: 0; }
+        .cart-drawer { right: -320px; }
+        .cart-drawer.active { right: 0; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; }
+        .overlay.active { display: block; }
+
+        /* Cart Specific Styles */
+        .cart-items { flex: 1; overflow-y: auto; margin: 20px 0; }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; border-bottom: 1px solid #f5f5f5; padding-bottom: 15px; }
+        .cart-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+        .cart-item-details h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .cart-item-details p { font-size: 13px; color: var(--accent); font-weight: 600; }
+        .remove-item { font-size: 12px; color: #999; cursor: pointer; text-decoration: underline; margin-top: 5px; display: block; }
+        .cart-footer { border-top: 1px solid #eee; padding-top: 20px; }
+        .total-row { display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; margin-bottom: 20px; }
+        .btn-checkout { width: 100%; padding: 16px; background: #111; color: #fff; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="side-nav" id="sideNav">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <h3 style="font-weight:800;">MENU</h3>
+            <i class="fa-solid fa-times" id="closeMenu" style="cursor:pointer; font-size:20px;"></i>
+        </div>
+        <a href="index.html" style="display:block; padding:15px 0; text-decoration:none; color:#111; font-weight:700;">HOME</a>
+        <a href="shop.html" style="display:block; padding:15px 0; text-decoration:none; color:var(--accent); font-weight:700;">SHOP ALL</a>
+        <a href="admin-dashboard.html" style="display:block; padding:15px 0; text-decoration:none; color:#111; font-weight:700;">ADMIN</a>
+    </div>
+
+    <div class="cart-drawer" id="cartDrawer">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-weight:800;">MY BAG</h3>
+            <i class="fa-solid fa-times" id="closeCart" style="cursor:pointer; font-size:20px;"></i>
+        </div>
+        
+        <div class="cart-items" id="cartItemsList">
+            </div>
+
+        <div class="cart-footer">
+            <div class="total-row">
+                <span>TOTAL</span>
+                <span id="cartTotalPrice">৳ 0</span>
+            </div>
+            <button class="btn-checkout" onclick="location.href='checkout.html'">PROCEED TO CHECKOUT</button>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="nav-left">
+            <i class="fa-solid fa-bars-staggered hamburger" id="openMenu"></i>
+            <a href="index.html" class="logo">MAVRO</a>
+        </div>
+        <button class="cart-btn" id="openCart">BAG (<span id="cartCount">0</span>)</button>
+    </header>
+
+    <div class="top-bar">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search products...">
+        <div class="cat-scroll" id="catList">
+            <div class="cat-chip active" onclick="filterCat('All', this)">All Products</div>
+        </div>
+    </div>
+
+    <main class="product-grid" id="productGrid"></main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.firebasestorage.app",
+            messagingSenderId: "137893255543",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allProducts = [];
+        let selectedCat = "All";
+
+        // --- UI Logic (Menu & Cart) ---
+        const overlay = document.getElementById('overlay');
+        const sideNav = document.getElementById('sideNav');
+        const cartDrawer = document.getElementById('cartDrawer');
+
+        // Open/Close Left Menu
+        document.getElementById('openMenu').onclick = () => { sideNav.classList.add('active'); overlay.classList.add('active'); };
+        document.getElementById('closeMenu').onclick = () => { sideNav.classList.remove('active'); overlay.classList.remove('active'); };
+
+        // Open/Close Right Cart
+        document.getElementById('openCart').onclick = () => { cartDrawer.classList.add('active'); overlay.classList.add('active'); renderPopupCart(); };
+        document.getElementById('closeCart').onclick = () => { cartDrawer.classList.remove('active'); overlay.classList.remove('active'); };
+
+        overlay.onclick = () => {
+            sideNav.classList.remove('active');
+            cartDrawer.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        // --- Popup Cart Logic ---
+        function renderPopupCart() {
+            const container = document.getElementById('cartItemsList');
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+            container.innerHTML = "";
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:#999; margin-top:50px;">Your bag is empty</p>`;
+            } else {
+                cart.forEach((item, index) => {
+                    total += (parseFloat(item.price) * (item.qty || 1));
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <img src="${item.image}" alt="">
+                            <div class="cart-item-details">
+                                <h4>${item.name}</h4>
+                                <p>৳ ${item.price}</p>
+                                <span class="remove-item" onclick="removeFromPopup(${index})">Remove</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('cartTotalPrice').innerText = `৳ ${total}`;
+            document.getElementById('cartCount').innerText = cart.length;
+        }
+
+        window.removeFromPopup = (index) => {
+            let cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+            cart.splice(index, 1);
+            localStorage.setItem('essence_cart', JSON.stringify(cart));
+            renderPopupCart();
+        };
+
+        // --- Database Logic ---
+        onSnapshot(collection(db, "categories"), (snap) => {
+            const list = document.getElementById('catList');
+            list.innerHTML = `<div class="cat-chip active" onclick="filterCat('All', this)">All Products</div>`;
+            snap.forEach(doc => {
+                list.innerHTML += `<div class="cat-chip" onclick="filterCat('${doc.data().name}', this)">${doc.data().name}</div>`;
+            });
+        });
+
+        window.filterCat = (name, el) => {
+            selectedCat = name;
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            render();
+        };
+
+        onSnapshot(collection(db, "products"), (snap) => {
+            allProducts = [];
+            snap.forEach(d => allProducts.push({id: d.id, ...d.data()}));
+            render();
+        });
+
+        function render() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = "";
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            
+            allProducts.filter(p => {
+                const matchCat = selectedCat === "All" || p.category === selectedCat;
+                const matchSearch = p.name.toLowerCase().includes(term);
+                return matchCat && matchSearch;
+            }).forEach(p => {
+                grid.innerHTML += `
+                    <a href="single-product-details.html?id=${p.id}" class="p-card">
+                        <img src="${p.image}" class="p-img">
+                        <div class="p-info">
+                            <h4 class="p-title">${p.name}</h4>
+                            <div class="p-price">৳ ${p.price}</div>
+                        </div>
+                    </a>`;
+            });
+        }
+
+        document.getElementById('searchInput').oninput = render;
+        // Initial count
+        document.getElementById('cartCount').innerText = JSON.parse(localStorage.getItem('essence_cart') || "[]").length;
+    </script>
+</body>
+</html>

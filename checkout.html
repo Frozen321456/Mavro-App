@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Essence</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f9f9f9; padding: 40px 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .box { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); height: 100%; }
+        .dark-box { background: #111; color: #fff; padding: 30px; border-radius: 15px; position: sticky; top: 20px; }
+        .form-control { border-radius: 8px; padding: 12px; margin-bottom: 15px; border: 1px solid #eee; }
+        .btn-order { background: #ff5a5f; color: #fff; width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: 700; margin-top: 20px; font-size: 18px; }
+        .order-id-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; align-items: center; justify-content: center; color: white; text-align: center; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; opacity: 0.9; }
+        .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 10000; align-items: center; justify-content: center; flex-direction: column; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ff5a5f; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top: 20px;">Processing your order...</p>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="box">
+                <h4 class="mb-4">Shipping Information</h4>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" id="fname" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number *</label>
+                        <input type="text" id="phone" class="form-control" placeholder="017XXXXXXXX" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email (Optional)</label>
+                        <input type="email" id="email" class="form-control" placeholder="email@example.com">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Full Address *</label>
+                        <textarea id="addr" class="form-control" rows="3" placeholder="House, Road, Area, City" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">City</label>
+                        <input type="text" id="city" class="form-control" value="Dhaka" placeholder="City">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Postcode</label>
+                        <input type="text" id="postcode" class="form-control" value="1200" placeholder="Postcode">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="dark-box">
+                <h4 class="mb-4">Your Order Summary</h4>
+                <div id="summaryItems"></div>
+                <hr style="border-color: #444;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span style="font-size: 18px;">Total Payable</span>
+                    <h3 id="totalPrice" style="color: #ff5a5f; margin: 0;">৳ 0</h3>
+                </div>
+                <button class="btn-order" onclick="placeOrder()">Confirm Order (COD)</button>
+                <p class="text-center mt-3" style="font-size: 12px; opacity: 0.7;">Cash on Delivery only</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="successPopup" class="order-id-popup">
+    <div class="p-4">
+        <h1 style="color: #4BB543;">✓</h1>
+        <h2>Order Successful!</h2>
+        <p class="mt-2">Tracking ID: <span id="finalId" style="color: #ff5a5f; font-weight: bold;"></span></p>
+        <p style="font-size: 14px; opacity: 0.8;">Track your order at: track-order.html?id=<span id="trackId"></span></p>
+        <button onclick="window.location.href='shop.html'" class="btn btn-outline-light mt-4">Continue Shopping</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+        projectId: "espera-mavro-6ddc5",
+        storageBucket: "espera-mavro-6ddc5.appspot.com",
+        databaseURL: "https://espera-mavro-6ddc5-default-rtdb.firebaseio.com",
+        messagingSenderId: "137893255543",
+        appId: "1:137893255543:web:a660bd412eb26ee322a972"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Load Cart & UI
+    const cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
+    let grandTotal = 0;
+
+    const loadUI = () => {
+        const list = document.getElementById('summaryItems');
+        list.innerHTML = "";
+        grandTotal = 0;
+
+        cart.forEach(item => {
+            const price = parseFloat(item.price) || 0;
+            grandTotal += price;
+            list.innerHTML += `
+                <div class="summary-item">
+                    <span>${item.name} (x1)</span>
+                    <span>৳ ${price}</span>
+                </div>`;
+        });
+        document.getElementById('totalPrice').innerText = "৳ " + grandTotal.toFixed(2);
+    };
+
+    // Get Webhooks from Firestore
+    async function getWebhooks() {
+        try {
+            const webhooksRef = collection(db, "webhooks");
+            const snapshot = await getDocs(webhooksRef);
+            return snapshot.docs.map(doc => doc.data());
+        } catch (error) {
+            console.log("No webhooks found or error:", error);
+            return [];
+        }
+    }
+
+    // Validate Bangladesh Phone Number
+    function validateBDPhone(phone) {
+        const bdPhoneRegex = /^(?:\+88|01)?\d{11}$/;
+        return bdPhoneRegex.test(phone.replace(/[^0-9]/g, ''));
+    }
+
+    // Place Order Function
+    window.placeOrder = async () => {
+        // Get form values
+        const name = document.getElementById('fname').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const addr = document.getElementById('addr').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const city = document.getElementById('city').value.trim() || 'Dhaka';
+        const postcode = document.getElementById('postcode').value.trim() || '1200';
+
+        // Validation
+        if(!name) {
+            alert("Please enter your full name");
+            return;
+        }
+        if(!phone) {
+            alert("Please enter your phone number");
+            return;
+        }
+        if(!validateBDPhone(phone)) {
+            alert("Please enter a valid Bangladesh phone number (11 digits)");
+            return;
+        }
+        if(!addr) {
+            alert("Please enter your address");
+            return;
+        }
+        if(cart.length === 0) {
+            alert("Your cart is empty");
+            return;
+        }
+
+        // Show loading
+        document.getElementById('loading').style.display = 'flex';
+
+        // Generate order number
+        const orderNumber = "MD-" + Date.now().toString().slice(-8) + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+
+        // Split name into first and last
+        const nameParts = name.split(' ');
+        const firstName = nameParts[0] || name;
+        const lastName = nameParts.slice(1).join(' ') || "";
+
+        // Prepare order data (MoveDrop format)
+        const orderData = {
+            order_number: orderNumber,
+            status: "pending",
+            currency: "BDT",
+            total: grandTotal.toString(),
+            payment_method: "cod",
+            shipping_address: {
+                first_name: firstName,
+                last_name: lastName,
+                email: email || "no-email@store.com",
+                phone: phone,
+                address_1: addr,
+                address_2: "",
+                city: city,
+                state: "Dhaka",
+                postcode: postcode,
+                country: "Bangladesh"
+            },
+            customer: {
+                name: name,
+                phone: phone,
+                email: email || "",
+                address: addr
+            },
+            line_items: cart.map(i => ({
+                name: i.name,
+                quantity: 1,
+                price: i.price.toString(),
+                sku: i.sku || "SKU-" + i.id,
+                image: i.image || ""
+            }))
+        };
+
+        try {
+            // 1. Save to Firebase
+            const docRef = await addDoc(collection(db, "orders"), {
+                ...orderData,
+                created_at: serverTimestamp(),
+                updated_at: serverTimestamp()
+            });
+
+            // 2. Send to MoveDrop via API (optional - for sync)
+            try {
+                await fetch('https://mavro.xo.je/api/index.php?path=orders', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': 'EsperaApiKey26' 
+                    },
+                    body: JSON.stringify(orderData)
+                });
+            } catch (apiError) {
+                console.log("API sync failed but order saved locally:", apiError);
+            }
+
+            // 3. Trigger webhooks to MoveDrop
+            const webhooks = await getWebhooks();
+            for (const webhook of webhooks) {
+                if (webhook.event === 'order.created') {
+                    try {
+                        await fetch(webhook.delivery_url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                id: docRef.id,
+                                order_number: orderNumber,
+                                status: "pending",
+                                currency: "BDT",
+                                total: grandTotal,
+                                payment_method: "cod",
+                                shipping_address: orderData.shipping_address
+                            })
+                        });
+                    } catch (webhookError) {
+                        console.log("Webhook failed:", webhookError);
+                    }
+                }
+            }
+
+            // Hide loading
+            document.getElementById('loading').style.display = 'none';
+
+            // Show success
+            document.getElementById('finalId').innerText = docRef.id;
+            document.getElementById('trackId').innerText = docRef.id;
+            document.getElementById('successPopup').style.display = "flex";
+            
+            // Clear cart
+            localStorage.removeItem('essence_cart');
+
+        } catch (e) {
+            document.getElementById('loading').style.display = 'none';
+            console.error("Order failed:", e);
+            alert("Order failed! Please try again. Error: " + e.message);
+        }
+    };
+
+    loadUI();
+</script>
+</body>
+</html>

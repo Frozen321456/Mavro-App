@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Admin Dashboard - Essence</title>
+    <link rel="stylesheet" href="css/core-style.css">
+    <style>
+        body { background: #f8f9fa; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; }
+        .btn-add { background: #28a745; color: #fff; }
+        .btn-logout { background: #dc3545; color: #fff; float: right; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        .p-img { width: 50px; height: 50px; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+    <h2>Admin Dashboard</h2>
+    <p id="adminEmail" style="color: blue;"></p>
+    <hr>
+
+    <div style="background: #f1f1f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h4>Add Category</h4>
+        <input type="text" id="catName" placeholder="Category Name">
+        <button class="btn-add" style="margin-top: 10px;" id="addCatBtn">Add Category</button>
+    </div>
+
+    <div style="background: #f1f1f1; padding: 15px; border-radius: 5px;">
+        <h4>Add Product</h4>
+        <div class="form-group"><input type="text" id="pName" placeholder="Product Name"></div>
+        <div class="form-group"><input type="number" id="pPrice" placeholder="Price"></div>
+        <div class="form-group">
+            <select id="pCategory"><option value="">Select Category</option></select>
+        </div>
+        <div class="form-group"><input type="file" id="pImage" accept="image/*"></div>
+        <button class="btn-add" id="addProductBtn">Save Product</button>
+        <p id="status" style="margin-top: 10px;"></p>
+    </div>
+
+    <table>
+        <thead>
+            <tr><th>Image</th><th>Name</th><th>Price</th><th>Action</th></tr>
+        </thead>
+        <tbody id="inventoryList"></tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+        projectId: "espera-mavro-6ddc5",
+        storageBucket: "espera-mavro-6ddc5.firebasestorage.app",
+        messagingSenderId: "137893255543",
+        appId: "1:137893255543:web:a660bd412eb26ee322a972"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // 1. Session Check (Most Important)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('adminEmail').innerText = "Logged in as: " + user.email;
+        } else {
+            // Jodi login na thake, login page-e pathiye dibe
+            window.location.href = "admin-login.html";
+        }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // Image to Base64
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    // 2. Load Categories
+    onSnapshot(collection(db, "categories"), (snapshot) => {
+        const select = document.getElementById('pCategory');
+        select.innerHTML = '<option value="">Select Category</option>';
+        snapshot.forEach(doc => {
+            select.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`;
+        });
+    });
+
+    // 3. Add Category
+    document.getElementById('addCatBtn').onclick = async () => {
+        const name = document.getElementById('catName').value;
+        if(name) {
+            try {
+                await addDoc(collection(db, "categories"), { name: name });
+                document.getElementById('catName').value = "";
+                alert("Category Added!");
+            } catch(e) { alert("Permission Error: " + e.message); }
+        }
+    };
+
+    // 4. Add Product
+    document.getElementById('addProductBtn').onclick = async () => {
+        const btn = document.getElementById('addProductBtn');
+        const file = document.getElementById('pImage').files[0];
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const cat = document.getElementById('pCategory').value;
+
+        if(!file || !name) return alert("Fill all fields!");
+        if(file.size > 1048487) return alert("Image size too big! Please use an image under 1MB.");
+
+        btn.disabled = true;
+        document.getElementById('status').innerText = "Uploading...";
+
+        try {
+            const base64 = await toBase64(file);
+            await addDoc(collection(db, "products"), {
+                name: name,
+                price: price,
+                category: cat,
+                image: base64,
+                createdAt: serverTimestamp()
+            });
+            alert("Product Added!");
+            location.reload();
+        } catch(e) { 
+            alert("Error: " + e.message);
+            btn.disabled = false;
+        }
+    };
+
+    // 5. Load Inventory
+    onSnapshot(collection(db, "products"), (snapshot) => {
+        const list = document.getElementById('inventoryList');
+        list.innerHTML = "";
+        snapshot.forEach(item => {
+            const p = item.data();
+            list.innerHTML += `
+                <tr>
+                    <td><img src="${p.image}" class="p-img"></td>
+                    <td>${p.name}</td>
+                    <td>$${p.price}</td>
+                    <td><button onclick="deleteP('${item.id}')" style="background:red; color:#fff;">Delete</button></td>
+                </tr>
+            `;
+        });
+    });
+
+    window.deleteP = async (id) => {
+        if(confirm("Delete?")) await deleteDoc(doc(db, "products", id));
+    };
+</script>
+</body>
+</html>
