@@ -1,106 +1,133 @@
 <?php
-// MoveDrop Go-Live Ready API
+/**
+ * MoveDrop Custom Channel - Final Go-Live Implementation
+ * API Key: MAVRO-ESSENCE-SECURE-KEY-2026
+ * Base URL: https://mavro-app.vercel.app/api
+ */
+
+// 1. Headers & Security
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Accept");
+header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// 1. Authentication (X-API-KEY Header)
-define('API_KEY', 'EsperaApiKey26'); 
+// 2. Configuration
+define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
 define('FIREBASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.firebaseio.com');
 
-$headers = array_change_key_case(getallheaders(), CASE_UPPER);
-$providedKey = $headers['X-API-KEY'] ?? '';
+// 3. Helper: Key Verification (Advanced Check)
+function verifyKey() {
+    $headers = array_change_key_case(getallheaders(), CASE_UPPER);
+    $providedKey = '';
+    
+    if (isset($headers['X-API-KEY'])) {
+        $providedKey = $headers['X-API-KEY'];
+    } elseif (isset($_SERVER['HTTP_X_API_KEY'])) {
+        $providedKey = $_SERVER['HTTP_X_API_KEY'];
+    }
 
-// API Key Validation
-if ($providedKey !== API_KEY) {
-    http_response_code(401);
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Invalid API Key']);
-    exit();
+    if ($providedKey !== API_KEY) {
+        http_response_code(401);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Unauthorized: Invalid API Key",
+            "received" => $providedKey ? "Protected" : "None"
+        ]);
+        exit();
+    }
 }
 
-$path = $_GET['path'] ?? '';
-$method = $_SERVER['REQUEST_METHOD'];
-
-// Firebase Helper
-function firebaseReq($ep, $m = 'GET', $d = null) {
-    $url = FIREBASE_URL . $ep . '.json';
+// 4. Helper: Firebase Request
+function firebase($path, $method = 'GET', $body = null) {
+    $url = FIREBASE_URL . $path . '.json';
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $m);
-    if ($d) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($d));
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    if ($body) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
     $res = curl_exec($ch);
     curl_close($ch);
     return json_decode($res, true);
 }
 
-// 2. Routing Logic for Go-Live Checklist
-switch(true) {
-    // Health Check
-    case ($path === 'health'):
-        echo json_encode(['status' => 'online', 'message' => 'MoveDrop API is running']);
-        break;
+// 5. API Routing
+$requestPath = $_GET['path'] ?? '';
+$method = $_SERVER['REQUEST_METHOD'];
 
-    // Webhook Registration (কানেক্ট হওয়ার জন্য এটি সবচেয়ে জরুরি)
-    case ($path === 'webhooks'):
+// Health Check (Public or Protected)
+if ($requestPath === 'health') {
+    echo json_encode([
+        "status" => "online",
+        "message" => "MoveDrop API is ready",
+        "api_key_configured" => true
+    ]);
+    exit();
+}
+
+// All other endpoints require Authentication
+verifyKey();
+
+$inputData = json_decode(file_get_contents('php://input'), true);
+
+switch (true) {
+    
+    // --- WEBHOOK REGISTRATION (Crucial for Connection) ---
+    case ($requestPath === 'webhooks'):
         if ($method === 'POST') {
-            $input = json_decode(file_get_contents('php://input'), true);
-            // মুভড্রপের পাঠানো ওয়েব হুক ডাটা ফায়ারবেসে সেভ করে রাখা
-            firebaseReq('/webhooks_config', 'PUT', $input);
-            http_response_code(201); // মুভড্রপ এই কোডটি আশা করে
-            echo json_encode(['message' => 'Webhooks registered successfully']);
+            firebase('/webhooks_config', 'PUT', $inputData);
+            http_response_code(201);
+            echo json_encode(["message" => "MoveDrop Webhooks Registered"]);
         }
         break;
 
-    // Categories List
-    case ($path === 'categories'):
+    // --- CATEGORIES ---
+    case ($requestPath === 'categories'):
         if ($method === 'GET') {
-            $data = firebaseReq('/categories');
-            echo json_encode(['data' => $data ? array_values($data) : []]);
+            $data = firebase('/categories');
+            echo json_encode(["data" => $data ? array_values($data) : []]);
         } elseif ($method === 'POST') {
-            $input = json_decode(file_get_contents('php://input'), true);
-            $res = firebaseReq('/categories', 'POST', $input);
+            $res = firebase('/categories', 'POST', $inputData);
             http_response_code(201);
-            echo json_encode(['message' => 'Category Created', 'id' => $res['name']]);
+            echo json_encode(["message" => "Category Created", "id" => $res['name']]);
         }
         break;
 
-    // Products Management
-    case (strpos($path, 'products') === 0):
+    // --- PRODUCTS ---
+    case (strpos($requestPath, 'products') === 0):
+        $parts = explode('/', $requestPath);
+        $productId = $parts[1] ?? null;
+
         if ($method === 'POST') {
-            $input = json_decode(file_get_contents('php://input'), true);
-            $res = firebaseReq('/products', 'POST', $input);
+            $res = firebase('/products', 'POST', $inputData);
             http_response_code(201);
-            echo json_encode(['message' => 'Product Sync Success', 'id' => $res['name']]);
-        } elseif ($method === 'DELETE') {
-            $parts = explode('/', $path);
-            $id = end($parts);
-            firebaseReq('/products/'.$id, 'DELETE');
-            echo json_encode(['message' => 'Product Deleted']);
+            echo json_encode(["message" => "Product Synced", "id" => $res['name']]);
+        } elseif ($method === 'DELETE' && $productId) {
+            firebase('/products/' . $productId, 'DELETE');
+            echo json_encode(["message" => "Product Deleted"]);
         }
         break;
 
-    // Orders Management
-    case (strpos($path, 'orders') === 0):
+    // --- ORDERS ---
+    case (strpos($requestPath, 'orders') === 0):
+        $parts = explode('/', $requestPath);
+        $orderId = $parts[1] ?? null;
+
         if ($method === 'GET') {
-            $data = firebaseReq('/orders');
-            echo json_encode(['data' => $data ? array_values($data) : []]);
-        } elseif ($method === 'PUT') {
-            // অর্ডার স্ট্যাটাস আপডেট (MoveDrop থেকে আসবে)
-            $parts = explode('/', $path);
-            $id = $parts[1];
-            $input = json_decode(file_get_contents('php://input'), true);
-            firebaseReq('/orders/'.$id, 'PATCH', $input);
-            echo json_encode(['message' => 'Order updated successfully']);
+            $data = firebase('/orders');
+            echo json_encode(["data" => $data ? array_values($data) : []]);
+        } elseif ($method === 'PUT' && $orderId) {
+            // Update Order Status (Pending/Processing/Completed)
+            firebase('/orders/' . $orderId, 'PATCH', $inputData);
+            echo json_encode(["message" => "Order Status Updated"]);
         }
         break;
 
     default:
         http_response_code(404);
-        echo json_encode(['message' => 'Endpoint not found']);
+        echo json_encode(["message" => "Endpoint not found"]);
+        break;
 }
