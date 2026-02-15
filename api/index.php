@@ -1,12 +1,13 @@
 <?php
 /**
- * Mavro Essence - MoveDrop Final Official Implementation
+ * Mavro Essence - MoveDrop Final Official Implementation (Fixed Version)
  * Supports: Title, SKU, Description, Images, Categories, Tags, Properties
+ * Fixed: channel_association required error, default category fallback
  */
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -27,72 +28,83 @@ if ($providedKey !== API_KEY) {
     exit();
 }
 
-$inputData = json_decode(file_get_contents('php://input'), true);
-$path = $_GET['path'] ?? '';
+$input = json_decode(file_get_contents('php://input'), true);
+$path = trim($_GET['path'] ?? '', '/');
+$method = $_SERVER['REQUEST_METHOD'];
 
-// Only handle products creation for now
-if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+// Helper: Firestore REST API call
+function firestoreRequest($url, $method = 'POST', $data = null) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    if ($data) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ['code' => $httpCode, 'body' => json_decode($response, true) ?: $response];
+}
+
+// -------------------------------
+// POST /products - Create Product
+// -------------------------------
+if ($path === 'products' && $method === 'POST') {
+
     $prodId = 'prod_' . time();
     $now = date('c');
 
-    // Category Mapping
+    // Category handling + default fallback
     $catValues = [];
-    $providedCategories = $inputData['category_ids'] ?? [];
+    $inputCats = $input['category_ids'] ?? [];
 
-    foreach ($providedCategories as $id) {
-        $cleanId = trim((string)$id);
-        if ($cleanId !== '') {
-            $catValues[] = ["stringValue" => $cleanId];
-        }
+    foreach ((array)$inputCats as $cid) {
+        $clean = trim((string)$cid);
+        if ($clean !== '') $catValues[] = ["stringValue" => $clean];
     }
 
-    // যদি কোনো ক্যাটাগরি না থাকে তাহলে ডিফল্ট দিতে চাইলে এখানে আনকমেন্ট করুন
-    // $DEFAULT_CATEGORY_ID = "uncategorized";   // ← আপনার Firestore-এর বৈধ category doc ID দিন
-    // if (empty($catValues)) {
-    //     $catValues = [["stringValue" => $DEFAULT_CATEGORY_ID]];
-    // }
+    // Default category if empty
+    if (empty($catValues)) {
+        $defaultCatId = "uncategorized";  // ← এখানে আপনার Firestore-এর বৈধ category doc ID দিন
+        $catValues = [["stringValue" => $defaultCatId]];
+    }
 
-    // Tags Mapping
+    // Tags
     $tagValues = [];
-    foreach (($inputData['tags'] ?? []) as $tag) {
-        $cleanTag = trim((string)$tag);
-        if ($cleanTag !== '') {
-            $tagValues[] = ["stringValue" => $cleanTag];
-        }
+    foreach ((array)($input['tags'] ?? []) as $t) {
+        $clean = trim((string)$t);
+        if ($clean !== '') $tagValues[] = ["stringValue" => $clean];
     }
 
-    // Properties Mapping
+    // Properties
     $propertyValues = [];
-    foreach (($inputData['properties'] ?? []) as $prop) {
+    foreach ((array)($input['properties'] ?? []) as $prop) {
         if (empty($prop['name']) || empty($prop['values'])) continue;
 
-        $pVals = [];
-        foreach ($prop['values'] as $v) {
-            $cleanVal = trim((string)$v);
-            if ($cleanVal !== '') {
-                $pVals[] = ["stringValue" => $cleanVal];
-            }
+        $vals = [];
+        foreach ((array)$prop['values'] as $v) {
+            $clean = trim((string)$v);
+            if ($clean !== '') $vals[] = ["stringValue" => $clean];
         }
-
-        if (!empty($pVals)) {
+        if (!empty($vals)) {
             $propertyValues[] = ["mapValue" => [
                 "fields" => [
-                    "name"  => ["stringValue" => (string)$prop['name']],
-                    "values" => ["arrayValue" => ["values" => $pVals]]
+                    "name"   => ["stringValue" => (string)$prop['name']],
+                    "values" => ["arrayValue" => ["values" => $vals]]
                 ]
             ]];
         }
     }
 
-    // Firestore Data Structure
+    // Main document fields
     $fields = [
         "id"              => ["stringValue" => $prodId],
-        "title"           => ["stringValue" => (string)($inputData['title'] ?? 'Untitled Product')],
-        "sku"             => ["stringValue" => (string)($inputData['sku'] ?? 'SKU-' . $prodId)],
-        "description"     => ["stringValue" => (string)($inputData['description'] ?? '')],
-        "price"           => ["stringValue" => (string)($inputData['regular_price'] ?? '0')],
-        "image"           => ["stringValue" => $inputData['images'][0]['src'] ?? ''],
+        "title"           => ["stringValue" => (string)($input['title'] ?? 'Untitled')],
+        "sku"             => ["stringValue" => (string)($input['sku'] ?? 'SKU-'.$prodId)],
+        "description"     => ["stringValue" => (string)($input['description'] ?? '')],
+        "price"           => ["stringValue" => (string)($input['regular_price'] ?? '0')],
+        "image"           => ["stringValue" => $input['images'][0]['src'] ?? ''],
         "category_ids"    => ["arrayValue" => ["values" => $catValues]],
         "tags"            => ["arrayValue" => ["values" => $tagValues]],
         "properties"      => ["arrayValue" => ["values" => $propertyValues]],
@@ -100,7 +112,7 @@ if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST'
         "updated_at"      => ["stringValue" => $now],
     ];
 
-    // channel_association শুধু যদি ক্যাটাগরি থাকে তাহলে যোগ করা হবে
+    // channel_association শুধু যদি ক্যাটাগরি থাকে তাহলে যোগ করা
     if (!empty($catValues)) {
         $fields["channel_association"] = [
             "mapValue" => [
@@ -123,52 +135,85 @@ if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST'
 
     $firestoreData = ["fields" => $fields];
 
-    // Firestore API Call
+    // Save to Firestore
     $url = FIRESTORE_URL . "/products?documentId=" . urlencode($prodId);
+    $result = firestoreRequest($url, 'POST', $firestoreData);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($firestoreData));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ]);
-
-    $res = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-
-    // Response
-    if ($httpCode >= 200 && $httpCode < 300) {
+    if ($result['code'] >= 200 && $result['code'] < 300) {
         http_response_code(201);
         echo json_encode([
             "message" => "Product Created",
             "data" => [
                 "id"         => $prodId,
-                "title"      => $inputData['title'] ?? 'Untitled',
-                "sku"        => $inputData['sku'] ?? '',
-                "tags"       => $inputData['tags'] ?? [],
+                "title"      => $input['title'] ?? 'Untitled',
+                "sku"        => $input['sku'] ?? '',
+                "tags"       => $input['tags'] ?? [],
                 "created_at" => $now,
                 "updated_at" => $now
             ]
         ]);
     } else {
-        http_response_code($httpCode ?: 500);
-        $errorData = json_decode($res, true) ?? [];
+        http_response_code($result['code'] ?: 500);
         echo json_encode([
             "status"  => "error",
-            "message" => $errorData['error']['message'] ?? "Firestore write failed",
-            "http_code" => $httpCode,
-            "details" => $errorData['error'] ?? $res,
-            "curl_error" => $curlError ?: null
+            "message" => $result['body']['error']['message'] ?? "Firestore error",
+            "details" => $result['body'] ?? $result['body']
         ]);
     }
 
     exit();
 }
 
-// Default 404
+// -------------------------------
+// GET /products - List Products
+// -------------------------------
+if ($path === 'products' && $method === 'GET') {
+
+    $page = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
+
+    $queryParams = [
+        'orderBy' => 'created_at desc',
+        'pageSize' => $perPage,
+        'pageToken' => $_GET['pageToken'] ?? ''
+    ];
+
+    $url = FIRESTORE_URL . "/products?" . http_build_query($queryParams);
+
+    $result = firestoreRequest($url, 'GET');
+
+    if ($result['code'] === 200) {
+        $docs = $result['body']['documents'] ?? [];
+        $products = [];
+
+        foreach ($docs as $doc) {
+            $fields = $doc['fields'] ?? [];
+            $products[] = [
+                'id'    => $doc['name'] ? basename($doc['name']) : '',
+                'title' => $fields['title']['stringValue'] ?? '',
+                'sku'   => $fields['sku']['stringValue'] ?? '',
+                'price' => $fields['price']['stringValue'] ?? '0',
+                'image' => $fields['image']['stringValue'] ?? '',
+                'tags'  => array_map(fn($t) => $t['stringValue'] ?? '', $fields['tags']['arrayValue']['values'] ?? [])
+            ];
+        }
+
+        echo json_encode([
+            "data" => $products,
+            "meta" => [
+                "current_page" => $page,
+                "per_page"     => $perPage,
+                "next_page_token" => $result['body']['nextPageToken'] ?? null
+            ]
+        ]);
+    } else {
+        http_response_code($result['code']);
+        echo json_encode(["status" => "error", "message" => "Failed to fetch products"]);
+    }
+
+    exit();
+}
+
+// 404
 http_response_code(404);
 echo json_encode(["status" => "error", "message" => "Endpoint not found"]);
