@@ -32,7 +32,10 @@
         .status-completed { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
         .sync-btn { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
+        .category-badge { background: #f0f0f0; padding: 8px 15px; border-radius: 50px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+        .category-badge i { cursor: pointer; color: #999; }
+        .category-badge i:hover { color: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -80,8 +83,8 @@
             <h5 class="mb-4 fw-bold">Publish New Product</h5>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="small fw-bold">Product Name *</label>
-                    <input type="text" id="pName" class="form-control" placeholder="Product name">
+                    <label class="small fw-bold">Product Title *</label>
+                    <input type="text" id="pName" class="form-control" placeholder="Product title">
                 </div>
                 <div class="col-md-3">
                     <label class="small fw-bold">SKU *</label>
@@ -92,10 +95,11 @@
                     <input type="number" id="pPrice" class="form-control" placeholder="0.00" step="0.01">
                 </div>
                 <div class="col-md-6">
-                    <label class="small fw-bold">Category</label>
-                    <select id="pCatSel" class="form-select">
-                        <option value="">Select Category</option>
+                    <label class="small fw-bold">Categories (select multiple)</label>
+                    <select id="pCatSel" class="form-select" multiple size="3">
+                        <option value="">Select Categories</option>
                     </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
                 </div>
                 <div class="col-md-6">
                     <label class="small fw-bold">Tags (comma separated)</label>
@@ -112,6 +116,21 @@
                     </div>
                     <input type="file" id="galleryInput" class="d-none" accept="image/*" multiple>
                     <div id="galleryContainer"></div>
+                </div>
+                
+                <!-- Product Properties Section -->
+                <div class="col-12 mt-3">
+                    <h5>Product Properties</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Colors (comma separated)</label>
+                            <input type="text" id="pColors" class="form-control" placeholder="Red, Blue, Green">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Sizes (comma separated)</label>
+                            <input type="text" id="pSizes" class="form-control" placeholder="S, M, L, XL">
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Product Variations Section -->
@@ -142,10 +161,10 @@
                     <thead>
                         <tr>
                             <th>Image</th>
-                            <th>Name</th>
+                            <th>Title</th>
                             <th>SKU</th>
                             <th>Price</th>
-                            <th>Category</th>
+                            <th>Categories</th>
                             <th>Tags</th>
                             <th>Actions</th>
                         </tr>
@@ -196,7 +215,7 @@
         <div class="card-custom">
             <h5>MoveDrop Webhooks</h5>
             <p class="text-muted">These webhooks are registered by MoveDrop automatically</p>
-            <div id="webhookList" class="table-responsive">
+            <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
@@ -256,7 +275,7 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // Enable persistence for better offline support
+    // Enable persistence
     db.enablePersistence()
         .catch((err) => {
             console.log("Persistence failed:", err);
@@ -292,20 +311,23 @@
         const variationHtml = `
             <div class="variation-row" id="variation-${variationId}">
                 <div class="row">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control form-control-sm" placeholder="SKU" id="var-sku-${variationId}">
+                    <div class="col-md-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="SKU" id="var-sku-${variationId}" required>
                     </div>
                     <div class="col-md-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Regular Price" id="var-price-${variationId}" step="0.01">
+                        <input type="number" class="form-control form-control-sm" placeholder="Regular Price" id="var-price-${variationId}" step="0.01" required>
                     </div>
                     <div class="col-md-2">
                         <input type="number" class="form-control form-control-sm" placeholder="Sale Price" id="var-sale-${variationId}" step="0.01">
                     </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Stock" id="var-stock-${variationId}">
+                    <div class="col-md-1">
+                        <input type="number" class="form-control form-control-sm" placeholder="Stock" id="var-stock-${variationId}" value="100">
                     </div>
                     <div class="col-md-2">
                         <input type="text" class="form-control form-control-sm" placeholder="Color" id="var-color-${variationId}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Size" id="var-size-${variationId}">
                     </div>
                     <div class="col-md-1">
                         <button class="btn btn-sm btn-danger" onclick="removeVariation('${variationId}')">
@@ -396,14 +418,34 @@
 
     // Save Product
     document.getElementById('savePBtn').onclick = async () => {
-        const name = document.getElementById('pName').value;
+        const title = document.getElementById('pName').value;
         const sku = document.getElementById('pSku').value;
         const price = document.getElementById('pPrice').value;
-        const category = document.getElementById('pCatSel').value;
+        
+        // Get selected categories (multiple)
+        const catSelect = document.getElementById('pCatSel');
+        const selectedCategories = Array.from(catSelect.selectedOptions)
+            .map(opt => opt.value)
+            .filter(val => val !== '');
+        
+        // Get category IDs
+        const categoryIds = [];
+        for (const catName of selectedCategories) {
+            const catSnapshot = await db.collection("categories")
+                .where("name", "==", catName)
+                .get();
+            if (!catSnapshot.empty) {
+                // Use the document ID as category ID
+                categoryIds.push(parseInt(catSnapshot.docs[0].id) || 1);
+            }
+        }
+        
         const tags = document.getElementById('pTags').value.split(',').map(t => t.trim()).filter(t => t);
+        const colors = document.getElementById('pColors').value.split(',').map(c => c.trim()).filter(c => c);
+        const sizes = document.getElementById('pSizes').value.split(',').map(s => s.trim()).filter(s => s);
         const mainImg = document.getElementById('pImg').files[0];
 
-        if (!name || !sku || !price || !mainImg) {
+        if (!title || !sku || !price || !mainImg) {
             alert("Please fill all required fields and select main image");
             return;
         }
@@ -435,6 +477,12 @@
             
             const allImages = [mainImageUrl, ...galleryUrls];
 
+            // Prepare images array for MoveDrop
+            const moveDropImages = allImages.map((src, index) => ({
+                src: src,
+                is_default: index === 0
+            }));
+
             // Collect variations
             const variationRows = document.querySelectorAll('[id^="variation-"]');
             const variations = [];
@@ -445,49 +493,63 @@
                 const varSale = document.getElementById(`var-sale-${rowId}`)?.value;
                 const varStock = document.getElementById(`var-stock-${rowId}`)?.value;
                 const varColor = document.getElementById(`var-color-${rowId}`)?.value;
+                const varSize = document.getElementById(`var-size-${rowId}`)?.value;
                 
                 if (varSku && varPrice) {
+                    const properties = [];
+                    if (varColor) properties.push({ name: "Color", value: varColor });
+                    if (varSize) properties.push({ name: "Size", value: varSize });
+                    
                     variations.push({
                         sku: varSku,
                         regular_price: parseFloat(varPrice),
                         sale_price: varSale ? parseFloat(varSale) : null,
+                        date_on_sale_from: null,
+                        date_on_sale_to: null,
                         stock_quantity: parseInt(varStock) || 0,
                         image: mainImageUrl,
-                        properties: varColor ? [{
-                            name: "Color",
-                            value: varColor
-                        }] : []
+                        properties: properties
                     });
                 }
             });
 
-            // Prepare images array for MoveDrop
-            const moveDropImages = allImages.map((src, index) => ({
-                src: src,
-                is_default: index === 0
-            }));
+            // Prepare product properties
+            const properties = [];
+            if (colors.length > 0) {
+                properties.push({
+                    name: "Color",
+                    values: colors
+                });
+            }
+            if (sizes.length > 0) {
+                properties.push({
+                    name: "Size",
+                    values: sizes
+                });
+            }
 
+            // Save to Firebase Firestore
             const productData = {
-                name: name,
+                title: title,
                 sku: sku,
                 price: parseFloat(price),
-                category: category,
+                category_names: selectedCategories,
+                category_ids: categoryIds,
                 tags: tags,
                 description: quill.root.innerHTML,
                 image: mainImageUrl,
                 images: allImages,
                 variations: variations,
+                properties: properties,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
 
-            // Save to Firebase Firestore
             const docRef = await db.collection("products").add(productData);
             console.log("Product saved to Firebase with ID:", docRef.id);
 
             // Sync to MoveDrop API
             try {
-                // First create product
                 const productResponse = await fetch(`${MOVEDROP_API_URL}?path=products`, {
                     method: 'POST',
                     headers: {
@@ -495,13 +557,13 @@
                         'X-API-KEY': MOVEDROP_API_KEY
                     },
                     body: JSON.stringify({
-                        title: name,
+                        title: title,
                         sku: sku,
                         description: quill.root.innerHTML,
                         images: moveDropImages,
-                        category_ids: category ? [1] : [], // You'll need to map category names to IDs
+                        category_ids: categoryIds,
                         tags: tags,
-                        properties: []
+                        properties: properties
                     })
                 });
 
@@ -509,8 +571,8 @@
                 console.log("MoveDrop product sync response:", productResult);
 
                 // If product created successfully and has variations, add them
-                if (variations.length > 0 && productResult.id) {
-                    const variationsResponse = await fetch(`${MOVEDROP_API_URL}?path=products/${productResult.id}/variations`, {
+                if (variations.length > 0 && productResult.data && productResult.data.id) {
+                    const variationsResponse = await fetch(`${MOVEDROP_API_URL}?path=products/${productResult.data.id}/variations`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -525,12 +587,14 @@
 
                 if (!productResponse.ok) {
                     console.error("MoveDrop API error:", productResult);
+                } else {
+                    alert("Product published successfully and synced with MoveDrop!");
                 }
             } catch (apiError) {
-                console.log("API sync failed:", apiError);
+                console.log("API sync failed but product saved locally:", apiError);
+                alert("Product published locally but MoveDrop sync failed. Check console for details.");
             }
 
-            alert("Product published successfully!");
             location.reload();
 
         } catch (error) {
@@ -545,41 +609,60 @@
     db.collection("categories").onSnapshot((snapshot) => {
         const select = document.getElementById('pCatSel');
         const catList = document.getElementById('catList');
-        select.innerHTML = '<option value="">Select Category</option>';
+        select.innerHTML = '<option value="">Select Categories</option>';
         catList.innerHTML = "";
         
+        const categories = [];
         snapshot.forEach(doc => {
             const cat = doc.data();
+            const catId = doc.id;
+            categories.push({ id: catId, name: cat.name });
+            
+            // Add to select
             select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+            
+            // Add to category list
             catList.innerHTML += `
-                <span class="badge bg-dark p-2">
-                    ${cat.name} 
-                    <i class="fa fa-times ms-2" style="cursor:pointer;" onclick="deleteCategory('${doc.id}')"></i>
+                <span class="category-badge">
+                    ${cat.name}
+                    <i class="fa fa-times" onclick="deleteCategory('${doc.id}')"></i>
                 </span>`;
         });
+        
+        // Store categories globally for later use
+        window.categories = categories;
     });
 
     // Delete Category
     window.deleteCategory = async (id) => {
-        if (confirm("Are you sure?")) {
+        if (confirm("Are you sure you want to delete this category?")) {
             await db.collection("categories").doc(id).delete();
         }
     };
 
     // Add Category
     document.getElementById('saveCatBtn').onclick = async () => {
-        const name = document.getElementById('catName').value;
+        const name = document.getElementById('catName').value.trim();
         if (name) {
-            await db.collection("categories").add({ 
-                name: name,
-                created_at: new Date().toISOString()
-            });
-            document.getElementById('catName').value = "";
+            // Check if category already exists
+            const existing = await db.collection("categories")
+                .where("name", "==", name)
+                .get();
+            
+            if (existing.empty) {
+                await db.collection("categories").add({ 
+                    name: name,
+                    created_at: new Date().toISOString()
+                });
+                document.getElementById('catName').value = "";
+            } else {
+                alert("Category already exists!");
+            }
         }
     };
 
     // Load Products
-    db.collection("products").onSnapshot((snapshot) => {
+    db.collection("products").orderBy("created_at", "desc").onSnapshot((snapshot) => {
         const list = document.getElementById('pList');
         list.innerHTML = "";
         let count = 0;
@@ -587,14 +670,17 @@
         snapshot.forEach(doc => {
             count++;
             const p = doc.data();
+            const categories = p.category_names ? p.category_names.join(', ') : 'N/A';
+            const tags = p.tags ? p.tags.join(', ') : 'N/A';
+            
             list.innerHTML += `
                 <tr>
                     <td><img src="${p.image || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:cover;border-radius:5px;" onerror="this.src='https://via.placeholder.com/40'"></td>
-                    <td>${p.name || ''}</td>
+                    <td>${p.title || p.name || ''}</td>
                     <td>${p.sku || 'N/A'}</td>
                     <td>৳${p.price ? parseFloat(p.price).toFixed(2) : '0.00'}</td>
-                    <td>${p.category || 'N/A'}</td>
-                    <td>${p.tags ? p.tags.join(', ') : 'N/A'}</td>
+                    <td>${categories}</td>
+                    <td>${tags}</td>
                     <td>
                         <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')"></i>
                         <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')"></i>
@@ -610,7 +696,7 @@
         if (confirm("Delete this product?")) {
             await db.collection("products").doc(id).delete();
             
-            // Also delete from MoveDrop
+            // Also notify MoveDrop about deletion
             try {
                 await fetch(`${MOVEDROP_API_URL}?path=products/${id}`, {
                     method: 'DELETE',
@@ -619,7 +705,7 @@
                     }
                 });
             } catch (error) {
-                console.log("MoveDrop delete failed:", error);
+                console.log("MoveDrop delete notification failed:", error);
             }
         }
     };
@@ -630,7 +716,7 @@
     };
 
     // Load Orders
-    db.collection("orders").onSnapshot((snapshot) => {
+    db.collection("orders").orderBy("created_at", "desc").onSnapshot((snapshot) => {
         const list = document.getElementById('orderList');
         list.innerHTML = "";
         let totalOrders = 0;
@@ -730,12 +816,13 @@
     // Sync Products to MoveDrop
     window.syncProducts = async () => {
         const resultDiv = document.getElementById('syncResult');
-        resultDiv.innerHTML = '<div class="alert alert-info">Syncing products...</div>';
+        resultDiv.innerHTML = '<div class="alert alert-info">Syncing products to MoveDrop...</div>';
         
         try {
             const productsSnapshot = await db.collection("products").get();
             let synced = 0;
             let failed = 0;
+            let duplicateSkus = 0;
             
             for (const doc of productsSnapshot.docs) {
                 const p = doc.data();
@@ -767,23 +854,27 @@
                             'X-API-KEY': MOVEDROP_API_KEY
                         },
                         body: JSON.stringify({
-                            title: p.name,
-                            sku: p.sku || 'SKU-' + doc.id,
+                            title: p.title || p.name,
+                            sku: p.sku || 'SKU-' + doc.id.slice(0, 8),
                             description: p.description || '',
                             images: images,
-                            category_ids: p.category ? [1] : [],
+                            category_ids: p.category_ids || [],
                             tags: p.tags || [],
-                            properties: []
+                            properties: p.properties || []
                         })
                     });
                     
                     const result = await response.json();
-                    if (response.ok) {
+                    
+                    if (response.status === 400 && result.data?.error?.code === 'product_duplicate_sku') {
+                        duplicateSkus++;
+                        console.log("Duplicate SKU for product:", p.sku);
+                    } else if (response.ok) {
                         synced++;
                         
                         // Sync variations if they exist
-                        if (p.variations && p.variations.length > 0 && result.id) {
-                            await fetch(`${MOVEDROP_API_URL}?path=products/${result.id}/variations`, {
+                        if (p.variations && p.variations.length > 0 && result.data && result.data.id) {
+                            await fetch(`${MOVEDROP_API_URL}?path=products/${result.data.id}/variations`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -802,7 +893,11 @@
                 }
             }
             
-            resultDiv.innerHTML = `<div class="alert alert-success">Synced ${synced} products successfully! ${failed > 0 ? `(${failed} failed)` : ''}</div>`;
+            let message = `✅ Synced ${synced} products successfully!`;
+            if (failed > 0) message += ` ❌ ${failed} failed.`;
+            if (duplicateSkus > 0) message += ` ⚠️ ${duplicateSkus} had duplicate SKUs.`;
+            
+            resultDiv.innerHTML = `<div class="alert alert-success">${message}</div>`;
         } catch (error) {
             resultDiv.innerHTML = `<div class="alert alert-danger">Sync failed: ${error.message}</div>`;
         }
@@ -811,7 +906,7 @@
     // Sync Orders to MoveDrop
     window.syncOrders = async () => {
         const resultDiv = document.getElementById('syncResult');
-        resultDiv.innerHTML = '<div class="alert alert-info">Syncing orders...</div>';
+        resultDiv.innerHTML = '<div class="alert alert-info">Syncing orders to MoveDrop...</div>';
         
         try {
             const ordersSnapshot = await db.collection("orders").get();
@@ -840,6 +935,7 @@
                             postcode: "1200",
                             country: "Bangladesh"
                         },
+                        customer_notes: o.customer_notes || "",
                         line_items: o.line_items || []
                     };
 
@@ -864,7 +960,7 @@
                 }
             }
             
-            resultDiv.innerHTML = `<div class="alert alert-success">Synced ${synced} orders successfully! ${failed > 0 ? `(${failed} failed)` : ''}</div>`;
+            resultDiv.innerHTML = `<div class="alert alert-success">✅ Synced ${synced} orders successfully! ${failed > 0 ? `❌ ${failed} failed.` : ''}</div>`;
         } catch (error) {
             resultDiv.innerHTML = `<div class="alert alert-danger">Sync failed: ${error.message}</div>`;
         }
@@ -881,6 +977,9 @@
     .catch(() => {
         document.getElementById('apiStatus').innerHTML = '<span class="text-danger">● Offline</span>';
     });
+
+    // Show dashboard by default
+    showSection('dashboard');
 </script>
 </body>
 </html>
