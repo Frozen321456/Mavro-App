@@ -36,6 +36,9 @@
         .category-badge { background: #f0f0f0; padding: 8px 15px; border-radius: 50px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .category-badge i { cursor: pointer; color: #999; }
         .category-badge i:hover { color: #ff4d4d; }
+        .product-table-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+        .empty-state { text-align: center; padding: 50px; color: #999; }
+        .empty-state i { font-size: 50px; margin-bottom: 20px; color: #ddd; }
     </style>
 </head>
 <body>
@@ -275,10 +278,17 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // Enable persistence
+    // Enable persistence with error handling
     db.enablePersistence()
+        .then(() => {
+            console.log("Persistence enabled");
+        })
         .catch((err) => {
-            console.log("Persistence failed:", err);
+            if (err.code == 'failed-precondition') {
+                console.log("Persistence failed: Multiple tabs open");
+            } else if (err.code == 'unimplemented') {
+                console.log("Persistence not supported");
+            }
         });
 
     // MoveDrop API Configuration
@@ -435,8 +445,7 @@
                 .where("name", "==", catName)
                 .get();
             if (!catSnapshot.empty) {
-                // Use the document ID as category ID
-                categoryIds.push(parseInt(catSnapshot.docs[0].id) || 1);
+                categoryIds.push(catSnapshot.docs[0].id);
             }
         }
         
@@ -541,8 +550,8 @@
                 images: allImages,
                 variations: variations,
                 properties: properties,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             const docRef = await db.collection("products").add(productData);
@@ -561,7 +570,7 @@
                         sku: sku,
                         description: quill.root.innerHTML,
                         images: moveDropImages,
-                        category_ids: categoryIds,
+                        category_ids: categoryIds.map(id => parseInt(id) || 1),
                         tags: tags,
                         properties: properties
                     })
@@ -587,19 +596,32 @@
 
                 if (!productResponse.ok) {
                     console.error("MoveDrop API error:", productResult);
+                    alert("Product saved locally but MoveDrop sync failed. Check console for details.");
                 } else {
                     alert("Product published successfully and synced with MoveDrop!");
                 }
             } catch (apiError) {
                 console.log("API sync failed but product saved locally:", apiError);
-                alert("Product published locally but MoveDrop sync failed. Check console for details.");
+                alert("Product saved locally but MoveDrop sync failed. Check console for details.");
             }
 
-            location.reload();
+            // Clear form
+            document.getElementById('pName').value = '';
+            document.getElementById('pSku').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pTags').value = '';
+            document.getElementById('pColors').value = '';
+            document.getElementById('pSizes').value = '';
+            document.getElementById('pImg').value = '';
+            galleryArr = [];
+            renderGallery();
+            document.getElementById('variationsContainer').innerHTML = '';
+            quill.setContents([]);
 
         } catch (error) {
             alert("Error: " + error.message);
             console.error("Save error:", error);
+        } finally {
             document.getElementById('savePBtn').innerHTML = '<i class="fa fa-save me-2"></i> PUBLISH PRODUCT';
             document.getElementById('savePBtn').disabled = false;
         }
@@ -612,11 +634,12 @@
         select.innerHTML = '<option value="">Select Categories</option>';
         catList.innerHTML = "";
         
-        const categories = [];
+        if (snapshot.empty) {
+            catList.innerHTML = '<p class="text-muted">No categories yet. Add one above.</p>';
+        }
+        
         snapshot.forEach(doc => {
             const cat = doc.data();
-            const catId = doc.id;
-            categories.push({ id: catId, name: cat.name });
             
             // Add to select
             select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
@@ -628,15 +651,16 @@
                     <i class="fa fa-times" onclick="deleteCategory('${doc.id}')"></i>
                 </span>`;
         });
-        
-        // Store categories globally for later use
-        window.categories = categories;
     });
 
     // Delete Category
     window.deleteCategory = async (id) => {
         if (confirm("Are you sure you want to delete this category?")) {
-            await db.collection("categories").doc(id).delete();
+            try {
+                await db.collection("categories").doc(id).delete();
+            } catch (error) {
+                alert("Error deleting category: " + error.message);
+            }
         }
     };
 
@@ -644,68 +668,107 @@
     document.getElementById('saveCatBtn').onclick = async () => {
         const name = document.getElementById('catName').value.trim();
         if (name) {
-            // Check if category already exists
-            const existing = await db.collection("categories")
-                .where("name", "==", name)
-                .get();
-            
-            if (existing.empty) {
-                await db.collection("categories").add({ 
-                    name: name,
-                    created_at: new Date().toISOString()
-                });
-                document.getElementById('catName').value = "";
-            } else {
-                alert("Category already exists!");
+            try {
+                // Check if category already exists
+                const existing = await db.collection("categories")
+                    .where("name", "==", name)
+                    .get();
+                
+                if (existing.empty) {
+                    await db.collection("categories").add({ 
+                        name: name,
+                        created_at: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    document.getElementById('catName').value = "";
+                } else {
+                    alert("Category already exists!");
+                }
+            } catch (error) {
+                alert("Error adding category: " + error.message);
             }
         }
     };
 
     // Load Products
-    db.collection("products").orderBy("created_at", "desc").onSnapshot((snapshot) => {
-        const list = document.getElementById('pList');
-        list.innerHTML = "";
-        let count = 0;
-        
-        snapshot.forEach(doc => {
-            count++;
-            const p = doc.data();
-            const categories = p.category_names ? p.category_names.join(', ') : 'N/A';
-            const tags = p.tags ? p.tags.join(', ') : 'N/A';
+    db.collection("products")
+        .orderBy("created_at", "desc")
+        .onSnapshot((snapshot) => {
+            const list = document.getElementById('pList');
+            list.innerHTML = "";
+            let count = 0;
             
-            list.innerHTML += `
+            if (snapshot.empty) {
+                list.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fa fa-box-open"></i>
+                            <p>No products yet. Add your first product above.</p>
+                        </td>
+                    </tr>`;
+                document.getElementById('totalProducts').innerText = "0";
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                count++;
+                const p = doc.data();
+                const categories = p.category_names ? p.category_names.join(', ') : 'N/A';
+                const tags = p.tags && p.tags.length ? p.tags.join(', ') : 'N/A';
+                const imageUrl = p.image || 'https://via.placeholder.com/50x50?text=No+Image';
+                const price = p.price ? parseFloat(p.price).toFixed(2) : '0.00';
+                const title = p.title || 'Untitled';
+                const sku = p.sku || 'N/A';
+                
+                list.innerHTML += `
+                    <tr>
+                        <td>
+                            <img src="${imageUrl}" 
+                                 class="product-table-img" 
+                                 onerror="this.src='https://via.placeholder.com/50x50?text=Error'">
+                        </td>
+                        <td>${title}</td>
+                        <td>${sku}</td>
+                        <td>৳${price}</td>
+                        <td><small>${categories}</small></td>
+                        <td><small>${tags}</small></td>
+                        <td>
+                            <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')" title="Delete"></i>
+                            <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')" title="View"></i>
+                        </td>
+                    </tr>`;
+            });
+            
+            document.getElementById('totalProducts').innerText = count;
+        }, (error) => {
+            console.error("Error loading products:", error);
+            document.getElementById('pList').innerHTML = `
                 <tr>
-                    <td><img src="${p.image || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:cover;border-radius:5px;" onerror="this.src='https://via.placeholder.com/40'"></td>
-                    <td>${p.title || p.name || ''}</td>
-                    <td>${p.sku || 'N/A'}</td>
-                    <td>৳${p.price ? parseFloat(p.price).toFixed(2) : '0.00'}</td>
-                    <td>${categories}</td>
-                    <td>${tags}</td>
-                    <td>
-                        <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')"></i>
-                        <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')"></i>
+                    <td colspan="7" class="empty-state">
+                        <i class="fa fa-exclamation-triangle text-danger"></i>
+                        <p>Error loading products: ${error.message}</p>
                     </td>
                 </tr>`;
         });
-        
-        document.getElementById('totalProducts').innerText = count;
-    });
 
     // Delete Product
     window.deleteProduct = async (id) => {
         if (confirm("Delete this product?")) {
-            await db.collection("products").doc(id).delete();
-            
-            // Also notify MoveDrop about deletion
             try {
-                await fetch(`${MOVEDROP_API_URL}?path=products/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-API-KEY': MOVEDROP_API_KEY
-                    }
-                });
+                await db.collection("products").doc(id).delete();
+                
+                // Also notify MoveDrop about deletion
+                try {
+                    await fetch(`${MOVEDROP_API_URL}?path=products/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-API-KEY': MOVEDROP_API_KEY
+                        }
+                    });
+                } catch (error) {
+                    console.log("MoveDrop delete notification failed:", error);
+                }
             } catch (error) {
-                console.log("MoveDrop delete notification failed:", error);
+                alert("Error deleting product: " + error.message);
             }
         }
     };
@@ -716,53 +779,72 @@
     };
 
     // Load Orders
-    db.collection("orders").orderBy("created_at", "desc").onSnapshot((snapshot) => {
-        const list = document.getElementById('orderList');
-        list.innerHTML = "";
-        let totalOrders = 0;
-        let pendingCount = 0;
-        
-        snapshot.forEach(doc => {
-            totalOrders++;
-            const o = doc.data();
-            const status = o.status || 'pending';
-            if (status === 'pending') pendingCount++;
+    db.collection("orders")
+        .orderBy("created_at", "desc")
+        .onSnapshot((snapshot) => {
+            const list = document.getElementById('orderList');
+            list.innerHTML = "";
+            let totalOrders = 0;
+            let pendingCount = 0;
             
-            const customerName = o.customer?.name || o.shipping_address?.first_name || 'N/A';
-            const customerPhone = o.customer?.phone || o.shipping_address?.phone || 'N/A';
-            const itemCount = o.line_items ? o.line_items.length : 0;
+            if (snapshot.empty) {
+                list.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fa fa-shopping-cart"></i>
+                            <p>No orders yet.</p>
+                        </td>
+                    </tr>`;
+                document.getElementById('totalOrders').innerText = "0";
+                document.getElementById('pendingOrders').innerText = "0";
+                return;
+            }
             
-            list.innerHTML += `
-                <tr>
-                    <td>#${o.order_number || doc.id.slice(0,8)}</td>
-                    <td>${customerName}</td>
-                    <td>${customerPhone}</td>
-                    <td>৳${o.total ? parseFloat(o.total).toFixed(2) : '0.00'}</td>
-                    <td>
-                        <span class="status-badge status-${status}">${status}</span>
-                    </td>
-                    <td>${itemCount} items</td>
-                    <td>
-                        <select class="form-select form-select-sm" onchange="updateOrderStatus('${doc.id}', this.value)">
-                            <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
-                            <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
-                            <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
-                            <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                        </select>
-                    </td>
-                </tr>`;
+            snapshot.forEach(doc => {
+                totalOrders++;
+                const o = doc.data();
+                const status = o.status || 'pending';
+                if (status === 'pending') pendingCount++;
+                
+                const customerName = o.customer?.name || o.shipping_address?.first_name || 'N/A';
+                const customerPhone = o.customer?.phone || o.shipping_address?.phone || 'N/A';
+                const itemCount = o.line_items ? o.line_items.length : 0;
+                const total = o.total ? parseFloat(o.total).toFixed(2) : '0.00';
+                const orderNumber = o.order_number || doc.id.slice(0, 8);
+                
+                list.innerHTML += `
+                    <tr>
+                        <td>#${orderNumber}</td>
+                        <td>${customerName}</td>
+                        <td>${customerPhone}</td>
+                        <td>৳${total}</td>
+                        <td>
+                            <span class="status-badge status-${status}">${status}</span>
+                        </td>
+                        <td>${itemCount} items</td>
+                        <td>
+                            <select class="form-select form-select-sm" onchange="updateOrderStatus('${doc.id}', this.value)">
+                                <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
+                                <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>
+                    </tr>`;
+            });
+            
+            document.getElementById('totalOrders').innerText = totalOrders;
+            document.getElementById('pendingOrders').innerText = pendingCount;
+        }, (error) => {
+            console.error("Error loading orders:", error);
         });
-        
-        document.getElementById('totalOrders').innerText = totalOrders;
-        document.getElementById('pendingOrders').innerText = pendingCount;
-    });
 
     // Update Order Status
     window.updateOrderStatus = async (id, status) => {
         try {
             await db.collection("orders").doc(id).update({ 
                 status: status,
-                updated_at: new Date().toISOString()
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
             });
             
             // Sync to MoveDrop API
@@ -793,13 +875,22 @@
         const tbody = document.getElementById('webhookTableBody');
         tbody.innerHTML = "";
         
+        if (snapshot.empty) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted">No webhooks registered</td>
+                </tr>`;
+            return;
+        }
+        
         snapshot.forEach(doc => {
             const w = doc.data();
+            const createdDate = w.created_at ? new Date(w.created_at).toLocaleString() : 'N/A';
             tbody.innerHTML += `
                 <tr>
                     <td>${w.event || 'N/A'}</td>
                     <td><small>${w.delivery_url || 'N/A'}</small></td>
-                    <td>${w.created_at ? new Date(w.created_at).toLocaleString() : 'N/A'}</td>
+                    <td>${createdDate}</td>
                 </tr>`;
         });
     });
@@ -823,6 +914,11 @@
             let synced = 0;
             let failed = 0;
             let duplicateSkus = 0;
+            
+            if (productsSnapshot.empty) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">No products to sync.</div>';
+                return;
+            }
             
             for (const doc of productsSnapshot.docs) {
                 const p = doc.data();
@@ -858,7 +954,7 @@
                             sku: p.sku || 'SKU-' + doc.id.slice(0, 8),
                             description: p.description || '',
                             images: images,
-                            category_ids: p.category_ids || [],
+                            category_ids: (p.category_ids || []).map(id => parseInt(id) || 1),
                             tags: p.tags || [],
                             properties: p.properties || []
                         })
@@ -912,6 +1008,11 @@
             const ordersSnapshot = await db.collection("orders").get();
             let synced = 0;
             let failed = 0;
+            
+            if (ordersSnapshot.empty) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">No orders to sync.</div>';
+                return;
+            }
             
             for (const doc of ordersSnapshot.docs) {
                 const o = doc.data();
