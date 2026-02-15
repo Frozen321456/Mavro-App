@@ -1,133 +1,92 @@
 <?php
 /**
- * MoveDrop Custom Channel - Updated Implementation 2026
- * API Key: MAVRO-ESSENCE-SECURE-KEY-2026
+ * MoveDrop to Firestore Bridge API 2026
+ * URL: domain.com/api/index.php?path=...
  */
 
-// 1. Headers & Security
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+    http_response_code(200); exit();
 }
 
-// 2. Configuration
-define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
-define('FIREBASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.firebaseio.com');
+// Configuration
+define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026'); // MoveDrop ড্যাশবোর্ড এ এই কি-টি দিবেন
+define('PROJECT_ID', 'espera-mavro-6ddc5');
+define('FIRESTORE_URL', 'https://firestore.googleapis.com/v1/projects/' . PROJECT_ID . '/databases/(default)/documents/');
 
-// 3. Helper: Key Verification
 function verifyKey() {
     $headers = array_change_key_case(getallheaders(), CASE_UPPER);
     $providedKey = $headers['X-API-KEY'] ?? $_SERVER['HTTP_X_API_KEY'] ?? '';
-
     if ($providedKey !== API_KEY) {
         http_response_code(401);
-        echo json_encode(["status" => "error", "message" => "Unauthorized: Invalid API Key"]);
-        exit();
+        echo json_encode(["error" => "Unauthorized"]); exit();
     }
 }
 
-// 4. Helper: Firebase Request
-function firebase($path, $method = 'GET', $body = null) {
-    $url = FIREBASE_URL . $path . '.json';
+function postToFirestore($collection, $fields) {
+    $url = FIRESTORE_URL . $collection;
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    if ($body) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-    $res = curl_exec($ch);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(["fields" => $fields]));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $response = curl_exec($ch);
     curl_close($ch);
-    return json_decode($res, true);
+    return json_decode($response, true);
 }
 
-// 5. API Routing Setup
-$requestPath = $_GET['path'] ?? '';
-$method = $_SERVER['REQUEST_METHOD'];
-$pathParts = explode('/', rtrim($requestPath, '/'));
-$inputData = json_decode(file_get_contents('php://input'), true);
-
-// Health Check
-if ($requestPath === 'health') {
-    echo json_encode(["status" => "online", "message" => "MoveDrop API is ready"]);
-    exit();
-}
-
-// Authentication
 verifyKey();
 
-// --- Main Router ---
-switch ($pathParts[0]) {
-    
-    // Webhooks Endpoints
-    case 'webhooks':
-        if ($method === 'POST') {
-            firebase('/webhooks_config', 'PUT', $inputData);
-            http_response_code(201);
-            echo json_encode(["message" => "MoveDrop Webhooks Registered"]);
-        }
-        break;
+$path = $_GET['path'] ?? '';
+$pathParts = explode('/', trim($path, '/'));
+$endpoint = $pathParts[0];
+$method = $_SERVER['REQUEST_METHOD'];
+$input = json_decode(file_get_contents('php://input'), true);
 
-    // Categories Endpoints
+switch ($endpoint) {
     case 'categories':
-        if ($method === 'GET') {
-            $data = firebase('/categories');
-            // Pagination handle (Optional but recommended)
-            echo json_encode(["data" => $data ? array_values($data) : []]);
-        } elseif ($method === 'POST') {
-            $res = firebase('/categories', 'POST', $inputData);
-            http_response_code(201);
-            echo json_encode(["message" => "Category Created", "id" => $res['name']]);
-        }
-        break;
-
-    // Products Endpoints
-    case 'products':
-        $productId = $pathParts[1] ?? null;
-        $subAction = $pathParts[2] ?? null;
-
         if ($method === 'POST') {
-            if ($productId && $subAction === 'variations') {
-                // POST /products/:id/variations
-                firebase("/products/$productId/variations", 'PUT', $inputData['variations']);
-                echo json_encode(["message" => "Variations Updated"]);
-            } else {
-                // POST /products
-                $res = firebase('/products', 'POST', $inputData);
-                http_response_code(201);
-                echo json_encode(["message" => "Product Synced", "id" => $res['name']]);
-            }
-        } elseif ($method === 'DELETE' && $productId) {
-            // DELETE /products/:id
-            firebase('/products/' . $productId, 'DELETE');
-            echo json_encode(["message" => "Product Deleted"]);
+            $fields = ["name" => ["stringValue" => $input['name']]];
+            postToFirestore('categories', $fields);
+            echo json_encode(["message" => "Category Added"]);
         }
         break;
 
-    // Orders Endpoints
-    case 'orders':
-        $orderId = $pathParts[1] ?? null;
-        $subAction = $pathParts[2] ?? null;
+    case 'products':
+        if ($method === 'POST') {
+            $productId = $pathParts[1] ?? null;
+            $subAction = $pathParts[2] ?? null;
 
-        if ($method === 'GET') {
-            $data = firebase('/orders');
-            echo json_encode(["data" => $data ? array_values($data) : []]);
-        } elseif ($method === 'PUT' && $orderId) {
-            // PUT /orders/:id (Update Status)
-            firebase('/orders/' . $orderId, 'PATCH', $inputData);
-            echo json_encode(["message" => "Order Status Updated"]);
-        } elseif ($method === 'POST' && $orderId && $subAction === 'timelines') {
-            // POST /orders/:id/timelines
-            firebase("/orders/$orderId/timelines", 'POST', $inputData);
-            http_response_code(201);
-            echo json_encode(["message" => "Timeline Added"]);
+            if (!$productId) {
+                // নতুন প্রোডাক্ট অ্যাড (MoveDrop Title -> Firestore Name)
+                $fields = [
+                    "name" => ["stringValue" => $input['title']],
+                    "sku" => ["stringValue" => $input['sku']],
+                    "description" => ["stringValue" => $input['description'] ?? ''],
+                    "price" => ["doubleValue" => 0], // ভেরিয়েশন থেকে আপডেট হবে
+                    "image" => ["stringValue" => $input['images'][0]['src'] ?? ''],
+                    "category" => ["stringValue" => "Uncategorized"],
+                    "timestamp" => ["timestampValue" => gmdate("Y-m-d\TH:i:s\Z")]
+                ];
+                $res = postToFirestore('products', $fields);
+                $newId = basename($res['name']);
+                http_response_code(201);
+                echo json_encode(["id" => $newId, "message" => "Product Created"]);
+            }
         }
+        break;
+
+    case 'webhooks':
+        http_response_code(200);
+        echo json_encode(["status" => "success"]);
         break;
 
     default:
         http_response_code(404);
-        echo json_encode(["message" => "Endpoint not found"]);
+        echo json_encode(["error" => "Not Found"]);
         break;
 }
