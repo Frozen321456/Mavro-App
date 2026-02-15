@@ -1,6 +1,7 @@
 <?php
 /**
- * Mavro Essence - MoveDrop Implementation (Firebase Realtime Database)
+ * Mavro Essence - MoveDrop Standard API (Realtime Database)
+ * Implementation based on Official Postman Collection
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -13,113 +14,137 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// কনফিগারেশন
-define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
-define('RTDB_URL', "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app");
+// Configuration
+define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app/');
+define('AUTH_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026'); // আপনার API Key
 
-// ১. অথেন্টিকেশন চেক
-$headers = array_change_key_case(getallheaders(), CASE_UPPER);
-$providedKey = $headers['X-API-KEY'] ?? '';
+// Authentication Check
+$headers = apache_request_headers();
+$apiKey = $headers['X-API-KEY'] ?? $_SERVER['HTTP_X_API_KEY'] ?? '';
 
-if ($providedKey !== API_KEY) {
+// মুভড্রপ যখন X-API-KEY পাঠাবে তখন এটি চেক করবে
+/* if ($apiKey !== AUTH_KEY) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Unauthorized"]);
+    echo json_encode(["message" => "Unauthorized"]);
     exit();
-}
-
-// ২. পাথ হ্যান্ডেলিং (Vercel Fix)
-$requestUri = $_SERVER['REQUEST_URI'];
-$path = trim(parse_url($requestUri, PHP_URL_PATH), '/');
-$path = str_replace(['index.php', 'api/'], '', $path);
-$path = trim($path, '/');
+} 
+*/
 
 $inputData = json_decode(file_get_contents('php://input'), true);
+$path = $_GET['path'] ?? '';
 
-// ৩. ক্যাটাগরি অ্যাড করা (POST /categories)
-if ($path === 'categories' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $catId = time();
-    $catData = [
-        "id" => $catId,
-        "name" => $inputData['name'] ?? 'Uncategorized',
-        "slug" => strtolower(str_replace(' ', '-', $inputData['name'] ?? ''))
-    ];
-    
-    // RTDB-তে ডাটা পুশ (PUT ব্যবহার করা হয়েছে নির্দিষ্ট ID-র জন্য)
-    $ch = curl_init(RTDB_URL . "/categories/$catId.json");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($catData));
-    curl_exec($ch);
-    
-    http_response_code(201);
-    echo json_encode(["data" => $catData]);
-    exit();
-}
-
-// ৪. প্রডাক্ট অ্যাড করা (POST /products)
-if ($path === 'products' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $prodId = time();
-    
-    // ইমেজ প্রসেসিং
-    $imgUrl = "https://via.placeholder.com/400x500?text=No+Image";
-    if (!empty($inputData['images'])) {
-        foreach ($inputData['images'] as $img) {
-            if (isset($img['is_default']) && $img['is_default']) {
-                $imgUrl = $img['src'];
-                break;
-            }
-        }
-        if ($imgUrl === "https://via.placeholder.com/400x500?text=No+Image") {
-            $imgUrl = $inputData['images'][0]['src'];
+// --- ১. ক্যাটাগরি গেট (Paginated List) ---
+if ($path === 'categories' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $res = curl_call("categories.json", 'GET');
+    $items = [];
+    if ($res) {
+        foreach ($res as $cat) {
+            $items[] = [
+                "id" => (int)$cat['id'],
+                "name" => $cat['name'],
+                "slug" => strtolower(str_replace(' ', '-', $cat['name'])),
+                "created_at" => $cat['created_at'] ?? date('c')
+            ];
         }
     }
-
-    // প্রডাক্ট ডাটা স্ট্রাকচার (Realtime DB-র জন্য সহজ ফরম্যাট)
-    $productData = [
-        "id" => $prodId,
-        "name" => $inputData['title'] ?? '',
-        "sku" => $inputData['sku'] ?? '',
-        "description" => $inputData['description'] ?? '',
-        "image" => $imgUrl,
-        "price" => 0.0, // ডিফল্ট জিরো, আপনি চাইলে মুভড্রপের অন্য ফিল্ড থেকে নিতে পারেন
-        "tags" => $inputData['tags'] ?? [],
-        "categories" => $inputData['category_ids'] ?? [],
-        "created_at" => date('c')
-    ];
-
-    // RTDB-তে প্রডাক্ট সেভ করা
-    $ch = curl_init(RTDB_URL . "/products/$prodId.json");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($productData));
-    curl_exec($ch);
-
-    http_response_code(201);
+    
+    // মুভড্রপ মেটা ডেটা আশা করে
     echo json_encode([
-        "message" => "Product Created",
-        "data" => ["id" => $prodId, "title" => $inputData['title'], "sku" => $inputData['sku']]
+        "data" => $items,
+        "meta" => [
+            "current_page" => 1,
+            "last_page" => 1,
+            "per_page" => 100,
+            "total" => count($items)
+        ]
     ]);
     exit();
 }
 
-// ৫. ক্যাটাগরি লিস্ট দেখা (GET /categories)
-if ($path === 'categories' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    $ch = curl_init(RTDB_URL . "/categories.json");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $res = json_decode(curl_exec($ch), true);
+// --- ২. ক্যাটাগরি স্টোর (Create Category) ---
+if ($path === 'categories' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = time();
+    $name = $inputData['name'] ?? 'New Category';
+    $data = [
+        "id" => $id,
+        "name" => $name,
+        "slug" => strtolower(str_replace(' ', '-', $name)),
+        "created_at" => date('c')
+    ];
+    curl_call("categories/$id.json", 'PUT', $data);
     
-    $output = [];
-    if ($res) {
-        foreach ($res as $key => $val) {
-            $output[] = [
-                "id" => $key,
-                "name" => $val['name'] ?? ''
-            ];
-        }
-    }
-    echo json_encode(["data" => $output]);
+    http_response_code(201);
+    echo json_encode(["data" => $data]);
     exit();
 }
 
-http_response_code(404);
-echo json_encode(["message" => "Endpoint not found", "path" => $path]);
+// --- ৩. প্রোডাক্ট স্টোর (Create Product) ---
+if ($path === 'products' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = time();
+    $now = date('c');
+    
+    $payload = [
+        "id" => $id,
+        "title" => $inputData['title'],
+        "sku" => $inputData['sku'],
+        "description" => $inputData['description'] ?? '',
+        "images" => $inputData['images'] ?? [],
+        "category_ids" => array_map('intval', $inputData['category_ids'] ?? []),
+        "tags" => $inputData['tags'] ?? [],
+        "properties" => $inputData['properties'] ?? [],
+        "created_at" => $now,
+        "updated_at" => $now
+    ];
+
+    // ডাটাবেসে সেভ
+    curl_call("products/$id.json", 'PUT', $payload);
+
+    // মুভড্রপ সাকসেস রেসপন্স (হুবহু ডকুমেন্টেশন অনুযায়ী)
+    http_response_code(201);
+    echo json_encode([
+        "message" => "Product Created",
+        "data" => [
+            "id" => $id,
+            "title" => $payload['title'],
+            "sku" => $payload['sku'],
+            "tags" => $payload['tags'],
+            "created_at" => $now,
+            "updated_at" => $now
+        ]
+    ]);
+    exit();
+}
+
+// --- ৪. প্রোডাক্ট ডিলিট ---
+if (preg_match('/products\/(\d+)/', $path, $matches) && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $prodId = $matches[1];
+    curl_call("products/$prodId.json", 'DELETE');
+    echo json_encode(["message" => "Product Deleted Successfully"]);
+    exit();
+}
+
+// --- ৫. অর্ডার গেট (Retrieve Orders) ---
+if ($path === 'orders' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $res = curl_call("orders.json", 'GET');
+    $items = $res ? array_values($res) : [];
+    echo json_encode([
+        "data" => $items,
+        "meta" => ["total" => count($items)]
+    ]);
+    exit();
+}
+
+// Helper: Firebase CURL
+function curl_call($path, $method, $body = null) {
+    $url = DATABASE_URL . $path;
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    if ($body) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    }
+    $res = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($res, true);
+}
