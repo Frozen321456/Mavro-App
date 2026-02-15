@@ -1,7 +1,7 @@
 <?php
 /**
- * MoveDrop Custom Channel - Final Fix for Firestore Compatibility
- * Host: https://mavro-app.vercel.app/
+ * MoveDrop Custom Channel - Final Corrected Version
+ * Fixes: channel_association.custom.0.category_ids.0 error
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -41,7 +41,6 @@ if ($providedKey !== API_KEY) {
     exit();
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
 $inputData = json_decode(file_get_contents('php://input'), true);
 $pathInfo = $_GET['path'] ?? '';
 $parts = explode('/', trim($pathInfo, '/'));
@@ -50,45 +49,55 @@ $id = $parts[1] ?? null;
 
 switch ($resource) {
     case 'categories':
-        if ($method === 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $data = firebase('/categories');
-            $items = $data ? array_values($data) : [];
-            echo json_encode(["data" => $items, "meta" => ["total" => count($items)]]);
+            $categories = $data ? array_values($data) : [];
+            // MoveDrop expects a list of categories
+            echo json_encode(["data" => $categories]);
         }
         break;
 
     case 'products':
-        if ($method === 'POST') {
-            // ১. ক্যাটাগরি আইডি হ্যান্ডলিং (মেইন ফিক্স)
-            $raw_cat_ids = $inputData['category_ids'] ?? [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // ১. ক্যাটাগরি আইডি ম্যানেজমেন্ট (সবচেয়ে গুরুত্বপূর্ণ অংশ)
+            // MoveDrop এর পাঠানো ডাটা থেকে category_ids বের করা
+            $category_ids = $inputData['category_ids'] ?? [];
             
-            // যদি MoveDrop থেকে ক্যাটাগরি না আসে, তবে জোর করে একটি 'default' আইডি বসানো
-            if (empty($raw_cat_ids)) {
-                $raw_cat_ids = ["mavro_general"];
+            // যদি MoveDrop ডাটা না পাঠায়, তবে একটি ডিফল্ট আইডি সেট করা যাতে এরর না দেয়
+            if (empty($category_ids)) {
+                $category_ids = ["mavro_essence_general"]; 
             }
 
-            // ২. আইডি জেনারেশন (Firestore স্টাইল)
-            $productId = $id ?? 'prod_' . bin2hex(random_bytes(4));
+            $productId = $id ?? 'prod_' . time();
 
-            // ৩. ডাটা স্ট্রাকচার (আপনার Firestore ফিল্ড + MoveDrop ফিল্ড)
+            // ২. ডাটা স্ট্রাকচার তৈরি
+            // এখানে category_ids ফিল্ডটি রাখা হয়েছে MoveDrop কে খুশি করতে
+            // আর category (string) রাখা হয়েছে আপনার Firestore এর আগের লজিক ঠিক রাখতে
             $finalProduct = [
                 'id' => $productId,
-                'name' => $inputData['title'] ?? 'New Product', // shop.html এর জন্য
-                'title' => $inputData['title'] ?? 'New Product', // MoveDrop এর জন্য
-                'sku' => $inputData['sku'] ?? '',
+                'name' => $inputData['title'] ?? 'Unnamed Product',
+                'title' => $inputData['title'] ?? 'Unnamed Product',
+                'sku' => $inputData['sku'] ?? 'SKU-' . time(),
                 'price' => (float)($inputData['regular_price'] ?? 0),
-                'image' => $inputData['images'][0]['src'] ?? '', // shop.html এর জন্য
-                'description' => $inputData['description'] ?? '',
-                'category' => (string)$raw_cat_ids[0], // Firestore এ স্ট্রিং হিসেবে থাকবে
-                'category_ids' => $raw_cat_ids,         // MoveDrop এই ফিল্ডটিই খুঁজছে
+                'image' => $inputData['images'][0]['src'] ?? '',
                 'images' => $inputData['images'] ?? [],
-                'status' => 'active',
+                'description' => $inputData['description'] ?? '',
+                'category' => (string)$category_ids[0], // Firestore এর জন্য প্রথম আইডিটি স্ট্রিং হিসেবে
+                'category_ids' => $category_ids,        // MoveDrop এই ফিল্ডটিই খুঁজছে
+                'channel_association' => [
+                    'custom' => [
+                        [
+                            'category_ids' => $category_ids
+                        ]
+                    ]
+                ],
                 'created_at' => date('c')
             ];
 
             // ফায়ারবেসে সেভ করা
             firebase('/products/' . $productId, 'PUT', $finalProduct);
 
+            // ৩. রেসপন্স পাঠানো
             http_response_code(201);
             echo json_encode([
                 "message" => "Product Created",
@@ -98,7 +107,7 @@ switch ($resource) {
         break;
 
     case 'health':
-        echo json_encode(["status" => "online", "api" => "Mavro Essence v2.1"]);
+        echo json_encode(["status" => "online"]);
         break;
 
     default:
