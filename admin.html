@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin | Mavro Essence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        :root { --dark: #111; --bg: #f8f9fa; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; }
+        .sidebar { background: #fff; height: 100vh; position: fixed; width: 250px; border-right: 1px solid #ddd; padding: 20px; z-index: 100; overflow-y: auto; }
+        .main { margin-left: 250px; padding: 30px; }
+        @media (max-width: 768px) { .sidebar { height: auto; width: 100%; position: relative; } .main { margin-left: 0; padding: 15px; } }
+        .card-custom { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: none; }
+        #galleryContainer { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .gallery-item { position: relative; width: 70px; height: 70px; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+        .remove-btn { position: absolute; top: -8px; right: -8px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .upload-trigger { border: 2px dashed #000; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; background: #fff; font-weight: bold; }
+        #editor { height: 300px; background: white; }
+        .nav-link { color: #333; padding: 10px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; text-decoration: none; display: block; }
+        .nav-link:hover { background: #f0f0f0; }
+        .nav-link.active { background: #111; color: #fff; }
+        .product-img { width: 50px; height: 65px; object-fit: cover; border-radius: 8px; background: #eee; }
+        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
+        .status-badge { padding: 5px 10px; border-radius: 50px; font-size: 11px; font-weight: bold; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h4 class="mb-4 fw-bold text-center">MAVRO ADMIN</h4>
+    <nav class="nav flex-column">
+        <a class="nav-link active" onclick="showSection('dashboard', this)"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
+        <a class="nav-link" onclick="showSection('products', this)"><i class="fa fa-box me-2"></i> Products</a>
+        <a class="nav-link" onclick="showSection('categories', this)"><i class="fa fa-list me-2"></i> Categories</a>
+        <a class="nav-link" onclick="showSection('orders', this)"><i class="fa fa-shopping-cart me-2"></i> Orders</a>
+        <a class="nav-link" onclick="showSection('sync', this)"><i class="fa fa-sync me-2"></i> MoveDrop Sync</a>
+    </nav>
+</div>
+
+<div class="main">
+    <div id="dashboard" class="section">
+        <div class="row">
+            <div class="col-md-4"><div class="card-custom"><h5>Total Products</h5><h2 id="totalProducts">0</h2></div></div>
+            <div class="col-md-4"><div class="card-custom"><h5>Total Orders</h5><h2 id="totalOrders">0</h2></div></div>
+            <div class="col-md-4"><div class="card-custom"><h5>Pending Orders</h5><h2 id="pendingOrders">0</h2></div></div>
+        </div>
+    </div>
+
+    <div id="products" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5 class="mb-4 fw-bold">Publish New Product</h5>
+            <div class="row g-3">
+                <div class="col-md-6"><label class="small fw-bold">Product Name *</label><input type="text" id="pName" class="form-control"></div>
+                <div class="col-md-3"><label class="small fw-bold">SKU *</label><input type="text" id="pSku" class="form-control"></div>
+                <div class="col-md-3"><label class="small fw-bold">Price (৳) *</label><input type="number" id="pPrice" class="form-control"></div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Category</label>
+                    <select id="pCatSel" class="form-select"><option value="">Select Category</option></select>
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Main Image *</label>
+                    <input type="file" id="pImg" class="form-control" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <label class="small fw-bold">Gallery Images</label>
+                    <div class="upload-trigger" onclick="document.getElementById('galleryInput').click()">+ Add Gallery</div>
+                    <input type="file" id="galleryInput" class="d-none" multiple accept="image/*">
+                    <div id="galleryContainer"></div>
+                </div>
+                <div class="col-12"><h5>Variations</h5><button class="btn btn-sm btn-outline-dark mb-2" onclick="addVariation()">+ Add</button><div id="variationsContainer"></div></div>
+                <div class="col-12"><label class="small fw-bold">Description</label><div id="editor"></div></div>
+                <div class="col-12"><button id="savePBtn" class="btn btn-dark w-100 py-3 mt-3 fw-bold">PUBLISH PRODUCT</button></div>
+            </div>
+        </div>
+
+        <div class="card-custom">
+            <h5>Live Inventory</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Image</th><th>Product</th><th>SKU</th><th>Price</th><th>Action</th></tr></thead>
+                    <tbody id="pList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="categories" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>Manage Categories</h5>
+            <div class="input-group mb-3">
+                <input type="text" id="catName" class="form-control" placeholder="Category Name">
+                <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
+            </div>
+            <div id="catList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+    </div>
+
+    <div id="orders" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>Order Management</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="orderList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="sync" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>MoveDrop Sync</h5>
+            <p>API Status: <span id="apiStatus">Checking...</span></p>
+            <button class="btn btn-success" onclick="syncAll()">Sync All Data</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+        databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "espera-mavro-6ddc5",
+        storageBucket: "espera-mavro-6ddc5.appspot.com",
+        messagingSenderId: "137893255543",
+        appId: "1:137893255543:web:a660bd412eb26ee322a972"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const quill = new Quill('#editor', { theme: 'snow' });
+    let galleryArr = [];
+
+    // --- NAVIGATION ---
+    window.showSection = (id, el) => {
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        el.classList.add('active');
+    };
+
+    // --- IMAGES ---
+    const toBase64 = f => new Promise((res) => {
+        const r = new FileReader(); r.readAsDataURL(f); r.onload = () => res(r.result);
+    });
+    document.getElementById('galleryInput').onchange = async (e) => {
+        for(let f of e.target.files) { galleryArr.push(await toBase64(f)); }
+        renderGallery();
+    };
+    function renderGallery() {
+        document.getElementById('galleryContainer').innerHTML = galleryArr.map((s, i) => `
+            <div class="gallery-item"><img src="${s}"><button class="remove-btn" onclick="galleryArr.splice(${i},1);renderGallery()">×</button></div>`).join('');
+    }
+
+    // --- CATEGORIES ---
+    document.getElementById('saveCatBtn').onclick = async () => {
+        const name = document.getElementById('catName').value;
+        if(name) { await database.ref('categories').push({name}); document.getElementById('catName').value = ""; }
+    };
+    database.ref('categories').on('value', snap => {
+        const sel = document.getElementById('pCatSel');
+        const list = document.getElementById('catList');
+        sel.innerHTML = '<option value="">Select Category</option>';
+        list.innerHTML = "";
+        snap.forEach(child => {
+            const c = child.val();
+            sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+            list.innerHTML += `<span class="badge bg-dark p-2">${c.name} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCat('${child.key}')"></i></span>`;
+        });
+    });
+    window.deleteCat = (id) => database.ref('categories/'+id).remove();
+
+    // --- PRODUCT SAVE ---
+    document.getElementById('savePBtn').onclick = async () => {
+        const btn = document.getElementById('savePBtn');
+        const name = document.getElementById('pName').value;
+        const mainImgFile = document.getElementById('pImg').files[0];
+        if(!name || !mainImgFile) return alert("Fill Name and Main Image!");
+        
+        btn.disabled = true; btn.innerText = "Publishing...";
+        const pData = {
+            name: name,
+            title: name,
+            sku: document.getElementById('pSku').value,
+            price: document.getElementById('pPrice').value,
+            category: document.getElementById('pCatSel').value,
+            description: quill.root.innerHTML,
+            image: await toBase64(mainImgFile),
+            images: [await toBase64(mainImgFile), ...galleryArr],
+            created_at: new Date().toISOString()
+        };
+        await database.ref('products').push(pData);
+        alert("Published!"); location.reload();
+    };
+
+    // --- INVENTORY ---
+    database.ref('products').on('value', snap => {
+        const list = document.getElementById('pList'); list.innerHTML = "";
+        let count = 0;
+        snap.forEach(child => {
+            count++; const p = child.val();
+            const dName = p.name || p.title || 'No Name';
+            const dImg = p.image || (p.images ? p.images[0] : 'https://via.placeholder.com/50');
+            list.innerHTML += `
+                <tr>
+                    <td><img src="${dImg}" class="product-img" onerror="this.src='https://via.placeholder.com/50'"></td>
+                    <td><strong>${dName}</strong><br><small>${child.key}</small></td>
+                    <td>${p.sku || '-'}</td>
+                    <td>৳${p.price || '0'}</td>
+                    <td><button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${child.key}')"><i class="fa fa-trash"></i></button></td>
+                </tr>`;
+        });
+        document.getElementById('totalProducts').innerText = count;
+    });
+    window.deleteItem = (id) => confirm("Delete?") && database.ref('products/'+id).remove();
+
+    // --- ORDERS ---
+    database.ref('orders').on('value', snap => {
+        const list = document.getElementById('orderList'); list.innerHTML = "";
+        let total = 0, pending = 0;
+        snap.forEach(child => {
+            total++; const o = child.val();
+            if(o.status === 'pending') pending++;
+            list.innerHTML += `
+                <tr>
+                    <td>#${child.key.slice(-6)}</td>
+                    <td>${o.customer?.name || 'Guest'}</td>
+                    <td>৳${o.total || '0'}</td>
+                    <td><span class="status-badge status-${o.status || 'pending'}">${o.status || 'pending'}</span></td>
+                    <td><select onchange="updateStatus('${child.key}', this.value)" class="form-select form-select-sm"><option value="pending">Pending</option><option value="completed">Completed</option></select></td>
+                </tr>`;
+        });
+        document.getElementById('totalOrders').innerText = total;
+        document.getElementById('pendingOrders').innerText = pending;
+    });
+    window.updateStatus = (id, s) => database.ref('orders/'+id).update({status: s});
+
+    // --- API STATUS ---
+    fetch('https://mavro.xo.je/api/index.php?path=health', { headers: {'X-API-KEY': 'MAVRO-ESSENCE-SECURE-KEY-2026'}})
+    .then(() => document.getElementById('apiStatus').innerHTML = '<span class="text-success">Online</span>');
+
+</script>
+</body>
+</html>
