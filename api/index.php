@@ -1,6 +1,6 @@
 <?php
 /**
- * MoveDrop Custom Channel - Complete Working Version
+ * MoveDrop Custom Channel - Working Firestore Version
  * API Key: MAVRO-ESSENCE-SECURE-KEY-2026
  */
 
@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
 define('FIREBASE_PROJECT_ID', 'espera-mavro-6ddc5');
 define('FIREBASE_API_KEY', 'AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10');
-define('FIREBASE_DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.firebaseio.com');
 
 // 3. Helper: Key Verification
 function verifyKey() {
@@ -33,34 +32,151 @@ function verifyKey() {
     }
 }
 
-// 4. Firebase Realtime Database Request (More reliable than Firestore REST)
-function firebaseRequest($path, $method = 'GET', $data = null) {
-    $url = FIREBASE_DATABASE_URL . $path . '.json?auth=' . FIREBASE_API_KEY;
+// 4. Firestore REST API Request
+function firestoreRequest($collection, $method = 'GET', $documentId = null, $data = null) {
+    $baseUrl = "https://firestore.googleapis.com/v1/projects/" . FIREBASE_PROJECT_ID . "/databases/(default)/documents";
     
+    // Build URL
+    if ($documentId) {
+        $url = $baseUrl . "/" . $collection . "/" . $documentId;
+    } else {
+        $url = $baseUrl . "/" . $collection;
+    }
+    
+    // Add API key
+    $url .= "?key=" . FIREBASE_API_KEY;
+    
+    // Initialize cURL
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
     
+    // Add body for POST/PUT/PATCH
     if ($data && in_array($method, ['POST', 'PUT', 'PATCH'])) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        // Convert to Firestore format
+        $firestoreData = ['fields' => []];
+        
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                $firestoreData['fields'][$key] = ['stringValue' => $value];
+            } elseif (is_int($value)) {
+                $firestoreData['fields'][$key] = ['integerValue' => $value];
+            } elseif (is_float($value)) {
+                $firestoreData['fields'][$key] = ['doubleValue' => $value];
+            } elseif (is_bool($value)) {
+                $firestoreData['fields'][$key] = ['booleanValue' => $value];
+            } elseif (is_array($value)) {
+                // Check if it's a simple array or associative
+                if (array_keys($value) !== range(0, count($value) - 1)) {
+                    // Associative array (treat as object)
+                    $nestedFields = [];
+                    foreach ($value as $k => $v) {
+                        if (is_string($v)) {
+                            $nestedFields[$k] = ['stringValue' => $v];
+                        } elseif (is_int($v)) {
+                            $nestedFields[$k] = ['integerValue' => $v];
+                        }
+                    }
+                    $firestoreData['fields'][$key] = ['mapValue' => ['fields' => $nestedFields]];
+                } else {
+                    // Simple array
+                    $arrayValues = [];
+                    foreach ($value as $item) {
+                        if (is_string($item)) {
+                            $arrayValues[] = ['stringValue' => $item];
+                        } elseif (is_int($item)) {
+                            $arrayValues[] = ['integerValue' => $item];
+                        }
+                    }
+                    $firestoreData['fields'][$key] = ['arrayValue' => ['values' => $arrayValues]];
+                }
+            }
+        }
+        
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($firestoreData));
     }
     
+    // Execute request
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    // Log for debugging
+    error_log("Firestore $method $collection - HTTP $httpCode");
+    
     curl_close($ch);
     
-    error_log("Firebase $method $path - HTTP $httpCode");
-    
     if ($httpCode >= 400) {
+        error_log("Firestore error: " . $response);
         return null;
     }
     
     return json_decode($response, true);
 }
 
-// 5. Generate slug
+// 5. Parse Firestore document to simple array
+function parseFirestoreDocument($doc) {
+    $result = [];
+    
+    if (isset($doc['name'])) {
+        $result['id'] = basename($doc['name']);
+    }
+    
+    if (isset($doc['fields'])) {
+        foreach ($doc['fields'] as $key => $value) {
+            if (isset($value['stringValue'])) {
+                $result[$key] = $value['stringValue'];
+            } elseif (isset($value['integerValue'])) {
+                $result[$key] = (int)$value['integerValue'];
+            } elseif (isset($value['doubleValue'])) {
+                $result[$key] = (float)$value['doubleValue'];
+            } elseif (isset($value['booleanValue'])) {
+                $result[$key] = (bool)$value['booleanValue'];
+            } elseif (isset($value['arrayValue'])) {
+                $result[$key] = [];
+                if (isset($value['arrayValue']['values'])) {
+                    foreach ($value['arrayValue']['values'] as $item) {
+                        if (isset($item['stringValue'])) {
+                            $result[$key][] = $item['stringValue'];
+                        } elseif (isset($item['integerValue'])) {
+                            $result[$key][] = (int)$item['integerValue'];
+                        }
+                    }
+                }
+            } elseif (isset($value['mapValue'])) {
+                $result[$key] = [];
+                if (isset($value['mapValue']['fields'])) {
+                    foreach ($value['mapValue']['fields'] as $k => $v) {
+                        if (isset($v['stringValue'])) {
+                            $result[$key][$k] = $v['stringValue'];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return $result;
+}
+
+// 6. Get all documents from a collection
+function getCollection($collection) {
+    $response = firestoreRequest($collection, 'GET');
+    $items = [];
+    
+    if ($response && isset($response['documents'])) {
+        foreach ($response['documents'] as $doc) {
+            $items[] = parseFirestoreDocument($doc);
+        }
+    }
+    
+    return $items;
+}
+
+// 7. Generate slug
 function generateSlug($name) {
     $slug = strtolower(trim($name));
     $slug = preg_replace('/[^a-z0-9-]/', '-', $slug);
@@ -68,10 +184,9 @@ function generateSlug($name) {
     return trim($slug, '-');
 }
 
-// 6. Pagination helper
+// 8. Pagination helper
 function paginate($data, $page = 1, $perPage = 20) {
     if (!is_array($data)) $data = [];
-    $data = array_values($data);
     $total = count($data);
     $offset = ($page - 1) * $perPage;
     $items = array_slice($data, $offset, $perPage);
@@ -81,7 +196,7 @@ function paginate($data, $page = 1, $perPage = 20) {
         "meta" => [
             "current_page" => (int)$page,
             "from" => $offset + 1,
-            "last_page" => ceil($total / $perPage),
+            "last_page" => max(1, ceil($total / $perPage)),
             "per_page" => (int)$perPage,
             "to" => min($offset + $perPage, $total),
             "total" => $total
@@ -89,7 +204,7 @@ function paginate($data, $page = 1, $perPage = 20) {
     ];
 }
 
-// 7. API Routing
+// 9. API Routing
 $requestPath = $_GET['path'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
 $pathParts = explode('/', rtrim($requestPath, '/'));
@@ -110,56 +225,25 @@ verifyKey();
 
 error_log("MoveDrop API: $method $requestPath");
 
-// --- Router ---
+// Simple router
 switch ($pathParts[0]) {
     
-    // Webhooks
-    case 'webhooks':
-        if ($method === 'POST') {
-            $webhooks = $inputData['webhooks'] ?? [];
-            $results = [];
-            
-            foreach ($webhooks as $webhook) {
-                $id = uniqid();
-                $webhookData = [
-                    'name' => $webhook['name'] ?? '',
-                    'event' => $webhook['event'] ?? '',
-                    'delivery_url' => $webhook['delivery_url'] ?? '',
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
-                
-                $response = firebaseRequest('/webhooks/' . $id, 'PUT', $webhookData);
-                if ($response) {
-                    $results[] = $webhookData;
-                }
-            }
-            
-            http_response_code(201);
-            echo json_encode([
-                "message" => "Webhooks Registered",
-                "data" => $results
-            ]);
-        }
-        break;
-
     // Categories
     case 'categories':
         if ($method === 'GET') {
-            $data = firebaseRequest('/categories');
-            $categories = [];
+            $categories = getCollection('categories');
             
-            if (is_array($data)) {
-                foreach ($data as $id => $cat) {
-                    $categories[] = [
-                        "id" => $id,
-                        "name" => $cat['name'] ?? '',
-                        "slug" => $cat['slug'] ?? generateSlug($cat['name'] ?? ''),
-                        "created_at" => $cat['created_at'] ?? date('Y-m-d H:i:s')
-                    ];
-                }
+            $formatted = [];
+            foreach ($categories as $cat) {
+                $formatted[] = [
+                    "id" => $cat['id'] ?? uniqid(),
+                    "name" => $cat['name'] ?? '',
+                    "slug" => $cat['slug'] ?? generateSlug($cat['name'] ?? ''),
+                    "created_at" => $cat['created_at'] ?? date('Y-m-d H:i:s')
+                ];
             }
             
-            echo json_encode(paginate($categories, $page, $perPage));
+            echo json_encode(paginate($formatted, $page, $perPage));
             
         } elseif ($method === 'POST') {
             $name = $inputData['name'] ?? '';
@@ -169,16 +253,16 @@ switch ($pathParts[0]) {
                 break;
             }
             
-            $id = time(); // Use timestamp as ID
-            $categoryData = [
+            $data = [
                 'name' => $name,
                 'slug' => generateSlug($name),
                 'created_at' => date('Y-m-d H:i:s')
             ];
             
-            $response = firebaseRequest('/categories/' . $id, 'PUT', $categoryData);
+            $response = firestoreRequest('categories', 'POST', null, $data);
             
-            if ($response) {
+            if ($response && isset($response['name'])) {
+                $id = basename($response['name']);
                 http_response_code(201);
                 echo json_encode([
                     "data" => [
@@ -198,226 +282,68 @@ switch ($pathParts[0]) {
     // Products
     case 'products':
         $productId = $pathParts[1] ?? null;
-        $subAction = $pathParts[2] ?? null;
 
         if ($method === 'GET') {
-            $data = firebaseRequest('/products');
-            $products = [];
+            $products = getCollection('products');
             
-            if (is_array($data)) {
-                foreach ($data as $id => $prod) {
-                    $products[] = [
-                        "id" => $id,
-                        "title" => $prod['title'] ?? $prod['name'] ?? '',
-                        "sku" => $prod['sku'] ?? '',
-                        "tags" => $prod['tags'] ?? [],
-                        "created_at" => $prod['created_at'] ?? date('Y-m-d H:i:s'),
-                        "updated_at" => $prod['updated_at'] ?? date('Y-m-d H:i:s')
-                    ];
-                }
+            $formatted = [];
+            foreach ($products as $prod) {
+                $formatted[] = [
+                    "id" => $prod['id'] ?? uniqid(),
+                    "title" => $prod['title'] ?? $prod['name'] ?? '',
+                    "sku" => $prod['sku'] ?? '',
+                    "tags" => $prod['tags'] ?? [],
+                    "created_at" => $prod['created_at'] ?? date('Y-m-d H:i:s'),
+                    "updated_at" => $prod['updated_at'] ?? date('Y-m-d H:i:s')
+                ];
             }
             
-            echo json_encode(paginate($products, $page, $perPage));
+            echo json_encode(paginate($formatted, $page, $perPage));
             
         } elseif ($method === 'POST') {
-            if ($productId && $subAction === 'variations') {
-                // Add variations to existing product
-                $variations = $inputData['variations'] ?? [];
-                
-                // Get existing product
-                $product = firebaseRequest('/products/' . $productId);
-                if (!$product) {
-                    http_response_code(404);
-                    echo json_encode(["message" => "Product not found"]);
-                    break;
-                }
-                
-                $product['variations'] = $variations;
-                $product['updated_at'] = date('Y-m-d H:i:s');
-                
-                firebaseRequest('/products/' . $productId, 'PUT', $product);
-                
-                $results = [];
-                foreach ($variations as $index => $var) {
-                    $results[] = [
-                        "id" => $index + 1,
-                        "sku" => $var['sku'] ?? ''
-                    ];
-                }
-                
-                echo json_encode([
-                    "message" => "Variations Created",
-                    "data" => $results
-                ]);
-                
-            } else {
-                // Create new product
-                $title = $inputData['title'] ?? '';
-                $sku = $inputData['sku'] ?? '';
-                $category_ids = $inputData['category_ids'] ?? [];
-                
-                if (!$title || !$sku) {
-                    http_response_code(422);
-                    echo json_encode(["message" => "Title and SKU required"]);
-                    break;
-                }
-                
-                // Ensure category_ids is an array of numbers
-                if (empty($category_ids)) {
-                    $category_ids = [1]; // Default category
-                }
-                
-                $id = time(); // Use timestamp as ID
-                $productData = [
-                    'title' => $title,
-                    'sku' => $sku,
-                    'description' => $inputData['description'] ?? '',
-                    'images' => $inputData['images'] ?? [],
-                    'category_ids' => $category_ids,
-                    'tags' => $inputData['tags'] ?? [],
-                    'properties' => $inputData['properties'] ?? [],
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-                
-                $response = firebaseRequest('/products/' . $id, 'PUT', $productData);
-                
-                if ($response) {
-                    http_response_code(201);
-                    echo json_encode([
-                        "message" => "Product Created",
-                        "data" => [
-                            "id" => $id,
-                            "title" => $title,
-                            "sku" => $sku,
-                            "tags" => $inputData['tags'] ?? [],
-                            "created_at" => date('Y-m-d H:i:s'),
-                            "updated_at" => date('Y-m-d H:i:s')
-                        ]
-                    ]);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(["message" => "Failed to create product"]);
-                }
-            }
+            $title = $inputData['title'] ?? '';
+            $sku = $inputData['sku'] ?? '';
             
-        } elseif ($method === 'DELETE' && $productId) {
-            firebaseRequest('/products/' . $productId, 'DELETE');
-            echo json_encode(["message" => "Product Deleted Successfully"]);
-        }
-        break;
-
-    // Orders
-    case 'orders':
-        $orderId = $pathParts[1] ?? null;
-        $subAction = $pathParts[2] ?? null;
-
-        if ($method === 'GET') {
-            $data = firebaseRequest('/orders');
-            $orders = [];
-            
-            if (is_array($data)) {
-                foreach ($data as $id => $order) {
-                    // Filter by order number if provided
-                    if (isset($_GET['order_number']) && ($order['order_number'] ?? '') !== $_GET['order_number']) {
-                        continue;
-                    }
-                    
-                    $orders[] = [
-                        "id" => $id,
-                        "order_number" => $order['order_number'] ?? '',
-                        "status" => $order['status'] ?? 'pending',
-                        "currency" => $order['currency'] ?? 'BDT',
-                        "total" => $order['total'] ?? '0',
-                        "payment_method" => $order['payment_method'] ?? 'cod',
-                        "shipping_address" => $order['shipping_address'] ?? [],
-                        "customer_notes" => $order['customer_notes'] ?? '',
-                        "line_items" => $order['line_items'] ?? [],
-                        "created_at" => $order['created_at'] ?? date('Y-m-d H:i:s')
-                    ];
-                }
-            }
-            
-            echo json_encode(paginate($orders, $page, $perPage));
-            
-        } elseif ($method === 'PUT' && $orderId) {
-            $status = $inputData['status'] ?? '';
-            $valid = ['pending', 'processing', 'completed', 'cancelled'];
-            
-            if (!in_array($status, $valid)) {
+            if (!$title || !$sku) {
                 http_response_code(422);
-                echo json_encode(["message" => "Invalid status"]);
+                echo json_encode(["message" => "Title and SKU required"]);
                 break;
             }
             
-            $order = firebaseRequest('/orders/' . $orderId);
-            if (!$order) {
-                http_response_code(404);
-                echo json_encode(["message" => "Order not found"]);
-                break;
-            }
-            
-            $order['status'] = $status;
-            $order['updated_at'] = date('Y-m-d H:i:s');
-            
-            firebaseRequest('/orders/' . $orderId, 'PUT', $order);
-            
-            echo json_encode([
-                "data" => [
-                    "id" => $orderId,
-                    "order_number" => $order['order_number'] ?? '',
-                    "status" => $status,
-                    "currency" => $order['currency'] ?? 'BDT',
-                    "total" => $order['total'] ?? '0',
-                    "payment_method" => $order['payment_method'] ?? 'cod',
-                    "shipping_address" => $order['shipping_address'] ?? [],
-                    "customer_notes" => $order['customer_notes'] ?? '',
-                    "line_items" => $order['line_items'] ?? [],
-                    "created_at" => $order['created_at'] ?? date('Y-m-d H:i:s')
-                ]
-            ]);
-            
-        } elseif ($method === 'POST' && $orderId && $subAction === 'timelines') {
-            $message = $inputData['message'] ?? '';
-            
-            $order = firebaseRequest('/orders/' . $orderId);
-            if (!$order) {
-                http_response_code(404);
-                echo json_encode(["message" => "Order not found"]);
-                break;
-            }
-            
-            $timeline = [
-                'message' => $message,
-                'created_at' => date('Y-m-d H:i:s')
+            $data = [
+                'title' => $title,
+                'sku' => $sku,
+                'description' => $inputData['description'] ?? '',
+                'category_ids' => $inputData['category_ids'] ?? [1],
+                'tags' => $inputData['tags'] ?? [],
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
             ];
             
-            if (!isset($order['timelines'])) {
-                $order['timelines'] = [];
+            $response = firestoreRequest('products', 'POST', null, $data);
+            
+            if ($response && isset($response['name'])) {
+                $id = basename($response['name']);
+                http_response_code(201);
+                echo json_encode([
+                    "message" => "Product Created",
+                    "data" => [
+                        "id" => $id,
+                        "title" => $title,
+                        "sku" => $sku,
+                        "tags" => $inputData['tags'] ?? [],
+                        "created_at" => date('Y-m-d H:i:s'),
+                        "updated_at" => date('Y-m-d H:i:s')
+                    ]
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["message" => "Failed to create product"]);
             }
-            $order['timelines'][] = $timeline;
-            $order['updated_at'] = date('Y-m-d H:i:s');
-            
-            firebaseRequest('/orders/' . $orderId, 'PUT', $order);
-            
-            http_response_code(201);
-            echo json_encode([
-                "data" => [
-                    "id" => $orderId,
-                    "order_number" => $order['order_number'] ?? '',
-                    "status" => $order['status'] ?? 'pending',
-                    "currency" => $order['currency'] ?? 'BDT',
-                    "total" => $order['total'] ?? '0',
-                    "payment_method" => $order['payment_method'] ?? 'cod',
-                    "shipping_address" => $order['shipping_address'] ?? [],
-                    "customer_notes" => $order['customer_notes'] ?? '',
-                    "line_items" => $order['line_items'] ?? [],
-                    "created_at" => $order['created_at'] ?? date('Y-m-d H:i:s')
-                ]
-            ]);
         }
         break;
 
+    // Default
     default:
         http_response_code(404);
         echo json_encode(["message" => "Endpoint not found"]);
