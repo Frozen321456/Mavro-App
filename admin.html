@@ -38,6 +38,7 @@
         .product-table-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
         .empty-state { text-align: center; padding: 50px; color: #999; }
         .empty-state i { font-size: 50px; margin-bottom: 20px; color: #ddd; }
+        .debug-info { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; color: #666; margin-top: 10px; border-left: 3px solid #007bff; }
     </style>
 </head>
 <body>
@@ -52,6 +53,9 @@
         <a href="#webhooks" class="nav-link" onclick="showSection('webhooks')"><i class="fa fa-link me-2"></i> Webhooks</a>
         <a href="#sync" class="nav-link" onclick="showSection('sync')"><i class="fa fa-sync me-2"></i> MoveDrop Sync</a>
     </nav>
+    <div class="debug-info" id="debugInfo">
+        <strong>Debug:</strong> Loading...
+    </div>
 </div>
 
 <div class="main">
@@ -119,15 +123,6 @@
                     <div id="galleryContainer"></div>
                 </div>
                 
-                <!-- Product Variations Section -->
-                <div class="col-12 mt-3">
-                    <h5>Product Variations</h5>
-                    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="addVariation()">
-                        <i class="fa fa-plus"></i> Add Variation
-                    </button>
-                    <div id="variationsContainer"></div>
-                </div>
-                
                 <div class="col-12 mt-3">
                     <label class="small fw-bold">Detailed Description</label>
                     <div id="editor"></div>
@@ -152,7 +147,6 @@
                             <th>Price</th>
                             <th>Category</th>
                             <th>Tags</th>
-                            <th>Variations</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -286,49 +280,6 @@
 
     // Gallery Array
     let galleryArr = [];
-    
-    // Variations Array
-    let variations = [];
-
-    // Add Variation Function
-    window.addVariation = () => {
-        const variationId = Date.now() + Math.random();
-        const container = document.getElementById('variationsContainer');
-        const variationHtml = `
-            <div class="variation-row" id="variation-${variationId}">
-                <div class="row">
-                    <div class="col-md-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="SKU" id="var-sku-${variationId}" required>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Regular Price" id="var-price-${variationId}" step="0.01" required>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Sale Price" id="var-sale-${variationId}" step="0.01">
-                    </div>
-                    <div class="col-md-1">
-                        <input type="number" class="form-control form-control-sm" placeholder="Stock" id="var-stock-${variationId}" value="100">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="Color" id="var-color-${variationId}">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="Size" id="var-size-${variationId}">
-                    </div>
-                    <div class="col-md-1">
-                        <button class="btn btn-sm btn-danger" onclick="removeVariation('${variationId}')">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', variationHtml);
-    };
-
-    window.removeVariation = (id) => {
-        document.getElementById(`variation-${id}`).remove();
-    };
 
     // Image to Base64
     const toBase64 = f => new Promise((resolve, reject) => {
@@ -443,33 +394,11 @@
             
             const allImages = [mainImageUrl, ...galleryUrls];
 
-            // Collect variations
-            const variationRows = document.querySelectorAll('[id^="variation-"]');
-            const variations = [];
-            variationRows.forEach(row => {
-                const rowId = row.id.replace('variation-', '');
-                const varSku = document.getElementById(`var-sku-${rowId}`)?.value;
-                const varPrice = document.getElementById(`var-price-${rowId}`)?.value;
-                const varSale = document.getElementById(`var-sale-${rowId}`)?.value;
-                const varStock = document.getElementById(`var-stock-${rowId}`)?.value;
-                const varColor = document.getElementById(`var-color-${rowId}`)?.value;
-                const varSize = document.getElementById(`var-size-${rowId}`)?.value;
-                
-                if (varSku && varPrice) {
-                    const properties = [];
-                    if (varColor) properties.push({ name: "Color", value: varColor });
-                    if (varSize) properties.push({ name: "Size", value: varSize });
-                    
-                    variations.push({
-                        sku: varSku,
-                        regular_price: parseFloat(varPrice),
-                        sale_price: varSale ? parseFloat(varSale) : null,
-                        stock_quantity: parseInt(varStock) || 0,
-                        image: mainImageUrl,
-                        properties: properties
-                    });
-                }
-            });
+            // Prepare images array for MoveDrop
+            const moveDropImages = allImages.map((src, index) => ({
+                src: src,
+                is_default: index === 0
+            }));
 
             // Get category ID
             let categoryId = null;
@@ -482,7 +411,7 @@
                 }
             }
 
-            // Save to Firebase Firestore
+            // Save to Firebase Firestore - using simple structure
             const productData = {
                 name: name,
                 sku: sku,
@@ -493,22 +422,16 @@
                 description: quill.root.innerHTML,
                 image: mainImageUrl,
                 images: allImages,
-                variations: variations,
-                created_at: firebase.firestore.FieldValue.serverTimestamp(),
-                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
             };
 
-            console.log("Saving product to Firestore:", productData);
+            console.log("Saving product:", productData);
             const docRef = await db.collection("products").add(productData);
             console.log("Product saved with ID:", docRef.id);
 
             // Sync to MoveDrop API
             try {
-                const moveDropImages = allImages.map((src, index) => ({
-                    src: src,
-                    is_default: index === 0
-                }));
-
                 const productResponse = await fetch(`${MOVEDROP_API_URL}?path=products`, {
                     method: 'POST',
                     headers: {
@@ -542,7 +465,6 @@
             document.getElementById('pImg').value = '';
             galleryArr = [];
             renderGallery();
-            document.getElementById('variationsContainer').innerHTML = '';
             quill.setContents([]);
 
         } catch (error) {
@@ -563,6 +485,7 @@
         
         if (snapshot.empty) {
             catList.innerHTML = '<p class="text-muted">No categories yet</p>';
+            document.getElementById('debugInfo').innerHTML += '<br>📁 No categories found';
         }
         
         snapshot.forEach(doc => {
@@ -589,24 +512,26 @@
         if (name) {
             await db.collection("categories").add({ 
                 name: name,
-                created_at: firebase.firestore.FieldValue.serverTimestamp()
+                created_at: new Date().toISOString()
             });
             document.getElementById('catName').value = "";
         }
     };
 
-    // Load Products
-    db.collection("products").orderBy("created_at", "desc").onSnapshot((snapshot) => {
+    // Load Products - FIXED VERSION
+    db.collection("products").onSnapshot((snapshot) => {
         const list = document.getElementById('pList');
+        const debugInfo = document.getElementById('debugInfo');
         list.innerHTML = "";
         let count = 0;
         
         console.log("Products snapshot received:", snapshot.size, "documents");
+        debugInfo.innerHTML = `<strong>Debug:</strong> Found ${snapshot.size} products<br>`;
         
         if (snapshot.empty) {
             list.innerHTML = `
                 <tr>
-                    <td colspan="8" class="empty-state">
+                    <td colspan="7" class="empty-state">
                         <i class="fa fa-box-open"></i>
                         <p>No products yet. Add your first product above.</p>
                     </td>
@@ -618,15 +543,15 @@
         snapshot.forEach(doc => {
             count++;
             const p = doc.data();
-            console.log(`Product ${count}:`, p);
+            console.log(`Product ${count}:`, p); // Debug log
             
-            const name = p.name || 'Unnamed';
+            // Handle different possible field names
+            const name = p.name || p.title || 'Unnamed';
             const sku = p.sku || 'N/A';
             const price = p.price ? parseFloat(p.price).toFixed(2) : '0.00';
-            const category = p.category || 'N/A';
+            const category = p.category || p.category_name || 'N/A';
             const tags = p.tags && Array.isArray(p.tags) ? p.tags.join(', ') : (p.tags || 'N/A');
-            const image = p.image || 'https://via.placeholder.com/50x50?text=No+Image';
-            const variationsCount = p.variations ? p.variations.length : 0;
+            const image = p.image || p.images?.[0] || 'https://via.placeholder.com/50x50?text=No+Image';
             
             list.innerHTML += `
                 <tr>
@@ -640,7 +565,6 @@
                     <td>৳${price}</td>
                     <td>${category}</td>
                     <td><small>${tags}</small></td>
-                    <td>${variationsCount} variations</td>
                     <td>
                         <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')" title="Delete"></i>
                         <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')" title="View"></i>
@@ -649,11 +573,13 @@
         });
         
         document.getElementById('totalProducts').innerText = count;
+        debugInfo.innerHTML += `✅ Loaded ${count} products`;
     }, (error) => {
         console.error("Error loading products:", error);
+        document.getElementById('debugInfo').innerHTML = `<strong>Error:</strong> ${error.message}`;
         document.getElementById('pList').innerHTML = `
             <tr>
-                <td colspan="8" class="empty-state">
+                <td colspan="7" class="empty-state">
                     <i class="fa fa-exclamation-triangle text-danger"></i>
                     <p>Error loading products: ${error.message}</p>
                 </td>
@@ -673,7 +599,7 @@
     };
 
     // Load Orders
-    db.collection("orders").orderBy("created_at", "desc").onSnapshot((snapshot) => {
+    db.collection("orders").onSnapshot((snapshot) => {
         const list = document.getElementById('orderList');
         list.innerHTML = "";
         let totalOrders = 0;
@@ -731,7 +657,7 @@
     window.updateOrderStatus = async (id, status) => {
         await db.collection("orders").doc(id).update({ 
             status: status,
-            updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            updated_at: new Date().toISOString()
         });
         
         // Sync to MoveDrop API
@@ -768,7 +694,7 @@
                 <tr>
                     <td>${w.event || 'N/A'}</td>
                     <td><small>${w.delivery_url || 'N/A'}</small></td>
-                    <td>${w.created_at ? new Date(w.created_at.toDate()).toLocaleString() : 'N/A'}</td>
+                    <td>${w.created_at ? new Date(w.created_at).toLocaleString() : 'N/A'}</td>
                 </tr>`;
         });
     });
@@ -795,10 +721,13 @@
             for (const doc of productsSnapshot.docs) {
                 const p = doc.data();
                 try {
-                    const images = p.images ? p.images.map((src, index) => ({
-                        src: src,
-                        is_default: index === 0
-                    })) : [{ src: p.image, is_default: true }];
+                    const images = [];
+                    if (p.image) {
+                        images.push({
+                            src: p.image,
+                            is_default: true
+                        });
+                    }
 
                     const response = await fetch(`${MOVEDROP_API_URL}?path=products`, {
                         method: 'POST',
