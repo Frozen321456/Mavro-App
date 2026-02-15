@@ -36,11 +36,36 @@
         .p-title { font-size: clamp(28px, 4vw, 42px); font-weight: 800; line-height: 1.1; margin-bottom: 15px; letter-spacing: -1px; }
         .p-price { font-size: 24px; font-weight: 600; margin-bottom: 30px; color: #333; }
         .btn-black { background: #000; color: #fff; border: none; padding: 20px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; transition: 0.3s; width: 100%; }
+        .btn-black:disabled { background: #ccc; cursor: not-allowed; }
         .description-area { border-top: 1px solid #eee; padding-top: 30px; margin-top: 20px; }
         #pDesc img { width: 100% !important; border-radius: 15px; margin: 20px 0; }
+        
+        /* Variations Section */
+        .variations-section { margin: 20px 0; }
+        .variation-group { margin-bottom: 20px; }
+        .variation-label { font-weight: 600; margin-bottom: 10px; display: block; }
+        .variation-options { display: flex; flex-wrap: wrap; gap: 10px; }
+        .variation-option { 
+            padding: 10px 20px; 
+            border: 2px solid #eee; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .variation-option.selected { 
+            border-color: #000; 
+            background: #000; 
+            color: #fff; 
+        }
+        .variation-option:hover { border-color: #999; }
+        
+        .stock-info { margin-top: 10px; font-size: 14px; color: #666; }
+        .in-stock { color: #4CAF50; }
+        .out-of-stock { color: #ff385c; }
 
         /* CART DRAWER */
-        .cart-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%; background: #fff; z-index: 2000; transition: 0.5s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        .cart-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%; background: #fff; z-index: 2000; transition: 0.5s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.05); overflow-y: auto; }
         .cart-drawer.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1500; display: none; backdrop-filter: blur(5px); }
         .overlay.active { display: block; }
@@ -61,7 +86,7 @@
             <i class="fa-solid fa-xmark" onclick="toggleCart()" style="cursor:pointer; font-size:24px;"></i>
         </div>
         <div id="cartItemsList"></div>
-        <div style="position: absolute; bottom: 40px; left: 40px; right: 40px;">
+        <div style="position: sticky; bottom: 40px; background: #fff; padding-top: 20px;">
             <div style="display:flex; justify-content:space-between; font-weight:800; font-size:20px; margin-bottom:20px;">
                 <span>Total</span><span id="cartTotalPrice">৳ 0</span>
             </div>
@@ -93,7 +118,12 @@
             <p class="p-category" id="pCat">Collection</p>
             <h1 class="p-title" id="pName">Loading...</h1>
             <div class="p-price" id="pPrice">৳ 0.00</div>
-            <button class="btn-black" id="addToCartBtn">ADD TO BAG</button>
+            
+            <!-- Variations Section -->
+            <div id="variationsContainer" class="variations-section"></div>
+            
+            <button class="btn-black" id="addToCartBtn" onclick="addToCart()">ADD TO BAG</button>
+            
             <div class="description-area">
                 <h4 style="font-size: 12px; letter-spacing: 1px; margin-bottom: 10px;">DETAILS</h4>
                 <div id="pDesc"></div>
@@ -121,40 +151,128 @@
         const pid = new URLSearchParams(window.location.search).get('id');
         let currentSlide = 0;
         let productImages = [];
+        let productData = null;
+        let selectedVariation = null;
 
         if(pid) {
             db.collection("products").doc(pid).onSnapshot((doc) => {
                 if(doc.exists) {
-                    const p = doc.data();
-                    document.getElementById('pName').innerText = p.name || 'Product';
-                    document.getElementById('pPrice').innerText = "৳ " + (p.price ? parseFloat(p.price).toFixed(2) : "0.00");
-                    document.getElementById('pCat').innerText = p.category || "Essence";
-                    document.getElementById('pDesc').innerHTML = p.description || "No description available";
+                    productData = { id: doc.id, ...doc.data() };
+                    
+                    // Display basic info
+                    document.getElementById('pName').innerText = productData.name || 'Product';
+                    document.getElementById('pPrice').innerText = "৳ " + (productData.price ? parseFloat(productData.price).toFixed(2) : "0.00");
+                    document.getElementById('pCat').innerText = productData.category || "Essence";
+                    document.getElementById('pDesc').innerHTML = productData.description || "No description available";
 
-                    // Multiple Images handling
+                    // Handle images
                     const wrap = document.getElementById('sliderWrapper');
                     wrap.innerHTML = ""; 
                     
-                    // Collect all images
                     productImages = [];
-                    if (p.images && Array.isArray(p.images) && p.images.length > 0) {
-                        productImages = p.images;
-                    } else if (p.image) {
-                        productImages = [p.image];
+                    if (productData.images && Array.isArray(productData.images) && productData.images.length > 0) {
+                        productImages = productData.images;
+                    } else if (productData.image) {
+                        productImages = [productData.image];
                     } else {
                         productImages = ['https://via.placeholder.com/600x800?text=No+Image'];
                     }
                     
-                    // Add images to slider
                     productImages.forEach(src => { 
                         wrap.innerHTML += `<img src="${src}" onerror="this.src='https://via.placeholder.com/600x800?text=No+Image'">`; 
                     });
                     
                     currentSlide = 0;
                     wrap.style.transform = `translateX(0)`;
+
+                    // Handle variations
+                    renderVariations(productData.variations);
                 }
             });
         }
+
+        function renderVariations(variations) {
+            const container = document.getElementById('variationsContainer');
+            if (!variations || variations.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // Group variations by properties
+            const properties = {};
+            variations.forEach((varItem, index) => {
+                if (varItem.properties && varItem.properties.length > 0) {
+                    varItem.properties.forEach(prop => {
+                        if (!properties[prop.name]) {
+                            properties[prop.name] = new Set();
+                        }
+                        properties[prop.name].add(prop.value);
+                    });
+                }
+            });
+
+            let html = '<div class="variations-section">';
+            
+            // Create property selectors
+            Object.keys(properties).forEach(propName => {
+                html += `<div class="variation-group">`;
+                html += `<span class="variation-label">${propName}:</span>`;
+                html += `<div class="variation-options" data-property="${propName}">`;
+                
+                Array.from(properties[propName]).forEach(value => {
+                    html += `<div class="variation-option" onclick="selectVariation('${propName}', '${value}')">${value}</div>`;
+                });
+                
+                html += `</div></div>`;
+            });
+
+            // Stock info
+            html += `<div class="stock-info" id="stockInfo"></div>`;
+            html += `</div>`;
+            
+            container.innerHTML = html;
+        }
+
+        window.selectVariation = (propName, value) => {
+            // Update UI
+            document.querySelectorAll(`[data-property="${propName}"] .variation-option`).forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.innerText === value) {
+                    opt.classList.add('selected');
+                }
+            });
+
+            // Find matching variation
+            if (!productData || !productData.variations) return;
+
+            const selectedProps = {};
+            document.querySelectorAll('.variation-group').forEach(group => {
+                const prop = group.querySelector('.variation-options').dataset.property;
+                const selected = group.querySelector('.variation-option.selected');
+                if (selected) {
+                    selectedProps[prop] = selected.innerText;
+                }
+            });
+
+            // Find variation that matches all selected properties
+            selectedVariation = productData.variations.find(v => {
+                if (!v.properties) return false;
+                return v.properties.every(p => selectedProps[p.name] === p.value);
+            });
+
+            // Update price and stock info
+            if (selectedVariation) {
+                document.getElementById('pPrice').innerText = "৳ " + 
+                    (selectedVariation.sale_price || selectedVariation.regular_price || productData.price || 0).toFixed(2);
+                
+                const stockInfo = document.getElementById('stockInfo');
+                if (selectedVariation.stock_quantity > 0) {
+                    stockInfo.innerHTML = `<span class="in-stock">✓ In Stock (${selectedVariation.stock_quantity} available)</span>`;
+                } else {
+                    stockInfo.innerHTML = `<span class="out-of-stock">✗ Out of Stock</span>`;
+                }
+            }
+        };
 
         window.moveSlide = (n) => {
             const wrap = document.getElementById('sliderWrapper');
@@ -170,14 +288,34 @@
             renderCart();
         };
 
-        document.getElementById('addToCartBtn').onclick = () => {
+        window.addToCart = () => {
+            if (!productData) return;
+
+            // If product has variations, require selection
+            if (productData.variations && productData.variations.length > 0) {
+                if (!selectedVariation) {
+                    alert("Please select a variation");
+                    return;
+                }
+                if (selectedVariation.stock_quantity <= 0) {
+                    alert("This variation is out of stock");
+                    return;
+                }
+            }
+
             const firstImg = productImages.length > 0 ? productImages[0] : '';
+            const price = selectedVariation ? 
+                (selectedVariation.sale_price || selectedVariation.regular_price) : 
+                productData.price;
+
             const item = { 
-                id: pid, 
-                name: document.getElementById('pName').innerText, 
-                price: document.getElementById('pPrice').innerText.replace('৳ ', ''), 
+                id: selectedVariation ? `${pid}_${selectedVariation.sku}` : pid, 
+                productId: pid,
+                name: productData.name,
+                price: parseFloat(price).toFixed(2),
                 image: firstImg,
-                sku: 'SKU-' + pid?.slice(0, 8)
+                sku: selectedVariation?.sku || productData.sku || 'SKU-' + pid?.slice(0, 8),
+                variation: selectedVariation
             };
             
             let cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
@@ -206,6 +344,7 @@
                             <div style="flex:1;">
                                 <h5 style="font-size:14px;font-weight:700;">${item.name}</h5>
                                 <p style="font-size:13px;margin:5px 0;">৳ ${price.toFixed(2)}</p>
+                                ${item.variation ? '<small>' + item.variation.properties.map(p => p.value).join(' / ') + '</small><br>' : ''}
                                 <small onclick="removeFromCart(${idx})" style="color:#ff385c;cursor:pointer;font-weight:600;">Remove</small>
                             </div>
                         </div>`;
