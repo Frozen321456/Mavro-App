@@ -1,7 +1,7 @@
 <?php
 /**
- * Mavro Essence - Category & Product Final Fix
- * API Key: MAVRO-ESSENCE-SECURE-KEY-2026
+ * Mavro Essence - Firestore API for MoveDrop
+ * Collection Names: 'products', 'categories'
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -15,22 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
-define('FIREBASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.firebaseio.com');
-
-// Firebase Helper Function
-function firebase($path, $method = 'GET', $data = null) {
-    $url = FIREBASE_URL . $path . '.json';
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    if ($data) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    }
-    $response = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($response, true);
-}
+// Firestore REST API URL (Project ID: espera-mavro-6ddc5)
+define('FIRESTORE_URL', 'https://firestore.googleapis.com/v1/projects/espera-mavro-6ddc5/databases/(default)/documents');
 
 // Security Check
 $headers = array_change_key_case(getallheaders(), CASE_UPPER);
@@ -45,67 +31,84 @@ $method = $_SERVER['REQUEST_METHOD'];
 $inputData = json_decode(file_get_contents('php://input'), true);
 $pathInfo = $_GET['path'] ?? '';
 $parts = explode('/', trim($pathInfo, '/'));
-$resource = $parts[0] ?? '';
+$resource = $parts[0] ?? ''; // categories or products
 $id = $parts[1] ?? null;
+
+// Helper: Firestore API Request
+function firestore($path, $method = 'GET', $fields = null) {
+    $url = FIRESTORE_URL . $path;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    if ($fields) {
+        // Firestore REST API expects data in a specific 'fields' format
+        $data = ["fields" => []];
+        foreach ($fields as $key => $value) {
+            if (is_array($value)) {
+                $data["fields"][$key] = ["arrayValue" => ["values" => array_map(function($v){ return ["stringValue" => (string)$v]; }, $value)]];
+            } else {
+                $data["fields"][$key] = ["stringValue" => (string)$value];
+            }
+        }
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($response, true);
+}
 
 switch ($resource) {
     case 'categories':
         if ($method === 'GET') {
-            $data = firebase('/categories');
-            $items = $data ? array_values($data) : [];
-            echo json_encode(["data" => $items]);
+            $res = firestore('/categories');
+            $list = [];
+            if (isset($res['documents'])) {
+                foreach ($res['documents'] as $doc) {
+                    $fields = $doc['fields'];
+                    $list[] = [
+                        "id" => basename($doc['name']),
+                        "name" => $fields['name']['stringValue'] ?? ''
+                    ];
+                }
+            }
+            echo json_encode(["data" => $list]);
         } 
         elseif ($method === 'POST') {
-            // ক্যাটাগরি আইডি জেনারেশন
-            $catId = 'cat_' . bin2hex(random_bytes(3));
-            $newCat = [
-                'id' => $catId,
-                'name' => $inputData['name'] ?? 'New Category',
-                'slug' => strtolower(str_replace(' ', '-', $inputData['name'] ?? 'new-cat')),
-                'created_at' => date('c')
-            ];
-            // এখানে PUT ব্যবহার করছি যাতে সরাসরি catId দিয়ে ডাটাবেসে সেভ হয়
-            firebase('/categories/' . $catId, 'PUT', $newCat);
-            echo json_encode(["data" => $newCat]);
+            $catId = 'cat_' . time();
+            $data = ['id' => $catId, 'name' => $inputData['name'] ?? 'New Cat'];
+            firestore('/categories?documentId=' . $catId, 'POST', $data);
+            echo json_encode(["data" => $data]);
         }
         break;
 
     case 'products':
         if ($method === 'POST') {
-            // MoveDrop এর category_ids হ্যান্ডলিং
-            $categoryIds = $inputData['category_ids'] ?? [];
-            if (empty($categoryIds)) { $categoryIds = ["uncategorized"]; }
-
+            $categoryIds = $inputData['category_ids'] ?? ["uncategorized"];
             $productId = $id ?? 'prod_' . time();
-            
-            // শপ পেজ এবং MoveDrop—উভয়কে খুশি করার জন্য ডাটা স্ট্রাকচার
-            $productData = [
+
+            // Firestore Structure (MoveDrop + Shop.html Compatibility)
+            $productFields = [
                 'id' => $productId,
-                'name' => $inputData['title'] ?? 'Unnamed Product',
-                'title' => $inputData['title'] ?? 'Unnamed Product',
-                'sku' => $inputData['sku'] ?? 'SKU-'.time(),
-                'price' => (float)($inputData['regular_price'] ?? 0),
+                'name' => $inputData['title'] ?? '',
+                'title' => $inputData['title'] ?? '',
+                'sku' => $inputData['sku'] ?? '',
+                'price' => $inputData['regular_price'] ?? '0',
                 'image' => $inputData['images'][0]['src'] ?? '',
-                'images' => $inputData['images'] ?? [],
-                'description' => $inputData['description'] ?? '',
-                'category' => (string)$categoryIds[0], // শপ পেজের জন্য
-                'category_ids' => $categoryIds,        // MoveDrop এর জন্য
-                'channel_association' => [
-                    'custom' => [
-                        [ 'category_ids' => $categoryIds ]
-                    ]
-                ],
-                'created_at' => date('c')
+                'category' => (string)$categoryIds[0], // Firestore এর জন্য string
+                'category_ids' => $categoryIds,         // MoveDrop এর জন্য array
+                'description' => strip_tags($inputData['description'] ?? '')
             ];
 
-            firebase('/products/' . $productId, 'PUT', $productData);
+            firestore('/products?documentId=' . $productId, 'POST', $productFields);
+            
             http_response_code(201);
-            echo json_encode(["message" => "Product Created", "data" => $productData]);
+            echo json_encode(["message" => "Created", "data" => ["id" => $productId]]);
         }
         break;
 
     case 'health':
-        echo json_encode(["status" => "online"]);
+        echo json_encode(["status" => "online", "database" => "Firestore"]);
         break;
 
     default:
