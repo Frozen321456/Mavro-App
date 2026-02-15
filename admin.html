@@ -12,26 +12,13 @@
         body { background: var(--bg); font-family: 'Inter', sans-serif; }
         .sidebar { background: #fff; height: 100vh; position: fixed; width: 250px; border-right: 1px solid #ddd; padding: 20px; z-index: 100; overflow-y: auto; }
         .main { margin-left: 250px; padding: 30px; }
-        @media (max-width: 768px) { 
-            .sidebar { height: auto; width: 100%; position: relative; } 
-            .main { margin-left: 0; padding: 15px; } 
-        }
+        @media (max-width: 768px) { .sidebar { height: auto; width: 100%; position: relative; } .main { margin-left: 0; padding: 15px; } }
         .card-custom { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: none; }
-        #galleryContainer { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
-        .gallery-item { position: relative; width: 70px; height: 70px; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
-        .remove-btn { position: absolute; top: -8px; right: -8px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .upload-trigger { border: 2px dashed #000; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; background: #fff; font-weight: bold; }
-        #editor { height: 300px; background: white; }
-        .nav-link { color: #333; padding: 10px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
+        .nav-link { color: #333; padding: 10px; border-radius: 8px; cursor: pointer; text-decoration: none; display: block; margin-bottom: 5px; }
         .nav-link:hover { background: #f0f0f0; }
         .nav-link.active { background: #111; color: #fff; }
-        .status-badge { padding: 5px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-processing { background: #cce5ff; color: #004085; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-cancelled { background: #f8d7da; color: #721c24; }
-        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        #editor { height: 250px; background: white; }
+        .p-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -39,12 +26,10 @@
 <div class="sidebar">
     <h4 class="mb-4 fw-bold text-center">MAVRO ADMIN</h4>
     <nav class="nav flex-column">
-        <a class="nav-link active" onclick="showSection('dashboard')"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
-        <a class="nav-link" onclick="showSection('products')"><i class="fa fa-box me-2"></i> Products</a>
-        <a class="nav-link" onclick="showSection('categories')"><i class="fa fa-list me-2"></i> Categories</a>
-        <a class="nav-link" onclick="showSection('orders')"><i class="fa fa-shopping-cart me-2"></i> Orders</a>
-        <a class="nav-link" onclick="showSection('webhooks')"><i class="fa fa-link me-2"></i> Webhooks</a>
-        <a class="nav-link" onclick="showSection('sync')"><i class="fa fa-sync me-2"></i> MoveDrop Sync</a>
+        <a onclick="showSection('dashboard')" class="nav-link active"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
+        <a onclick="showSection('products')" class="nav-link"><i class="fa fa-box me-2"></i> Products</a>
+        <a onclick="showSection('categories')" class="nav-link"><i class="fa fa-list me-2"></i> Categories</a>
+        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-shopping-cart me-2"></i> Orders</a>
     </nav>
 </div>
 
@@ -57,82 +42,47 @@
                     <h2 id="totalProducts">0</h2>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <h5>Total Orders</h5>
-                    <h2 id="totalOrders">0</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <h5>Pending Orders</h5>
-                    <h2 id="pendingOrders">0</h2>
-                </div>
-            </div>
         </div>
     </div>
 
     <div id="products" class="section" style="display: none;">
         <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Publish New Product</h5>
+            <h5 class="mb-4 fw-bold">Add New Product</h5>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="small fw-bold">Product Name *</label>
-                    <input type="text" id="pName" class="form-control" placeholder="Product name">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" id="pName" class="form-control" placeholder="Ex: Black Oud Perfume">
                 </div>
                 <div class="col-md-3">
-                    <label class="small fw-bold">SKU *</label>
-                    <input type="text" id="pSku" class="form-control" placeholder="SKU-12345">
+                    <label class="form-label">SKU</label>
+                    <input type="text" id="pSku" class="form-control" placeholder="SKU-001">
                 </div>
                 <div class="col-md-3">
-                    <label class="small fw-bold">Price (৳) *</label>
-                    <input type="number" id="pPrice" class="form-control" placeholder="0.00">
+                    <label class="form-label">Price (৳)</label>
+                    <input type="number" id="pPrice" class="form-control" placeholder="1200">
                 </div>
                 <div class="col-md-6">
-                    <label class="small fw-bold">Category</label>
-                    <select id="pCatSel" class="form-select">
-                        <option value="">Select Category</option>
-                    </select>
+                    <label class="form-label">Category</label>
+                    <select id="pCatSel" class="form-select"></select>
                 </div>
                 <div class="col-md-6">
-                    <label class="small fw-bold">Tags (comma separated)</label>
-                    <input type="text" id="pTags" class="form-control" placeholder="fashion, watch">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">Main Thumbnail *</label>
+                    <label class="form-label">Product Image</label>
                     <input type="file" id="pImg" class="form-control" accept="image/*">
                 </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">Gallery Images</label>
-                    <div class="upload-trigger" onclick="document.getElementById('galleryInput').click()">
-                        <i class="fa fa-plus-circle me-1"></i> Add to Gallery
-                    </div>
-                    <input type="file" id="galleryInput" class="d-none" accept="image/*" multiple>
-                    <div id="galleryContainer"></div>
-                </div>
-                
-                <div class="col-12 mt-3">
-                    <h5>Product Variations</h5>
-                    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="addVariation()">
-                        <i class="fa fa-plus"></i> Add Variation
-                    </button>
-                    <div id="variationsContainer"></div>
-                </div>
-                
-                <div class="col-12 mt-3">
-                    <label class="small fw-bold">Detailed Description</label>
+                <div class="col-12">
+                    <label class="form-label">Description</label>
                     <div id="editor"></div>
                 </div>
                 <div class="col-12">
-                    <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold shadow mt-2">
-                        <i class="fa fa-save me-2"></i> PUBLISH TO MOVEDROP
+                    <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold">
+                        <i class="fa fa-cloud-upload me-2"></i> PUBLISH TO SHOP & MOVEDROP
                     </button>
                 </div>
             </div>
         </div>
 
         <div class="card-custom">
-            <h5>Live Inventory</h5>
+            <h5>Live Products</h5>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
@@ -141,8 +91,7 @@
                             <th>Name</th>
                             <th>SKU</th>
                             <th>Price</th>
-                            <th>Category</th>
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="pList"></tbody>
@@ -153,60 +102,12 @@
 
     <div id="categories" class="section" style="display: none;">
         <div class="card-custom">
-            <h5>Add New Category</h5>
+            <h5>Manage Categories</h5>
             <div class="input-group mb-3">
-                <input type="text" id="catName" class="form-control" placeholder="Category name">
-                <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
+                <input type="text" id="catName" class="form-control" placeholder="Category Name">
+                <button id="saveCatBtn" class="btn btn-dark">Add</button>
             </div>
             <div id="catList" class="d-flex flex-wrap gap-2"></div>
-        </div>
-    </div>
-
-    <div id="orders" class="section" style="display: none;">
-        <div class="card-custom">
-            <h5>Order Management</h5>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Order #</th>
-                            <th>Customer</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orderList"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="webhooks" class="section" style="display: none;">
-        <div class="card-custom">
-            <h5>MoveDrop Webhooks</h5>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Event</th>
-                            <th>URL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="webhookTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="sync" class="section" style="display: none;">
-        <div class="card-custom">
-            <h5>API Status</h5>
-            <div class="alert alert-info">
-                <strong>Status:</strong> <span id="apiStatus">Checking...</span>
-            </div>
-            <button class="btn btn-success w-100 mb-2" onclick="syncProducts()">Manual Sync Products</button>
-            <div id="syncResult" class="mt-3"></div>
         </div>
     </div>
 </div>
@@ -217,7 +118,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
 <script>
-    // Firebase Config
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
         authDomain: "espera-mavro-6ddc5.firebaseapp.com",
@@ -226,182 +127,116 @@
         messagingSenderId: "137893255543",
         appId: "1:137893255543:web:a660bd412eb26ee322a972"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const storage = firebase.storage();
+    const quill = new Quill('#editor', { theme: 'snow' });
 
-    // MoveDrop Configuration
     const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
     const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
 
-    let categoryMap = {}; 
-    let galleryArr = [];
-
-    const quill = new Quill('#editor', { theme: 'snow' });
-
-    // Show Section
-    window.showSection = (sectionId) => {
+    // UI Logic
+    function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById(sectionId).style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
         event.currentTarget.classList.add('active');
+    }
+
+    // Categories Logic
+    db.collection("categories").onSnapshot(snap => {
+        const sel = document.getElementById('pCatSel');
+        const list = document.getElementById('catList');
+        sel.innerHTML = ""; list.innerHTML = "";
+        snap.forEach(doc => {
+            const name = doc.data().name;
+            sel.innerHTML += `<option value="${name}">${name}</option>`;
+            list.innerHTML += `<span class="badge bg-dark p-2">${name} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCat('${doc.id}')"></i></span>`;
+        });
+    });
+
+    document.getElementById('saveCatBtn').onclick = () => {
+        const name = document.getElementById('catName').value;
+        if(name) db.collection("categories").add({ name, created_at: new Date() });
+        document.getElementById('catName').value = "";
     };
 
-    // Load Categories with ID Mapping
-    db.collection("categories").onSnapshot((snapshot) => {
-        const select = document.getElementById('pCatSel');
-        const catList = document.getElementById('catList');
-        select.innerHTML = '<option value="">Select Category</option>';
-        catList.innerHTML = "";
-        
-        let index = 1;
-        snapshot.forEach(doc => {
-            const cat = doc.data();
-            const cid = cat.id || index++;
-            categoryMap[cat.name] = cid;
-            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-            catList.innerHTML += `<span class="badge bg-dark p-2">ID: ${cid} | ${cat.name} <i class="fa fa-times ms-2" onclick="deleteCategory('${doc.id}')"></i></span>`;
+    window.deleteCat = (id) => confirm("Delete category?") && db.collection("categories").doc(id).delete();
+
+    // Products Logic
+    db.collection("products").orderBy("created_at", "desc").onSnapshot(snap => {
+        const list = document.getElementById('pList');
+        list.innerHTML = "";
+        document.getElementById('totalProducts').innerText = snap.size;
+        snap.forEach(doc => {
+            const p = doc.data();
+            list.innerHTML += `
+                <tr>
+                    <td><img src="${p.image}" class="p-img-preview"></td>
+                    <td>${p.name}</td>
+                    <td>${p.sku}</td>
+                    <td>৳${p.price}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="deleteProduct('${doc.id}')">Delete</button></td>
+                </tr>`;
         });
     });
 
-    // Image Handlers
-    const toBase64 = f => new Promise((res, rej) => {
-        const r = new FileReader(); r.readAsDataURL(f); r.onload = () => res(r.result);
-    });
-
-    async function compressImage(base64) {
-        return new Promise(resolve => {
-            const img = new Image(); img.src = base64;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 600; canvas.height = (600/img.width)*img.height;
-                canvas.getContext('2d').drawImage(img, 0,0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7));
-            };
-        });
-    }
-
-    async function uploadToFirebase(base64, path) {
-        const ref = storage.ref(path);
-        await ref.putString(base64, 'data_url');
-        return await ref.getDownloadURL();
-    }
-
-    // Save Product
     document.getElementById('savePBtn').onclick = async () => {
-        const btn = document.getElementById('savePBtn');
         const name = document.getElementById('pName').value;
         const sku = document.getElementById('pSku').value;
         const price = document.getElementById('pPrice').value;
-        const catName = document.getElementById('pCatSel').value;
-        const mainImgFile = document.getElementById('pImg').files[0];
+        const cat = document.getElementById('pCatSel').value;
+        const file = document.getElementById('pImg').files[0];
 
-        if(!name || !sku || !mainImgFile) return alert("Fill required fields");
+        if(!name || !sku || !price || !file) return alert("Please fill all fields!");
 
-        btn.disabled = true; btn.innerHTML = "Processing...";
+        const btn = document.getElementById('savePBtn');
+        btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Syncing...';
 
         try {
-            const b64 = await toBase64(mainImgFile);
-            const compressed = await compressImage(b64);
-            const fireUrl = await uploadToFirebase(compressed, `products/${sku}_${Date.now()}.jpg`);
+            // 1. Storage Upload
+            const ref = storage.ref(`products/${Date.now()}_${sku}.jpg`);
+            await ref.put(file);
+            const url = await ref.getDownloadURL();
 
-            const payload = {
+            // 2. MoveDrop API Sync
+            const moveDropPayload = {
                 title: name,
                 sku: sku,
                 description: quill.root.innerHTML,
-                images: [{ src: fireUrl, is_default: true }],
-                category_ids: [parseInt(categoryMap[catName] || 1)],
-                tags: document.getElementById('pTags').value.split(','),
-                properties: []
+                images: [{ src: url, is_default: true }],
+                category_ids: [1] // Default
             };
 
-            const res = await fetch(`${MOVEDROP_API_URL}?path=products`, {
+            const apiRes = await fetch(`${MOVEDROP_API_URL}?path=products`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-API-KEY': MOVEDROP_API_KEY },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(moveDropPayload)
             });
 
-            const result = await res.json();
-            if(res.status === 201) {
-                await db.collection("products").add({ ...payload, image: fireUrl, api_id: result.data.id });
-                alert("Product Created Successfully on MoveDrop!");
+            if(apiRes.status === 201) {
+                const apiData = await apiRes.json();
+                // 3. Firestore Save
+                await db.collection("products").add({
+                    name, sku, price, category: cat,
+                    image: url, description: quill.root.innerHTML,
+                    api_id: apiData.data.id,
+                    created_at: new Date()
+                });
+                alert("Product Successfully Published!");
                 location.reload();
             } else {
-                alert("MoveDrop Error: " + (result.message || "Failed"));
+                alert("MoveDrop API Error. Please check API settings.");
             }
-        } catch (e) {
-            console.error(e); alert("Error Occurred");
+        } catch(e) {
+            alert("Error: " + e.message);
         } finally {
-            btn.disabled = false; btn.innerHTML = "PUBLISH TO MOVEDROP";
+            btn.disabled = false; btn.innerText = "PUBLISH TO SHOP & MOVEDROP";
         }
     };
 
-    // Load Products
-    db.collection("products").onSnapshot(snap => {
-        const list = document.getElementById('pList'); list.innerHTML = "";
-        let count = 0;
-        snap.forEach(doc => {
-            count++; const p = doc.data();
-            list.innerHTML += `<tr>
-                <td><img src="${p.image}" width="40"></td>
-                <td>${p.title}</td>
-                <td>${p.sku}</td>
-                <td>${p.price || '0'}</td>
-                <td>${p.category_ids[0]}</td>
-                <td><i class="fa fa-trash text-danger" onclick="deleteProduct('${doc.id}', '${p.api_id}')"></i></td>
-            </tr>`;
-        });
-        document.getElementById('totalProducts').innerText = count;
-    });
-
-    window.deleteProduct = async (fid, aid) => {
-        if(!confirm("Delete?")) return;
-        await db.collection("products").doc(fid).delete();
-        await fetch(`${MOVEDROP_API_URL}?path=products/${aid}`, { 
-            method: 'DELETE', 
-            headers: { 'X-API-KEY': MOVEDROP_API_KEY } 
-        });
-    };
-
-    // Load Orders
-    db.collection("orders").onSnapshot(snap => {
-        const list = document.getElementById('orderList'); list.innerHTML = "";
-        let tc = 0, pc = 0;
-        snap.forEach(doc => {
-            tc++; const o = doc.data(); if(o.status === 'pending') pc++;
-            list.innerHTML += `<tr>
-                <td>#${o.order_number || doc.id.slice(0,5)}</td>
-                <td>${o.shipping_address?.first_name || 'N/A'}</td>
-                <td>${o.total}</td>
-                <td><span class="status-badge status-${o.status}">${o.status}</span></td>
-                <td>
-                    <select class="form-select form-select-sm" onchange="updateStatus('${doc.id}', '${o.api_id}', this.value)">
-                        <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
-                        <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
-                        <option value="completed" ${o.status==='completed'?'selected':''}>Completed</option>
-                    </select>
-                </td>
-            </tr>`;
-        });
-        document.getElementById('totalOrders').innerText = tc;
-        document.getElementById('pendingOrders').innerText = pc;
-    });
-
-    window.updateStatus = async (fid, aid, status) => {
-        await db.collection("orders").doc(fid).update({ status });
-        await fetch(`${MOVEDROP_API_URL}?path=orders/${aid}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-API-KEY': MOVEDROP_API_KEY },
-            body: JSON.stringify({ status })
-        });
-    };
-
-    // Health Check
-    fetch(`${MOVEDROP_API_URL}?path=categories`, { headers: { 'X-API-KEY': MOVEDROP_API_KEY }})
-    .then(() => document.getElementById('apiStatus').innerHTML = '<span class="text-success">Online</span>')
-    .catch(() => document.getElementById('apiStatus').innerHTML = '<span class="text-danger">Offline</span>');
-
+    window.deleteProduct = (id) => confirm("Delete this product?") && db.collection("products").doc(id).delete();
 </script>
 </body>
-                                                         </html>
+</html>
