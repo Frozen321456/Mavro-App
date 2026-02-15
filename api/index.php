@@ -1,8 +1,7 @@
 <?php
 /**
- * MoveDrop Custom Channel - Final Go-Live Implementation
+ * MoveDrop Custom Channel - Updated Implementation 2026
  * API Key: MAVRO-ESSENCE-SECURE-KEY-2026
- * Base URL: https://mavro-app.vercel.app/api
  */
 
 // 1. Headers & Security
@@ -20,24 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
 define('FIREBASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.firebaseio.com');
 
-// 3. Helper: Key Verification (Advanced Check)
+// 3. Helper: Key Verification
 function verifyKey() {
     $headers = array_change_key_case(getallheaders(), CASE_UPPER);
-    $providedKey = '';
-    
-    if (isset($headers['X-API-KEY'])) {
-        $providedKey = $headers['X-API-KEY'];
-    } elseif (isset($_SERVER['HTTP_X_API_KEY'])) {
-        $providedKey = $_SERVER['HTTP_X_API_KEY'];
-    }
+    $providedKey = $headers['X-API-KEY'] ?? $_SERVER['HTTP_X_API_KEY'] ?? '';
 
     if ($providedKey !== API_KEY) {
         http_response_code(401);
-        echo json_encode([
-            "status" => "error",
-            "message" => "Unauthorized: Invalid API Key",
-            "received" => $providedKey ? "Protected" : "None"
-        ]);
+        echo json_encode(["status" => "error", "message" => "Unauthorized: Invalid API Key"]);
         exit();
     }
 }
@@ -54,29 +43,26 @@ function firebase($path, $method = 'GET', $body = null) {
     return json_decode($res, true);
 }
 
-// 5. API Routing
+// 5. API Routing Setup
 $requestPath = $_GET['path'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
+$pathParts = explode('/', rtrim($requestPath, '/'));
+$inputData = json_decode(file_get_contents('php://input'), true);
 
-// Health Check (Public or Protected)
+// Health Check
 if ($requestPath === 'health') {
-    echo json_encode([
-        "status" => "online",
-        "message" => "MoveDrop API is ready",
-        "api_key_configured" => true
-    ]);
+    echo json_encode(["status" => "online", "message" => "MoveDrop API is ready"]);
     exit();
 }
 
-// All other endpoints require Authentication
+// Authentication
 verifyKey();
 
-$inputData = json_decode(file_get_contents('php://input'), true);
-
-switch (true) {
+// --- Main Router ---
+switch ($pathParts[0]) {
     
-    // --- WEBHOOK REGISTRATION (Crucial for Connection) ---
-    case ($requestPath === 'webhooks'):
+    // Webhooks Endpoints
+    case 'webhooks':
         if ($method === 'POST') {
             firebase('/webhooks_config', 'PUT', $inputData);
             http_response_code(201);
@@ -84,10 +70,11 @@ switch (true) {
         }
         break;
 
-    // --- CATEGORIES ---
-    case ($requestPath === 'categories'):
+    // Categories Endpoints
+    case 'categories':
         if ($method === 'GET') {
             $data = firebase('/categories');
+            // Pagination handle (Optional but recommended)
             echo json_encode(["data" => $data ? array_values($data) : []]);
         } elseif ($method === 'POST') {
             $res = firebase('/categories', 'POST', $inputData);
@@ -96,33 +83,46 @@ switch (true) {
         }
         break;
 
-    // --- PRODUCTS ---
-    case (strpos($requestPath, 'products') === 0):
-        $parts = explode('/', $requestPath);
-        $productId = $parts[1] ?? null;
+    // Products Endpoints
+    case 'products':
+        $productId = $pathParts[1] ?? null;
+        $subAction = $pathParts[2] ?? null;
 
         if ($method === 'POST') {
-            $res = firebase('/products', 'POST', $inputData);
-            http_response_code(201);
-            echo json_encode(["message" => "Product Synced", "id" => $res['name']]);
+            if ($productId && $subAction === 'variations') {
+                // POST /products/:id/variations
+                firebase("/products/$productId/variations", 'PUT', $inputData['variations']);
+                echo json_encode(["message" => "Variations Updated"]);
+            } else {
+                // POST /products
+                $res = firebase('/products', 'POST', $inputData);
+                http_response_code(201);
+                echo json_encode(["message" => "Product Synced", "id" => $res['name']]);
+            }
         } elseif ($method === 'DELETE' && $productId) {
+            // DELETE /products/:id
             firebase('/products/' . $productId, 'DELETE');
             echo json_encode(["message" => "Product Deleted"]);
         }
         break;
 
-    // --- ORDERS ---
-    case (strpos($requestPath, 'orders') === 0):
-        $parts = explode('/', $requestPath);
-        $orderId = $parts[1] ?? null;
+    // Orders Endpoints
+    case 'orders':
+        $orderId = $pathParts[1] ?? null;
+        $subAction = $pathParts[2] ?? null;
 
         if ($method === 'GET') {
             $data = firebase('/orders');
             echo json_encode(["data" => $data ? array_values($data) : []]);
         } elseif ($method === 'PUT' && $orderId) {
-            // Update Order Status (Pending/Processing/Completed)
+            // PUT /orders/:id (Update Status)
             firebase('/orders/' . $orderId, 'PATCH', $inputData);
             echo json_encode(["message" => "Order Status Updated"]);
+        } elseif ($method === 'POST' && $orderId && $subAction === 'timelines') {
+            // POST /orders/:id/timelines
+            firebase("/orders/$orderId/timelines", 'POST', $inputData);
+            http_response_code(201);
+            echo json_encode(["message" => "Timeline Added"]);
         }
         break;
 
