@@ -1,7 +1,7 @@
 <?php
 /**
  * Mavro Essence - MoveDrop Final Official Implementation
- * Supports: Category Addition, Regular/Sale Price, Variations, and Deletion
+ * Fixed: Category, Variations Name, and Realtime Database Sync
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
 define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app');
 
-// সিকিউরিটি চেক
+// Security Check
 $headers = array_change_key_case(getallheaders(), CASE_UPPER);
 $providedKey = $headers['X-API-KEY'] ?? $_SERVER['HTTP_X_API_KEY'] ?? '';
 if ($providedKey !== API_KEY) {
@@ -30,12 +30,12 @@ $path = $_GET['path'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
 $inputData = json_decode(file_get_contents('php://input'), true);
 
-// ১. পন্য তৈরি (ক্যাটাগরি ফিক্স সহ)
+// ১. প্রোডাক্ট তৈরি (Create Product)
 if ($path === 'products' && $method === 'POST') {
-    $prodId = time();
+    $prodId = time(); 
     $now = date('c');
 
-    // ইমেজ প্রসেসিং
+    // মুভড্রপ থেকে আসা ইমেজ প্রসেসিং
     $images = [];
     if (!empty($inputData['images'])) {
         foreach ($inputData['images'] as $img) {
@@ -43,8 +43,8 @@ if ($path === 'products' && $method === 'POST') {
         }
     }
 
-    // ক্যাটাগরি প্রসেসিং (মুভড্রপ থেকে আসা category_ids)
-    $categoryList = $inputData['category_ids'] ?? [];
+    // ক্যাটাগরি ফিক্স: সরাসরি আইডি অ্যারে সেভ করা
+    $categories = $inputData['category_ids'] ?? [];
 
     $productData = [
         "id" => $prodId,
@@ -52,14 +52,15 @@ if ($path === 'products' && $method === 'POST') {
         "sku" => (string)$inputData['sku'],
         "description" => (string)($inputData['description'] ?? ''),
         "images" => $images,
-        "category_ids" => $categoryList, // ক্যাটাগরি আইডি এখানে সেভ হবে
+        "category_ids" => $categories, // মুভড্রপ ক্যাটাগরি সাপোর্ট
         "tags" => $inputData['tags'] ?? [],
         "created_at" => $now,
         "updated_at" => $now,
-        "regular_price" => "0", // ডিফল্ট
+        "regular_price" => "0",
         "sale_price" => ""
     ];
 
+    // Realtime Database এ সেভ করা (Firestore লজিক বাদ দেওয়া হয়েছে)
     firebaseRequest("PUT", "/products/$prodId.json", $productData);
 
     http_response_code(201);
@@ -75,41 +76,44 @@ if ($path === 'products' && $method === 'POST') {
     exit();
 }
 
-// ২. ভ্যারিয়েশন তৈরি (সঠিক নাম এবং প্রাইস সহ)
+// ২. ভ্যারিয়েশন তৈরি (সঠিক নাম সহ)
 if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === 'POST') {
-    $parentPid = $matches[1];
+    $pid = $matches[1];
     $vars = $inputData['variations'] ?? [];
     $responseEntries = [];
 
-    foreach ($vars as $index => $v) {
-        // প্রপার্টিজ থেকে নাম বের করা (যেমন: Color/Size)
-        $nameParts = [];
-        if (!empty($v['properties'])) {
-            foreach ($v['properties'] as $p) {
-                $nameParts[] = $p['value'];
+    if (!empty($vars)) {
+        foreach ($vars as $index => $v) {
+            // প্রপার্টি থেকে নাম বের করা (যেমন: Color: Black -> "Black")
+            $nameParts = [];
+            if (!empty($v['properties'])) {
+                foreach ($v['properties'] as $prop) {
+                    $nameParts[] = $prop['value'];
+                }
             }
-        }
-        $varName = !empty($nameParts) ? implode(" ", $nameParts) : $v['sku'];
+            // যদি নাম না থাকে তবে SKU ই নাম
+            $vName = !empty($nameParts) ? implode(" ", $nameParts) : $v['sku'];
 
-        $varData = [
-            "sku" => $v['sku'],
-            "regular_price" => (string)$v['regular_price'],
-            "sale_price" => (string)($v['sale_price'] ?? ''),
-            "image" => $v['image'],
-            "name" => $varName,
-            "stock" => $v['stock_quantity'] ?? 0
-        ];
+            $varData = [
+                "sku" => $v['sku'],
+                "regular_price" => (string)$v['regular_price'],
+                "sale_price" => (string)($v['sale_price'] ?? ''),
+                "image" => $v['image'],
+                "name" => $vName, // এটিই বাটনে দেখাবে
+                "stock" => $v['stock_quantity'] ?? 0
+            ];
 
-        firebaseRequest("PUT", "/products/$parentPid/variations/$index.json", $varData);
-        
-        // মেইন প্রোডাক্টের প্রাইস আপডেট
-        if ($index === 0) {
-            firebaseRequest("PATCH", "/products/$parentPid.json", [
-                "regular_price" => $varData['regular_price'],
-                "sale_price" => $varData['sale_price']
-            ]);
+            firebaseRequest("PUT", "/products/$pid/variations/$index.json", $varData);
+            
+            // প্রথম ভ্যারিয়েশন দিয়ে মেইন প্রাইস আপডেট
+            if ($index === 0) {
+                firebaseRequest("PATCH", "/products/$pid.json", [
+                    "regular_price" => $varData['regular_price'],
+                    "sale_price" => $varData['sale_price']
+                ]);
+            }
+            $responseEntries[] = ["id" => (int)($pid . $index), "sku" => $v['sku']];
         }
-        $responseEntries[] = ["id" => $parentPid.$index, "sku" => $v['sku']];
     }
 
     http_response_code(201);
@@ -117,7 +121,7 @@ if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === '
     exit();
 }
 
-// ৩. ডিলিট পন্য
+// ৩. প্রোডাক্ট ডিলিট (Delete)
 if (preg_match('/products\/(.+)/', $path, $matches) && $method === 'DELETE') {
     $delId = $matches[1];
     firebaseRequest("DELETE", "/products/$delId.json");
@@ -125,7 +129,7 @@ if (preg_match('/products\/(.+)/', $path, $matches) && $method === 'DELETE') {
     exit();
 }
 
-// Firebase REST Function
+// Firebase Helper
 function firebaseRequest($method, $endpoint, $data = null) {
     $url = DATABASE_URL . $endpoint;
     $ch = curl_init($url);
@@ -135,6 +139,7 @@ function firebaseRequest($method, $endpoint, $data = null) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     }
-    curl_exec($ch);
+    $response = curl_exec($ch);
     curl_close($ch);
+    return json_decode($response, true);
 }
