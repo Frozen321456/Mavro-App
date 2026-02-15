@@ -17,8 +17,8 @@
         .nav-link { color: #333; padding: 12px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; display: block; text-decoration: none; }
         .nav-link.active { background: #111; color: #fff; }
         #editor { height: 200px; background: white; margin-bottom: 20px; }
+        .variation-row { background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 10px; }
         .p-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
-        .variation-row { background: #fdfdfd; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 10px; position: relative; }
     </style>
 </head>
 <body>
@@ -29,7 +29,7 @@
         <a onclick="showSection('dashboard')" class="nav-link active"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
         <a onclick="showSection('products')" class="nav-link"><i class="fa fa-box me-2"></i> Products</a>
         <a onclick="showSection('categories')" class="nav-link"><i class="fa fa-list me-2"></i> Categories</a>
-        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-sync me-2"></i> Orders Sync</a>
+        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-shopping-bag me-2"></i> Order Management</a>
     </nav>
     <div class="mt-5 p-2 border-top text-center" id="apiStatus">
         <small class="text-muted">API: Checking...</small>
@@ -38,27 +38,28 @@
 
 <div class="main">
     <div id="dashboard" class="section">
-        <h3 class="fw-bold mb-4">Admin Dashboard</h3>
+        <h3 class="fw-bold mb-4">Dashboard</h3>
         <div class="row">
             <div class="col-md-4"><div class="card-custom text-center"><h6>Total Products</h6><h2 id="totalProducts">0</h2></div></div>
+            <div class="col-md-4"><div class="card-custom text-center"><h6>New Orders</h6><h2 id="totalOrders">0</h2></div></div>
         </div>
     </div>
 
-    <div id="products" class="section" style="display: none;">
+    <div id="products" class="section" style="display:none;">
         <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Publish New Product</h5>
+            <h5 class="mb-4 fw-bold">Publish Product</h5>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label small fw-bold">Product Name *</label>
-                    <input type="text" id="pName" class="form-control" placeholder="E.g. Black Oud">
+                    <input type="text" id="pName" class="form-control">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">SKU *</label>
-                    <input type="text" id="pSku" class="form-control" placeholder="SKU-001">
+                    <input type="text" id="pSku" class="form-control">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">Base Price *</label>
-                    <input type="number" id="pPrice" class="form-control" placeholder="0.00">
+                    <input type="number" id="pPrice" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-bold">Category *</label>
@@ -66,30 +67,35 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-bold">Main Image URL *</label>
-                    <input type="text" id="pImgUrl" class="form-control" placeholder="https://link-to-image.jpg">
+                    <input type="text" id="pImgUrl" class="form-control">
+                </div>
+
+                <div class="col-12 mt-2">
+                    <label class="form-label small fw-bold">Gallery Image URLs (Optional)</label>
+                    <div class="row g-2">
+                        <div class="col-md-4"><input type="text" id="gal1" class="form-control" placeholder="Gallery Link 1"></div>
+                        <div class="col-md-4"><input type="text" id="gal2" class="form-control" placeholder="Gallery Link 2"></div>
+                        <div class="col-md-4"><input type="text" id="gal3" class="form-control" placeholder="Gallery Link 3"></div>
+                    </div>
                 </div>
 
                 <div class="col-12 mt-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="fw-bold small">Product Variations (Sizes, Prices & Images)</label>
-                        <button type="button" class="btn btn-sm btn-dark" onclick="addVariationRow()">+ Add Variation</button>
+                        <label class="fw-bold small">Variations (Size/Price)</label>
+                        <button type="button" class="btn btn-sm btn-dark" onclick="addVariation()">+ Add Variation</button>
                     </div>
-                    <div id="variationContainer">
-                        </div>
+                    <div id="variationContainer"></div>
                 </div>
 
                 <div class="col-12">
                     <label class="form-label small fw-bold">Description</label>
                     <div id="editor"></div>
                 </div>
-                <div class="col-12">
-                    <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold">PUBLISH PRODUCT</button>
-                </div>
+                <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold">PUBLISH PRODUCT</button>
             </div>
         </div>
-
         <div class="card-custom">
-            <h5>Product Inventory</h5>
+            <h5>Product List</h5>
             <table class="table align-middle">
                 <thead><tr><th>Image</th><th>Name</th><th>SKU</th><th>Price</th><th>Action</th></tr></thead>
                 <tbody id="pList"></tbody>
@@ -97,21 +103,26 @@
         </div>
     </div>
 
-    <div id="categories" class="section" style="display: none;">
+    <div id="categories" class="section" style="display:none;">
         <div class="card-custom">
-            <h5>Manage Categories</h5>
+            <h5>Categories</h5>
             <div class="input-group mb-3">
-                <input type="text" id="catName" class="form-control" placeholder="New Category Name">
+                <input type="text" id="catName" class="form-control">
                 <button id="saveCatBtn" class="btn btn-dark">Add</button>
             </div>
-            <div id="catList" class="d-flex flex-wrap gap-2"></div>
+            <div id="catList"></div>
         </div>
     </div>
 
-    <div id="orders" class="section" style="display: none;">
+    <div id="orders" class="section" style="display:none;">
         <div class="card-custom">
-            <h5>Order Sync (MoveDrop)</h5>
-            <button class="btn btn-dark" onclick="alert('Order sync logic is active.')">Manual Sync Orders</button>
+            <h5 class="mb-4">Customer Orders</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="orderList"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -133,126 +144,105 @@
     const db = firebase.firestore();
     const quill = new Quill('#editor', { theme: 'snow' });
 
+    const MOVEDROP_API_URL = 'https://mavro-app.vercel.app/api';
     const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
-    const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
     let categoryMap = {};
 
     function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
         document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        event.currentTarget?.classList.add('active');
     }
 
-    // --- Variation Logic ---
-    function addVariationRow() {
-        const container = document.getElementById('variationContainer');
-        const row = document.createElement('div');
-        row.className = 'variation-row row g-2';
-        row.innerHTML = `
-            <div class="col-md-3"><input type="text" class="form-control form-control-sm var-size" placeholder="Size (3ml)"></div>
-            <div class="col-md-3"><input type="number" class="form-control form-control-sm var-price" placeholder="Price"></div>
-            <div class="col-md-5"><input type="text" class="form-control form-control-sm var-img" placeholder="Var Image URL (Optional)"></div>
-            <div class="col-md-1"><button class="btn btn-sm btn-danger w-100" onclick="this.parentElement.parentElement.remove()">×</button></div>
-        `;
-        container.appendChild(row);
+    // Variation Logic
+    function addVariation() {
+        const div = document.createElement('div');
+        div.className = 'variation-row row g-2';
+        div.innerHTML = `
+            <div class="col-md-3"><input type="text" class="form-control v-size" placeholder="6ml"></div>
+            <div class="col-md-3"><input type="number" class="form-control v-price" placeholder="Price"></div>
+            <div class="col-md-5"><input type="text" class="form-control v-img" placeholder="Var Image Link"></div>
+            <div class="col-md-1"><button class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove()">×</button></div>`;
+        document.getElementById('variationContainer').appendChild(div);
     }
 
-    // --- Load Data ---
+    // Load Categories
     db.collection("categories").onSnapshot(snap => {
         const sel = document.getElementById('pCatSel');
-        const list = document.getElementById('catList');
-        sel.innerHTML = '<option value="">Choose Category</option>';
-        list.innerHTML = "";
+        sel.innerHTML = '<option value="">Select Category</option>';
         let i = 1;
         snap.forEach(doc => {
-            const name = doc.data().name;
-            const cid = doc.data().id || i++;
-            categoryMap[name] = parseInt(cid);
-            sel.innerHTML += `<option value="${name}">${name}</option>`;
-            list.innerHTML += `<span class="badge bg-light text-dark border p-2">${name} (ID: ${cid}) <i class="fa fa-times text-danger ms-2" onclick="deleteCat('${doc.id}')" style="cursor:pointer"></i></span>`;
+            categoryMap[doc.data().name] = doc.data().id || i++;
+            sel.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`;
         });
     });
 
+    // Save Product
+    document.getElementById('savePBtn').onclick = async () => {
+        const name = document.getElementById('pName').value;
+        const sku = document.getElementById('pSku').value;
+        const price = document.getElementById('pPrice').value;
+        const mainImg = document.getElementById('pImgUrl').value;
+        const cat = document.getElementById('pCatSel').value;
+
+        const gallery = [document.getElementById('gal1').value, document.getElementById('gal2').value, document.getElementById('gal3').value].filter(url => url !== "");
+        
+        const variations = [];
+        document.querySelectorAll('.variation-row').forEach(row => {
+            const size = row.querySelector('.v-size').value;
+            const vPrice = row.querySelector('.v-price').value;
+            const vImg = row.querySelector('.v-img').value;
+            if(size && vPrice) variations.push({ size, price: parseFloat(vPrice), image: vImg || mainImg });
+        });
+
+        if(!name || !sku || !mainImg) return alert("Fill required fields!");
+
+        try {
+            const payload = {
+                title: name, sku, description: quill.root.innerHTML,
+                price: parseFloat(price), images: [{src: mainImg, is_default: true}, ...gallery.map(g => ({src: g, is_default: false}))],
+                category_ids: [parseInt(categoryMap[cat]) || 1], channel_ids: [1], variations, status: 'published'
+            };
+
+            const res = await fetch(`${MOVEDROP_API_URL}?path=products`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-API-KEY': MOVEDROP_API_KEY },
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                await db.collection("products").add({ name, sku, price, image: mainImg, gallery, variations, category: cat, created_at: new Date() });
+                alert("Published Successfully!");
+                location.reload();
+            }
+        } catch(e) { alert(e.message); }
+    };
+
+    // Load Orders
+    db.collection("orders").orderBy("timestamp", "desc").onSnapshot(snap => {
+        const list = document.getElementById('orderList');
+        list.innerHTML = "";
+        document.getElementById('totalOrders').innerText = snap.size;
+        snap.forEach(doc => {
+            const o = doc.data();
+            list.innerHTML += `<tr><td>${doc.id.slice(0,8)}</td><td>${o.customerName}</td><td>৳${o.totalAmount}</td><td><span class="badge bg-warning">${o.status || 'Pending'}</span></td><td><button class="btn btn-sm btn-dark" onclick="syncOrder('${doc.id}')">Sync</button></td></tr>`;
+        });
+    });
+
+    // Load Products
     db.collection("products").orderBy("created_at", "desc").onSnapshot(snap => {
         const list = document.getElementById('pList');
         list.innerHTML = "";
         document.getElementById('totalProducts').innerText = snap.size;
         snap.forEach(doc => {
             const p = doc.data();
-            list.innerHTML += `<tr>
-                <td><img src="${p.image}" class="p-img-preview" onerror="this.src='https://via.placeholder.com/50'"></td>
-                <td>${p.name}</td><td>${p.sku}</td><td>৳${p.price}</td>
-                <td><button class="btn btn-sm btn-danger" onclick="deleteProduct('${doc.id}')">Delete</button></td>
-            </tr>`;
+            list.innerHTML += `<tr><td><img src="${p.image}" class="p-img-preview"></td><td>${p.name}</td><td>${p.sku}</td><td>৳${p.price}</td><td><button class="btn btn-sm btn-danger" onclick="db.collection('products').doc('${doc.id}').delete()">×</button></td></tr>`;
         });
     });
 
-    // --- Save Logic ---
-    document.getElementById('savePBtn').onclick = async () => {
-        const name = document.getElementById('pName').value;
-        const sku = document.getElementById('pSku').value;
-        const price = document.getElementById('pPrice').value;
-        const cat = document.getElementById('pCatSel').value;
-        const mainImg = document.getElementById('pImgUrl').value;
-
-        if(!name || !sku || !price || !cat || !mainImg) return alert("All fields are required!");
-
-        const variations = [];
-        document.querySelectorAll('.variation-row').forEach(row => {
-            const vSize = row.querySelector('.var-size').value;
-            const vPrice = row.querySelector('.var-price').value;
-            const vImg = row.querySelector('.var-img').value;
-            if(vSize && vPrice) {
-                variations.push({ size: vSize, price: parseFloat(vPrice), image: vImg || mainImg });
-            }
-        });
-
-        const btn = document.getElementById('savePBtn');
-        btn.disabled = true; btn.innerText = "Publishing...";
-
-        try {
-            const cId = categoryMap[cat] || 1;
-            const payload = {
-                title: name,
-                sku: sku,
-                description: quill.root.innerHTML,
-                images: [{ src: mainImg, is_default: true }],
-                category_ids: [cId]
-            };
-
-            const apiRes = await fetch(`${MOVEDROP_API_URL}?path=products`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-API-KEY': MOVEDROP_API_KEY },
-                body: JSON.stringify(payload)
-            });
-
-            if(apiRes.status === 201) {
-                const apiData = await apiRes.json();
-                await db.collection("products").add({
-                    name, sku, price: parseFloat(price), category: cat, image: mainImg,
-                    description: quill.root.innerHTML,
-                    variations: variations,
-                    api_id: apiData.data.id,
-                    created_at: new Date()
-                });
-                alert("Product & Variations Published!");
-                location.reload();
-            } else {
-                const err = await apiRes.json();
-                alert("API Error: " + err.message);
-            }
-        } catch(e) { alert("Error: " + e.message); }
-        finally { btn.disabled = false; btn.innerText = "PUBLISH PRODUCT"; }
-    };
-
-    window.deleteCat = id => confirm("Delete?") && db.collection("categories").doc(id).delete();
-    window.deleteProduct = id => confirm("Delete?") && db.collection("products").doc(id).delete();
-
-    // API Check
+    // Health Check
     fetch(`${MOVEDROP_API_URL}?path=health`, { headers: { 'X-API-KEY': MOVEDROP_API_KEY } })
-    .then(r => r.ok && (document.getElementById('apiStatus').innerHTML = '<span class="text-success small">● API Online</span>'))
-    .catch(() => document.getElementById('apiStatus').innerHTML = '<span class="text-danger small">● API Offline</span>');
+    .then(r => r.ok && (document.getElementById('apiStatus').innerHTML = '<span class="text-success small">● Online</span>'));
 </script>
 </body>
 </html>
