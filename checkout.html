@@ -16,6 +16,7 @@
         .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 10000; align-items: center; justify-content: center; flex-direction: column; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ff5a5f; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .variation-details { font-size: 11px; color: #999; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -104,6 +105,12 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // Enable persistence
+    db.enablePersistence()
+        .catch((err) => {
+            console.log("Persistence failed:", err);
+        });
+
     // MoveDrop API Configuration
     const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
     const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
@@ -117,12 +124,21 @@
         list.innerHTML = "";
         grandTotal = 0;
 
-        cart.forEach(item => {
+        cart.forEach((item, index) => {
             const price = parseFloat(item.price) || 0;
             grandTotal += price;
+            
+            let variationHtml = '';
+            if (item.variation && item.variation.properties) {
+                variationHtml = `<div class="variation-details">${item.variation.properties.map(p => p.value).join(' / ')}</div>`;
+            }
+            
             list.innerHTML += `
                 <div class="summary-item">
-                    <span>${item.name} (x1)</span>
+                    <div>
+                        <span>${item.name}</span>
+                        ${variationHtml}
+                    </div>
                     <span>৳ ${price.toFixed(2)}</span>
                 </div>`;
         });
@@ -195,7 +211,7 @@
             order_number: orderNumber,
             status: "pending",
             currency: "BDT",
-            total: grandTotal.toString(),
+            total: grandTotal.toFixed(2),
             payment_method: "cod",
             shipping_address: {
                 first_name: firstName,
@@ -210,35 +226,53 @@
                 country: "Bangladesh"
             },
             customer_notes: "",
-            line_items: cart.map((item, index) => ({
-                id: index + 1,
-                product_id: item.id || 0,
-                name: item.name,
-                quantity: 1,
-                total: item.price.toString(),
-                variations: [{
+            line_items: cart.map((item, index) => {
+                const variationId = item.variation ? parseInt(item.variation.sku.replace(/\D/g, '')) || index + 1 : 0;
+                return {
                     id: index + 1,
-                    variation_id: 0,
-                    sku: item.sku || "SKU-" + (item.id || index),
+                    product_id: parseInt(item.productId?.replace(/\D/g, '')) || 0,
+                    name: item.name,
                     quantity: 1,
-                    price: item.price.toString()
-                }]
-            }))
+                    total: item.price,
+                    variations: item.variation ? [{
+                        id: variationId,
+                        variation_id: variationId,
+                        sku: item.variation.sku || item.sku,
+                        quantity: 1,
+                        price: item.price
+                    }] : []
+                };
+            }),
+            created_at: new Date().toISOString()
         };
 
         try {
-            // 1. Save to Firebase
+            // 1. Save to Firebase with proper error handling
             const docRef = await db.collection("orders").add({
-                ...orderData,
+                order_number: orderNumber,
+                status: "pending",
+                currency: "BDT",
+                total: grandTotal.toFixed(2),
+                payment_method: "cod",
+                shipping_address: orderData.shipping_address,
                 customer: {
                     name: name,
                     phone: phone,
                     email: email || "",
                     address: addr
                 },
+                line_items: cart.map(item => ({
+                    id: item.id || item.productId,
+                    name: item.name,
+                    price: item.price,
+                    sku: item.sku,
+                    variation: item.variation
+                })),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             });
+
+            console.log("Order saved to Firebase with ID:", docRef.id);
 
             // 2. Send to MoveDrop via API
             try {
@@ -274,7 +308,7 @@
                                 order_number: orderNumber,
                                 status: "pending",
                                 currency: "BDT",
-                                total: grandTotal.toString(),
+                                total: grandTotal.toFixed(2),
                                 payment_method: "cod",
                                 shipping_address: orderData.shipping_address,
                                 line_items: orderData.line_items,
