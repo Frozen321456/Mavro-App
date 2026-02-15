@@ -1,6 +1,6 @@
 <?php
 /**
- * Mavro Essence - MoveDrop Firestore API (Final Fix)
+ * Mavro Essence - MoveDrop EXCLUSIVE FINAL FIX
  * Project ID: espera-mavro-6ddc5
  */
 
@@ -45,6 +45,7 @@ switch ($resource) {
                     ];
                 }
             }
+            // MoveDrop expects 'data' wrapper
             echo json_encode(["data" => $list]);
         } 
         elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -63,15 +64,16 @@ switch ($resource) {
     case 'products':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $prodId = $parts[1] ?? 'prod_' . time();
-            $catIds = $inputData['category_ids'] ?? ["uncategorized"];
             
-            // MoveDrop এর সেই এররটি ফিক্স করার জন্য সঠিক ক্যাটাগরি অ্যারে ফরম্যাট
-            $catArray = [];
-            foreach ($catIds as $c) {
-                $catArray[] = ["stringValue" => (string)$c];
-            }
+            // ১. MoveDrop থেকে আসা ডেটা প্রসেসিং
+            $catIds = $inputData['category_ids'] ?? [];
+            if (empty($catIds)) { $catIds = ["uncategorized"]; }
 
-            // Firestore Data Structure
+            // ক্যাটাগরি আইডিগুলোকে Firestore array ফরম্যাটে নেওয়া
+            $catValues = [];
+            foreach ($catIds as $c) { $catValues[] = ["stringValue" => (string)$c]; }
+
+            // ২. Firestore Strict Data Mapping
             $firestoreData = [
                 "fields" => [
                     "id" => ["stringValue" => $prodId],
@@ -80,40 +82,62 @@ switch ($resource) {
                     "sku" => ["stringValue" => (string)($inputData['sku'] ?? '')],
                     "price" => ["stringValue" => (string)($inputData['regular_price'] ?? '0')],
                     "image" => ["stringValue" => $inputData['images'][0]['src'] ?? ''],
-                    "category" => ["stringValue" => (string)$catIds[0]], // Single string for Shop filter
-                    "category_ids" => ["arrayValue" => ["values" => $catArray]], // Array for MoveDrop
+                    "category" => ["stringValue" => (string)$catIds[0]], // String for easy shop filtering
+                    "category_ids" => ["arrayValue" => ["values" => $catValues]], // Array for MoveDrop
                     "description" => ["stringValue" => strip_tags($inputData['description'] ?? '')],
                     "created_at" => ["stringValue" => date('c')]
                 ]
             ];
 
-            // এই নেস্টেড অবজেক্টটি MoveDrop এর 'channel_association' এরর দূর করবে
-            $firestoreData["fields"]["channel_association"] = ["mapValue" => [
-                "fields" => [
-                    "custom" => ["arrayValue" => ["values" => [
-                        ["mapValue" => [
-                            "fields" => [
-                                "category_ids" => ["arrayValue" => ["values" => $catArray]]
+            // ৩. MoveDrop এর সেই নির্দিষ্ট এরর ফিক্স (channel_association mapping)
+            // মুভড্রপ মূলত এই নিচের নেস্টেড স্ট্রাকচারটি ভ্যালিডেশন করে
+            $firestoreData["fields"]["channel_association"] = [
+                "mapValue" => [
+                    "fields" => [
+                        "custom" => [
+                            "arrayValue" => [
+                                "values" => [
+                                    [
+                                        "mapValue" => [
+                                            "fields" => [
+                                                "category_ids" => [
+                                                    "arrayValue" => [
+                                                        "values" => $catValues
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
                             ]
-                        ]]
-                    ]]]
+                        ]
+                    ]
                 ]
-            ]];
+            ];
 
-            curl_call("/products?documentId=$prodId", 'POST', $firestoreData);
+            // ৪. Firestore এ রিকোয়েস্ট পাঠানো
+            $saveRes = curl_call("/products?documentId=$prodId", 'POST', $firestoreData);
             
+            // ৫. মুভড্রপকে সাকসেস রেসপন্স দেওয়া
             http_response_code(201);
-            echo json_encode(["message" => "Success", "id" => $prodId]);
+            echo json_encode([
+                "message" => "Success",
+                "id" => $prodId,
+                "data" => [
+                    "id" => $prodId,
+                    "category_ids" => $catIds // মুভড্রপকে জানানো যে আমরা আইডি পেয়েছি
+                ]
+            ]);
         }
         break;
 
     case 'health':
-        echo json_encode(["status" => "online", "db" => "Firestore-REST-Fixed"]);
+        echo json_encode(["status" => "online", "engine" => "Firestore-MoveDrop-Final"]);
         break;
 
     default:
         http_response_code(404);
-        echo json_encode(["message" => "Not Found"]);
+        echo json_encode(["message" => "Resource not found"]);
         break;
 }
 
