@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin | Mavro Essence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        :root { --dark: #111; --bg: #f8f9fa; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; }
+        .sidebar { background: #fff; height: 100vh; position: fixed; width: 250px; border-right: 1px solid #ddd; padding: 20px; z-index: 100; overflow-y: auto; }
+        .main { margin-left: 250px; padding: 30px; }
+        @media (max-width: 768px) { 
+            .sidebar { height: auto; width: 100%; position: relative; } 
+            .main { margin-left: 0; padding: 15px; } 
+        }
+        .card-custom { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: none; }
+        #galleryContainer { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .gallery-item { position: relative; width: 70px; height: 70px; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+        .remove-btn { position: absolute; top: -8px; right: -8px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .upload-trigger { border: 2px dashed #000; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; background: #fff; font-weight: bold; }
+        #editor { height: 300px; background: white; }
+        .nav-link { color: #333; padding: 10px; border-radius: 8px; margin-bottom: 5px; }
+        .nav-link:hover { background: #f0f0f0; }
+        .nav-link.active { background: #111; color: #fff; }
+        .status-badge { padding: 5px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #cce5ff; color: #004085; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .sync-btn { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h4 class="mb-4 fw-bold text-center">MAVRO ADMIN</h4>
+    <nav class="nav flex-column">
+        <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
+        <a href="#products" class="nav-link" onclick="showSection('products')"><i class="fa fa-box me-2"></i> Products</a>
+        <a href="#categories" class="nav-link" onclick="showSection('categories')"><i class="fa fa-list me-2"></i> Categories</a>
+        <a href="#orders" class="nav-link" onclick="showSection('orders')"><i class="fa fa-shopping-cart me-2"></i> Orders</a>
+        <a href="#webhooks" class="nav-link" onclick="showSection('webhooks')"><i class="fa fa-link me-2"></i> Webhooks</a>
+        <a href="#sync" class="nav-link" onclick="showSection('sync')"><i class="fa fa-sync me-2"></i> MoveDrop Sync</a>
+    </nav>
+</div>
+
+<div class="main">
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <h5>Total Products</h5>
+                    <h2 id="totalProducts">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <h5>Total Orders</h5>
+                    <h2 id="totalOrders">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <h5>Pending Orders</h5>
+                    <h2 id="pendingOrders">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="products" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5 class="mb-4 fw-bold">Publish New Product</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Product Name *</label>
+                    <input type="text" id="pName" class="form-control" placeholder="Product name">
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">SKU *</label>
+                    <input type="text" id="pSku" class="form-control" placeholder="SKU-12345">
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Price (৳) *</label>
+                    <input type="number" id="pPrice" class="form-control" placeholder="0.00" step="0.01">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Category</label>
+                    <select id="pCatSel" class="form-select">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Tags (comma separated)</label>
+                    <input type="text" id="pTags" class="form-control" placeholder="fashion, watch, new">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Main Thumbnail *</label>
+                    <input type="file" id="pImg" class="form-control" accept="image/*">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Gallery Images</label>
+                    <div class="upload-trigger" onclick="document.getElementById('galleryInput').click()">
+                        <i class="fa fa-plus-circle me-1"></i> Add to Gallery
+                    </div>
+                    <input type="file" id="galleryInput" class="d-none" accept="image/*" multiple>
+                    <div id="galleryContainer"></div>
+                </div>
+                
+                <!-- Product Variations Section -->
+                <div class="col-12 mt-3">
+                    <h5>Product Variations (Optional)</h5>
+                    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="addVariation()">
+                        <i class="fa fa-plus"></i> Add Variation
+                    </button>
+                    <div id="variationsContainer"></div>
+                </div>
+                
+                <div class="col-12 mt-3">
+                    <label class="small fw-bold">Detailed Description</label>
+                    <div id="editor"></div>
+                </div>
+                <div class="col-12">
+                    <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold shadow mt-2">
+                        <i class="fa fa-save me-2"></i> PUBLISH PRODUCT
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom">
+            <h5>Live Inventory</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Tags</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div id="categories" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>Add New Category</h5>
+            <div class="input-group mb-3">
+                <input type="text" id="catName" class="form-control" placeholder="Category name">
+                <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
+            </div>
+            <div id="catList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="orders" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>Order Management</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Items</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Webhooks Section -->
+    <div id="webhooks" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>MoveDrop Webhooks</h5>
+            <p class="text-muted">These webhooks are registered by MoveDrop automatically</p>
+            <div id="webhookList" class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Delivery URL</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="webhookTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Section -->
+    <div id="sync" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>MoveDrop Sync Status</h5>
+            <div class="alert alert-info">
+                <strong>API Status:</strong> <span id="apiStatus">Checking...</span>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-success w-100 mb-2" onclick="syncProducts()">
+                        <i class="fa fa-sync me-2"></i> Sync Products to MoveDrop
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-primary w-100 mb-2" onclick="syncOrders()">
+                        <i class="fa fa-sync me-2"></i> Sync Orders to MoveDrop
+                    </button>
+                </div>
+            </div>
+            <div id="syncResult" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+        projectId: "espera-mavro-6ddc5",
+        storageBucket: "espera-mavro-6ddc5.appspot.com",
+        messagingSenderId: "137893255543",
+        appId: "1:137893255543:web:a660bd412eb26ee322a972"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Enable persistence for better offline support
+    db.enablePersistence()
+        .catch((err) => {
+            console.log("Persistence failed:", err);
+        });
+
+    // MoveDrop API Configuration
+    const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
+    const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
+
+    // Quill Editor
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link', 'image']
+            ]
+        }
+    });
+
+    // Gallery Array
+    let galleryArr = [];
+    
+    // Variations Array
+    let variations = [];
+
+    // Add Variation Function
+    window.addVariation = () => {
+        const variationId = Date.now() + Math.random();
+        const container = document.getElementById('variationsContainer');
+        const variationHtml = `
+            <div class="variation-row" id="variation-${variationId}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" placeholder="SKU" id="var-sku-${variationId}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control form-control-sm" placeholder="Regular Price" id="var-price-${variationId}" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control form-control-sm" placeholder="Sale Price" id="var-sale-${variationId}" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control form-control-sm" placeholder="Stock" id="var-stock-${variationId}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Color" id="var-color-${variationId}">
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-sm btn-danger" onclick="removeVariation('${variationId}')">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', variationHtml);
+    };
+
+    window.removeVariation = (id) => {
+        document.getElementById(`variation-${id}`).remove();
+    };
+
+    // Image to Base64
+    const toBase64 = f => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(f);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+    });
+
+    // Upload image to Firebase Storage
+    async function uploadImageToStorage(base64, path) {
+        try {
+            const storageRef = storage.ref(path);
+            await storageRef.putString(base64, 'data_url');
+            const url = await storageRef.getDownloadURL();
+            return url;
+        } catch (error) {
+            console.error("Storage upload failed:", error);
+            return base64;
+        }
+    }
+
+    // Compress Image
+    async function compressImage(base64, maxWidth = 800) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth) {
+                    height = (maxWidth / width) * height;
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+        });
+    }
+
+    // Gallery Upload
+    document.getElementById('galleryInput').onchange = async (e) => {
+        const files = Array.from(e.target.files);
+        for (const file of files) {
+            const base64 = await toBase64(file);
+            const compressed = await compressImage(base64);
+            galleryArr.push(compressed);
+        }
+        renderGallery();
+    };
+
+    function renderGallery() {
+        const container = document.getElementById('galleryContainer');
+        container.innerHTML = "";
+        galleryArr.forEach((src, idx) => {
+            container.innerHTML += `
+                <div class="gallery-item">
+                    <img src="${src}">
+                    <button class="remove-btn" onclick="removeFromGallery(${idx})">×</button>
+                </div>`;
+        });
+    }
+
+    window.removeFromGallery = (idx) => {
+        galleryArr.splice(idx, 1);
+        renderGallery();
+    };
+
+    // Save Product
+    document.getElementById('savePBtn').onclick = async () => {
+        const name = document.getElementById('pName').value;
+        const sku = document.getElementById('pSku').value;
+        const price = document.getElementById('pPrice').value;
+        const category = document.getElementById('pCatSel').value;
+        const tags = document.getElementById('pTags').value.split(',').map(t => t.trim()).filter(t => t);
+        const mainImg = document.getElementById('pImg').files[0];
+
+        if (!name || !sku || !price || !mainImg) {
+            alert("Please fill all required fields and select main image");
+            return;
+        }
+
+        document.getElementById('savePBtn').innerHTML = '<i class="fa fa-spinner fa-spin"></i> Publishing...';
+        document.getElementById('savePBtn').disabled = true;
+
+        try {
+            // Process main image
+            const mainBase64 = await toBase64(mainImg);
+            const mainCompressed = await compressImage(mainBase64, 500);
+            
+            // Upload main image to Storage
+            const timestamp = Date.now();
+            const mainImageUrl = await uploadImageToStorage(
+                mainCompressed, 
+                `products/${sku}_${timestamp}/main.jpg`
+            );
+            
+            // Process gallery images
+            const galleryUrls = [];
+            for (let i = 0; i < galleryArr.length; i++) {
+                const url = await uploadImageToStorage(
+                    galleryArr[i],
+                    `products/${sku}_${timestamp}/gallery-${i}.jpg`
+                );
+                galleryUrls.push(url);
+            }
+            
+            const allImages = [mainImageUrl, ...galleryUrls];
+
+            // Collect variations
+            const variationRows = document.querySelectorAll('[id^="variation-"]');
+            const variations = [];
+            variationRows.forEach(row => {
+                const rowId = row.id.replace('variation-', '');
+                const varSku = document.getElementById(`var-sku-${rowId}`)?.value;
+                const varPrice = document.getElementById(`var-price-${rowId}`)?.value;
+                const varSale = document.getElementById(`var-sale-${rowId}`)?.value;
+                const varStock = document.getElementById(`var-stock-${rowId}`)?.value;
+                const varColor = document.getElementById(`var-color-${rowId}`)?.value;
+                
+                if (varSku && varPrice) {
+                    variations.push({
+                        sku: varSku,
+                        regular_price: parseFloat(varPrice),
+                        sale_price: varSale ? parseFloat(varSale) : null,
+                        stock_quantity: parseInt(varStock) || 0,
+                        image: mainImageUrl,
+                        properties: varColor ? [{
+                            name: "Color",
+                            value: varColor
+                        }] : []
+                    });
+                }
+            });
+
+            // Prepare images array for MoveDrop
+            const moveDropImages = allImages.map((src, index) => ({
+                src: src,
+                is_default: index === 0
+            }));
+
+            const productData = {
+                name: name,
+                sku: sku,
+                price: parseFloat(price),
+                category: category,
+                tags: tags,
+                description: quill.root.innerHTML,
+                image: mainImageUrl,
+                images: allImages,
+                variations: variations,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            // Save to Firebase Firestore
+            const docRef = await db.collection("products").add(productData);
+            console.log("Product saved to Firebase with ID:", docRef.id);
+
+            // Sync to MoveDrop API
+            try {
+                // First create product
+                const productResponse = await fetch(`${MOVEDROP_API_URL}?path=products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': MOVEDROP_API_KEY
+                    },
+                    body: JSON.stringify({
+                        title: name,
+                        sku: sku,
+                        description: quill.root.innerHTML,
+                        images: moveDropImages,
+                        category_ids: category ? [1] : [], // You'll need to map category names to IDs
+                        tags: tags,
+                        properties: []
+                    })
+                });
+
+                const productResult = await productResponse.json();
+                console.log("MoveDrop product sync response:", productResult);
+
+                // If product created successfully and has variations, add them
+                if (variations.length > 0 && productResult.id) {
+                    const variationsResponse = await fetch(`${MOVEDROP_API_URL}?path=products/${productResult.id}/variations`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-KEY': MOVEDROP_API_KEY
+                        },
+                        body: JSON.stringify({ variations: variations })
+                    });
+                    
+                    const variationsResult = await variationsResponse.json();
+                    console.log("MoveDrop variations sync response:", variationsResult);
+                }
+
+                if (!productResponse.ok) {
+                    console.error("MoveDrop API error:", productResult);
+                }
+            } catch (apiError) {
+                console.log("API sync failed:", apiError);
+            }
+
+            alert("Product published successfully!");
+            location.reload();
+
+        } catch (error) {
+            alert("Error: " + error.message);
+            console.error("Save error:", error);
+            document.getElementById('savePBtn').innerHTML = '<i class="fa fa-save me-2"></i> PUBLISH PRODUCT';
+            document.getElementById('savePBtn').disabled = false;
+        }
+    };
+
+    // Load Categories
+    db.collection("categories").onSnapshot((snapshot) => {
+        const select = document.getElementById('pCatSel');
+        const catList = document.getElementById('catList');
+        select.innerHTML = '<option value="">Select Category</option>';
+        catList.innerHTML = "";
+        
+        snapshot.forEach(doc => {
+            const cat = doc.data();
+            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+            catList.innerHTML += `
+                <span class="badge bg-dark p-2">
+                    ${cat.name} 
+                    <i class="fa fa-times ms-2" style="cursor:pointer;" onclick="deleteCategory('${doc.id}')"></i>
+                </span>`;
+        });
+    });
+
+    // Delete Category
+    window.deleteCategory = async (id) => {
+        if (confirm("Are you sure?")) {
+            await db.collection("categories").doc(id).delete();
+        }
+    };
+
+    // Add Category
+    document.getElementById('saveCatBtn').onclick = async () => {
+        const name = document.getElementById('catName').value;
+        if (name) {
+            await db.collection("categories").add({ 
+                name: name,
+                created_at: new Date().toISOString()
+            });
+            document.getElementById('catName').value = "";
+        }
+    };
+
+    // Load Products
+    db.collection("products").onSnapshot((snapshot) => {
+        const list = document.getElementById('pList');
+        list.innerHTML = "";
+        let count = 0;
+        
+        snapshot.forEach(doc => {
+            count++;
+            const p = doc.data();
+            list.innerHTML += `
+                <tr>
+                    <td><img src="${p.image || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:cover;border-radius:5px;" onerror="this.src='https://via.placeholder.com/40'"></td>
+                    <td>${p.name || ''}</td>
+                    <td>${p.sku || 'N/A'}</td>
+                    <td>৳${p.price ? parseFloat(p.price).toFixed(2) : '0.00'}</td>
+                    <td>${p.category || 'N/A'}</td>
+                    <td>${p.tags ? p.tags.join(', ') : 'N/A'}</td>
+                    <td>
+                        <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')"></i>
+                        <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')"></i>
+                    </td>
+                </tr>`;
+        });
+        
+        document.getElementById('totalProducts').innerText = count;
+    });
+
+    // Delete Product
+    window.deleteProduct = async (id) => {
+        if (confirm("Delete this product?")) {
+            await db.collection("products").doc(id).delete();
+            
+            // Also delete from MoveDrop
+            try {
+                await fetch(`${MOVEDROP_API_URL}?path=products/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-API-KEY': MOVEDROP_API_KEY
+                    }
+                });
+            } catch (error) {
+                console.log("MoveDrop delete failed:", error);
+            }
+        }
+    };
+
+    // View Product
+    window.viewProduct = (id) => {
+        window.open(`single-product-details.html?id=${id}`, '_blank');
+    };
+
+    // Load Orders
+    db.collection("orders").onSnapshot((snapshot) => {
+        const list = document.getElementById('orderList');
+        list.innerHTML = "";
+        let totalOrders = 0;
+        let pendingCount = 0;
+        
+        snapshot.forEach(doc => {
+            totalOrders++;
+            const o = doc.data();
+            const status = o.status || 'pending';
+            if (status === 'pending') pendingCount++;
+            
+            const customerName = o.customer?.name || o.shipping_address?.first_name || 'N/A';
+            const customerPhone = o.customer?.phone || o.shipping_address?.phone || 'N/A';
+            const itemCount = o.line_items ? o.line_items.length : 0;
+            
+            list.innerHTML += `
+                <tr>
+                    <td>#${o.order_number || doc.id.slice(0,8)}</td>
+                    <td>${customerName}</td>
+                    <td>${customerPhone}</td>
+                    <td>৳${o.total ? parseFloat(o.total).toFixed(2) : '0.00'}</td>
+                    <td>
+                        <span class="status-badge status-${status}">${status}</span>
+                    </td>
+                    <td>${itemCount} items</td>
+                    <td>
+                        <select class="form-select form-select-sm" onchange="updateOrderStatus('${doc.id}', this.value)">
+                            <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
+                            <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                </tr>`;
+        });
+        
+        document.getElementById('totalOrders').innerText = totalOrders;
+        document.getElementById('pendingOrders').innerText = pendingCount;
+    });
+
+    // Update Order Status
+    window.updateOrderStatus = async (id, status) => {
+        try {
+            await db.collection("orders").doc(id).update({ 
+                status: status,
+                updated_at: new Date().toISOString()
+            });
+            
+            // Sync to MoveDrop API
+            try {
+                const response = await fetch(`${MOVEDROP_API_URL}?path=orders/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': MOVEDROP_API_KEY
+                    },
+                    body: JSON.stringify({ status: status })
+                });
+                
+                if (!response.ok) {
+                    console.log("Status sync warning:", await response.text());
+                }
+            } catch (error) {
+                console.log("Status sync failed:", error);
+            }
+        } catch (error) {
+            console.error("Status update failed:", error);
+            alert("Failed to update status: " + error.message);
+        }
+    };
+
+    // Load Webhooks
+    db.collection("webhooks").onSnapshot((snapshot) => {
+        const tbody = document.getElementById('webhookTableBody');
+        tbody.innerHTML = "";
+        
+        snapshot.forEach(doc => {
+            const w = doc.data();
+            tbody.innerHTML += `
+                <tr>
+                    <td>${w.event || 'N/A'}</td>
+                    <td><small>${w.delivery_url || 'N/A'}</small></td>
+                    <td>${w.created_at ? new Date(w.created_at).toLocaleString() : 'N/A'}</td>
+                </tr>`;
+        });
+    });
+
+    // Show Section
+    window.showSection = (section) => {
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById(section).style.display = 'block';
+        
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        event.target.closest('.nav-link').classList.add('active');
+    };
+
+    // Sync Products to MoveDrop
+    window.syncProducts = async () => {
+        const resultDiv = document.getElementById('syncResult');
+        resultDiv.innerHTML = '<div class="alert alert-info">Syncing products...</div>';
+        
+        try {
+            const productsSnapshot = await db.collection("products").get();
+            let synced = 0;
+            let failed = 0;
+            
+            for (const doc of productsSnapshot.docs) {
+                const p = doc.data();
+                try {
+                    // Prepare images array for MoveDrop
+                    const images = [];
+                    if (p.image) {
+                        images.push({
+                            src: p.image,
+                            is_default: true
+                        });
+                    }
+                    
+                    if (p.images && Array.isArray(p.images)) {
+                        p.images.forEach((img, idx) => {
+                            if (img !== p.image) {
+                                images.push({
+                                    src: img,
+                                    is_default: false
+                                });
+                            }
+                        });
+                    }
+
+                    const response = await fetch(`${MOVEDROP_API_URL}?path=products`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-KEY': MOVEDROP_API_KEY
+                        },
+                        body: JSON.stringify({
+                            title: p.name,
+                            sku: p.sku || 'SKU-' + doc.id,
+                            description: p.description || '',
+                            images: images,
+                            category_ids: p.category ? [1] : [],
+                            tags: p.tags || [],
+                            properties: []
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        synced++;
+                        
+                        // Sync variations if they exist
+                        if (p.variations && p.variations.length > 0 && result.id) {
+                            await fetch(`${MOVEDROP_API_URL}?path=products/${result.id}/variations`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-API-KEY': MOVEDROP_API_KEY
+                                },
+                                body: JSON.stringify({ variations: p.variations })
+                            });
+                        }
+                    } else {
+                        failed++;
+                        console.log("Failed to sync product:", doc.id, result);
+                    }
+                } catch (e) {
+                    failed++;
+                    console.log("Failed to sync product:", doc.id, e);
+                }
+            }
+            
+            resultDiv.innerHTML = `<div class="alert alert-success">Synced ${synced} products successfully! ${failed > 0 ? `(${failed} failed)` : ''}</div>`;
+        } catch (error) {
+            resultDiv.innerHTML = `<div class="alert alert-danger">Sync failed: ${error.message}</div>`;
+        }
+    };
+
+    // Sync Orders to MoveDrop
+    window.syncOrders = async () => {
+        const resultDiv = document.getElementById('syncResult');
+        resultDiv.innerHTML = '<div class="alert alert-info">Syncing orders...</div>';
+        
+        try {
+            const ordersSnapshot = await db.collection("orders").get();
+            let synced = 0;
+            let failed = 0;
+            
+            for (const doc of ordersSnapshot.docs) {
+                const o = doc.data();
+                try {
+                    // Format order for MoveDrop
+                    const orderData = {
+                        order_number: o.order_number || "ORD-" + doc.id.slice(0, 8),
+                        status: o.status || "pending",
+                        currency: o.currency || "BDT",
+                        total: o.total ? o.total.toString() : "0",
+                        payment_method: o.payment_method || "cod",
+                        shipping_address: o.shipping_address || {
+                            first_name: o.customer?.name?.split(' ')[0] || "Customer",
+                            last_name: o.customer?.name?.split(' ').slice(1).join(' ') || "",
+                            email: o.customer?.email || "",
+                            phone: o.customer?.phone || "",
+                            address_1: o.customer?.address || "",
+                            address_2: "",
+                            city: "Dhaka",
+                            state: "Dhaka",
+                            postcode: "1200",
+                            country: "Bangladesh"
+                        },
+                        line_items: o.line_items || []
+                    };
+
+                    const response = await fetch(`${MOVEDROP_API_URL}?path=orders`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-KEY': MOVEDROP_API_KEY
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                    
+                    if (response.ok) {
+                        synced++;
+                    } else {
+                        failed++;
+                        console.log("Failed to sync order:", doc.id, await response.text());
+                    }
+                } catch (e) {
+                    failed++;
+                    console.log("Failed to sync order:", doc.id, e);
+                }
+            }
+            
+            resultDiv.innerHTML = `<div class="alert alert-success">Synced ${synced} orders successfully! ${failed > 0 ? `(${failed} failed)` : ''}</div>`;
+        } catch (error) {
+            resultDiv.innerHTML = `<div class="alert alert-danger">Sync failed: ${error.message}</div>`;
+        }
+    };
+
+    // Check API Status
+    fetch(`${MOVEDROP_API_URL}?path=health`, {
+        headers: { 'X-API-KEY': MOVEDROP_API_KEY }
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('apiStatus').innerHTML = '<span class="text-success">● Online</span>';
+    })
+    .catch(() => {
+        document.getElementById('apiStatus').innerHTML = '<span class="text-danger">● Offline</span>';
+    });
+</script>
+</body>
+</html>
