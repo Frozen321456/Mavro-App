@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #111; --accent: #ff5a5f; --bg: #f8f9fa; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .track-card { background: #fff; width: 100%; max-width: 500px; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .track-card { background: #fff; width: 100%; max-width: 600px; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
         .logo { font-weight: 800; letter-spacing: 3px; font-size: 24px; margin-bottom: 20px; display: block; color: #000; text-decoration: none; }
         h2 { font-size: 20px; margin-bottom: 10px; color: #333; }
         p { color: #666; font-size: 14px; margin-bottom: 30px; }
@@ -22,10 +22,15 @@
         #result { margin-top: 30px; display: none; text-align: left; border-top: 1px solid #eee; padding-top: 20px; }
         .status-box { background: #fdf2f2; border-left: 5px solid var(--accent); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .status-title { font-weight: 800; color: var(--accent); text-transform: uppercase; font-size: 18px; display: block; }
-        .order-info { font-size: 13px; color: #555; line-height: 1.6; }
-        .item-list { margin-top: 10px; font-weight: 600; color: #333; }
-        .timeline-item { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
-        .timeline-date { color: #888; font-size: 11px; }
+        .order-info { font-size: 13px; color: #555; line-height: 1.6; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .item-list { margin-top: 15px; font-weight: 600; color: #333; }
+        .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
+        .timeline-item { padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        .timeline-item:last-child { border-bottom: none; }
+        .timeline-date { color: #888; font-size: 11px; display: block; margin-top: 3px; }
+        .error-message { color: var(--accent); text-align: center; padding: 20px; }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-right: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -38,20 +43,32 @@
         <div class="input-group">
             <input type="text" id="orderIdInput" placeholder="Order ID (যেমন: abc123xyz)">
         </div>
-        <button class="btn-track" onclick="trackOrder()">Check Status</button>
+        <button class="btn-track" onclick="trackOrder()" id="trackBtn">
+            <span id="btnText">Check Status</span>
+        </button>
 
         <div id="result">
             <div class="status-box">
                 <span class="status-title" id="statusText">Pending</span>
                 <span id="updateTime" style="font-size: 11px; color: #888;"></span>
             </div>
+            
             <div class="order-info">
-                <strong>Order #:</strong> <span id="orderNumber"></span><br>
-                <strong>Customer:</strong> <span id="custName"></span><br>
-                <strong>Phone:</strong> <span id="custPhone"></span><br>
-                <strong>Address:</strong> <span id="custAddr"></span>
-                <div class="item-list" id="items"></div>
+                <div style="display: grid; grid-template-columns: 100px 1fr; gap: 5px;">
+                    <strong>Order #:</strong> <span id="orderNumber"></span>
+                    <strong>Customer:</strong> <span id="custName"></span>
+                    <strong>Phone:</strong> <span id="custPhone"></span>
+                    <strong>Address:</strong> <span id="custAddr"></span>
+                    <strong>Total:</strong> <span id="orderTotal"></span>
+                    <strong>Payment:</strong> <span id="paymentMethod"></span>
+                </div>
+                
+                <div class="item-list">
+                    <strong>Items:</strong>
+                    <div id="items"></div>
+                </div>
             </div>
+            
             <div style="margin-top: 20px;">
                 <h4 style="font-size: 14px; margin-bottom: 10px;">Order Timeline</h4>
                 <div id="timeline"></div>
@@ -79,14 +96,19 @@
         window.trackOrder = async () => {
             const inputId = document.getElementById('orderIdInput').value.trim();
             const resultDiv = document.getElementById('result');
+            const btnText = document.getElementById('btnText');
             
             if(!inputId) {
                 alert("Please enter an Order ID");
                 return;
             }
 
+            // Show loading
+            btnText.innerHTML = '<span class="loading-spinner"></span> Tracking...';
+            document.getElementById('trackBtn').disabled = true;
+
             try {
-                // Firebase থেকে ডাটা খোঁজা
+                // Search in Firebase
                 const docRef = db.collection("orders").doc(inputId);
                 const docSnap = await docRef.get();
 
@@ -94,14 +116,18 @@
                     const data = docSnap.data();
                     resultDiv.style.display = "block";
                     
-                    // Format date
+                    // Format dates
                     const createdDate = data.created_at ? new Date(data.created_at) : new Date();
-                    const formattedDate = createdDate.toLocaleString('bn-BD', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                    const updatedDate = data.updated_at ? new Date(data.updated_at) : createdDate;
+                    
+                    const formattedCreated = createdDate.toLocaleString('bn-BD', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                    
+                    const formattedUpdated = updatedDate.toLocaleString('bn-BD', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
                     });
 
                     // Get customer info
@@ -111,7 +137,7 @@
                     // Display order info
                     document.getElementById('orderNumber').innerText = data.order_number || inputId.slice(0, 8);
                     document.getElementById('statusText').innerText = (data.status || "pending").toUpperCase();
-                    document.getElementById('updateTime').innerText = "Last Updated: " + formattedDate;
+                    document.getElementById('updateTime').innerText = "Last Updated: " + formattedUpdated;
                     
                     document.getElementById('custName').innerText = customer.name || shipping.first_name || "N/A";
                     document.getElementById('custPhone').innerText = customer.phone || shipping.phone || "N/A";
@@ -119,16 +145,25 @@
                     const address = shipping.address_1 || customer.address || "N/A";
                     const city = shipping.city || "Dhaka";
                     document.getElementById('custAddr').innerText = `${address}, ${city}`;
+                    
+                    document.getElementById('orderTotal').innerText = "৳ " + (data.total || "0");
+                    document.getElementById('paymentMethod').innerText = data.payment_method || "COD";
 
                     // Display items
                     const items = data.line_items || [];
-                    let itemsHtml = "<strong>Items:</strong><br>";
+                    let itemsHtml = "";
                     if (items.length > 0) {
                         items.forEach(item => {
-                            itemsHtml += `<div style="margin-left: 10px;">• ${item.name} - ৳${item.total || item.price || '0'}</div>`;
+                            const itemName = item.name || "Product";
+                            const itemPrice = item.price || item.total || "0";
+                            itemsHtml += `
+                                <div class="item-row">
+                                    <span>• ${itemName}</span>
+                                    <span>৳ ${parseFloat(itemPrice).toFixed(2)}</span>
+                                </div>`;
                         });
                     } else {
-                        itemsHtml += "<div>No items found</div>";
+                        itemsHtml = "<div>No items found</div>";
                     }
                     document.getElementById('items').innerHTML = itemsHtml;
 
@@ -136,20 +171,20 @@
                     const timelineDiv = document.getElementById('timeline');
                     timelineDiv.innerHTML = "";
                     
-                    // Add initial order creation
+                    // Add order creation
                     timelineDiv.innerHTML += `
                         <div class="timeline-item">
-                            <strong>Order Placed</strong><br>
-                            <span class="timeline-date">${formattedDate}</span>
+                            <strong>✓ Order Placed</strong>
+                            <span class="timeline-date">${formattedCreated}</span>
                         </div>
                     `;
                     
-                    // Add status update
+                    // Add status updates
                     if (data.status && data.status !== 'pending') {
                         timelineDiv.innerHTML += `
                             <div class="timeline-item">
-                                <strong>Status Updated to ${data.status}</strong><br>
-                                <span class="timeline-date">${data.updated_at ? new Date(data.updated_at).toLocaleString() : formattedDate}</span>
+                                <strong>📦 Status Updated to ${data.status}</strong>
+                                <span class="timeline-date">${formattedUpdated}</span>
                             </div>
                         `;
                     }
@@ -157,22 +192,28 @@
                     // Add custom timelines if they exist
                     if (data.timelines && Array.isArray(data.timelines)) {
                         data.timelines.forEach(timeline => {
+                            const timelineDate = timeline.created_at ? new Date(timeline.created_at) : new Date();
                             timelineDiv.innerHTML += `
                                 <div class="timeline-item">
-                                    <strong>${timeline.message || 'Update'}</strong><br>
-                                    <span class="timeline-date">${timeline.created_at ? new Date(timeline.created_at).toLocaleString() : ''}</span>
+                                    <strong>📌 ${timeline.message || 'Update'}</strong>
+                                    <span class="timeline-date">${timelineDate.toLocaleString()}</span>
                                 </div>
                             `;
                         });
                     }
 
                 } else {
-                    alert("Order ID পাওয়া যায়নি! দয়া করে সঠিক ID দিন।");
+                    alert("❌ Order ID পাওয়া যায়নি! দয়া করে সঠিক ID দিন।");
                     resultDiv.style.display = "none";
                 }
             } catch (error) {
                 console.error("Error:", error);
                 alert("ট্র্যাকিং করতে সমস্যা হচ্ছে। পরে চেষ্টা করুন।");
+                resultDiv.style.display = "none";
+            } finally {
+                // Reset button
+                btnText.innerHTML = 'Check Status';
+                document.getElementById('trackBtn').disabled = false;
             }
         };
 
