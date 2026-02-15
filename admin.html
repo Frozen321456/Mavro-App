@@ -9,16 +9,20 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         :root { --dark: #111; --bg: #f8f9fa; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; padding-top: 20px; }
         .sidebar { background: #fff; height: 100vh; position: fixed; width: 250px; border-right: 1px solid #ddd; padding: 20px; z-index: 100; overflow-y: auto; }
         .main { margin-left: 250px; padding: 30px; }
         @media (max-width: 768px) { .sidebar { height: auto; width: 100%; position: relative; } .main { margin-left: 0; padding: 15px; } }
         .card-custom { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: none; }
-        .nav-link { color: #333; padding: 12px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; display: block; text-decoration: none; }
-        .nav-link.active { background: #111; color: #fff; }
-        #editor { height: 200px; background: white; margin-bottom: 20px; }
-        .variation-row { background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 15px; }
-        .p-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        #editor { height: 300px; background: white; }
+        
+        /* Gallery Preview Styles */
+        .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .preview-item { position: relative; width: 80px; height: 80px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-item .remove-btn { position: absolute; top: 2px; right: 2px; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; }
+        
+        .dynamic-row { background: #f9f9f9; padding: 12px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -26,104 +30,45 @@
 <div class="sidebar">
     <h4 class="mb-4 fw-bold text-center">MAVRO ADMIN</h4>
     <nav class="nav flex-column">
-        <a onclick="showSection('dashboard')" class="nav-link active"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
-        <a onclick="showSection('products')" class="nav-link"><i class="fa fa-box me-2"></i> Products</a>
-        <a onclick="showSection('categories')" class="nav-link"><i class="fa fa-list me-2"></i> Categories</a>
-        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-shopping-bag me-2"></i> Orders Management</a>
+        <a onclick="showSection('products')" class="nav-link active" style="cursor:pointer;"><i class="fa fa-box me-2"></i> Products</a>
+        <a onclick="showSection('orders')" class="nav-link" style="cursor:pointer;"><i class="fa fa-shopping-bag me-2"></i> Orders</a>
     </nav>
 </div>
 
 <div class="main">
-    <div id="dashboard" class="section">
-        <h3 class="fw-bold mb-4">Admin Overview</h3>
-        <div class="row">
-            <div class="col-md-4"><div class="card-custom text-center"><h6>Total Products</h6><h2 id="totalProducts">0</h2></div></div>
-            <div class="col-md-4"><div class="card-custom text-center"><h6>Total Orders</h6><h2 id="totalOrders">0</h2></div></div>
-        </div>
-    </div>
-
-    <div id="products" class="section" style="display:none;">
+    <div id="products" class="section">
         <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Add New Product</h5>
+            <h5 class="mb-4 fw-bold">Add Product</h5>
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold">Product Name *</label>
-                    <input type="text" id="pName" class="form-control">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">SKU *</label>
-                    <input type="text" id="pSku" class="form-control">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Base Price *</label>
-                    <input type="number" id="pPrice" class="form-control">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold">Category *</label>
-                    <select id="pCatSel" class="form-select"></select>
-                </div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Name</label><input type="text" id="pName" class="form-control"></div>
+                <div class="col-md-3"><label class="form-label small fw-bold">SKU</label><input type="text" id="pSku" class="form-control"></div>
+                <div class="col-md-3"><label class="form-label small fw-bold">Price</label><input type="number" id="pPrice" class="form-control"></div>
                 
                 <div class="col-md-6">
-                    <label class="form-label small fw-bold">Main Product Image (Select File) *</label>
-                    <input type="file" id="mainImgFile" class="form-control" accept="image/*">
+                    <label class="form-label small fw-bold">Main Image</label>
+                    <input type="file" id="mainImgFile" class="form-control" accept="image/*" onchange="previewMain(this)">
+                    <div id="mainPreview" class="preview-container"></div>
                 </div>
 
-                <div class="col-12 mt-2">
-                    <label class="form-label small fw-bold">Gallery Images (Optional - Upload Max 3)</label>
-                    <div class="row g-2">
-                        <div class="col-md-4"><input type="file" class="gallery-file form-control" accept="image/*"></div>
-                        <div class="col-md-4"><input type="file" class="gallery-file form-control" accept="image/*"></div>
-                        <div class="col-md-4"><input type="file" class="gallery-file form-control" accept="image/*"></div>
-                    </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold">Gallery Images (Unlimited)</label>
+                    <input type="file" id="galleryFiles" class="form-control" accept="image/*" multiple onchange="handleGallery(this)">
+                    <div id="galleryPreview" class="preview-container"></div>
                 </div>
 
-                <div class="col-12 mt-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="fw-bold small">Product Variations (Size/Price/Image)</label>
-                        <button type="button" class="btn btn-sm btn-dark" onclick="addVariation()">+ Add Variation</button>
-                    </div>
+                <div class="col-12">
+                    <label class="form-label small fw-bold">Variations</label>
+                    <button type="button" class="btn btn-sm btn-dark mb-2 float-end" onclick="addVariationRow()">+ Add Variation</button>
                     <div id="variationContainer"></div>
                 </div>
 
                 <div class="col-12">
-                    <label class="form-label small fw-bold">Description</label>
+                    <label class="form-label small fw-bold">Description (Upload Images using the Icon below)</label>
                     <div id="editor"></div>
                 </div>
+
                 <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold">PUBLISH PRODUCT</button>
             </div>
-        </div>
-
-        <div class="card-custom mt-4">
-            <h5>Product Inventory</h5>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead><tr><th>Image</th><th>Name</th><th>SKU</th><th>Price</th><th>Action</th></tr></thead>
-                    <tbody id="pList"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="orders" class="section" style="display:none;">
-        <div class="card-custom">
-            <h5 class="mb-4">Order List</h5>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody id="orderList"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="categories" class="section" style="display:none;">
-        <div class="card-custom">
-            <h5>Categories</h5>
-            <div class="input-group mb-3">
-                <input type="text" id="catName" class="form-control" placeholder="New Category">
-                <button id="saveCatBtn" class="btn btn-dark">Add</button>
-            </div>
-            <div id="catList" class="d-flex flex-wrap gap-2"></div>
         </div>
     </div>
 </div>
@@ -133,98 +78,135 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // Firebase Setup
-    const firebaseConfig = {
-        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
-        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
-        projectId: "espera-mavro-6ddc5",
-        storageBucket: "espera-mavro-6ddc5.appspot.com",
-        messagingSenderId: "137893255543",
-        appId: "1:137893255543:web:a660bd412eb26ee322a972"
-    };
+    const IMGBB_API_KEY = '5a782e4f0d3b680c48e895844876b508'; 
+    const firebaseConfig = { /* Your Firebase Config Here */ };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const quill = new Quill('#editor', { theme: 'snow' });
 
-    const IMGBB_API_KEY = '5a782e4f0d3b680c48e895844876b508'; 
+    // --- Quill Configuration with Image Upload ---
+    var toolbarOptions = [
+        ['bold', 'italic', 'underline'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['image', 'link'], // Image button added here
+        ['clean']
+    ];
 
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        event.currentTarget?.classList.add('active');
-    }
+    var quill = new Quill('#editor', {
+        modules: { toolbar: toolbarOptions },
+        theme: 'snow'
+    });
 
-    // IMAGE UPLOAD ENGINE
-    async function uploadImage(file) {
+    // Handle Quill Image Upload to ImgBB
+    quill.getModule('toolbar').addHandler('image', () => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            const url = await uploadToImgBB(file);
+            const range = quill.getSelection();
+            quill.insertEmbed(range.index, 'image', url);
+        };
+    });
+
+    // --- Image Upload Engine ---
+    async function uploadToImgBB(file) {
         if (!file) return null;
         let formData = new FormData();
         formData.append("image", file);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-            method: "POST",
-            body: formData
-        });
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
         const data = await res.json();
-        return data.data.url; // Returns the public link
+        return data.data.url;
     }
 
-    function addVariation() {
+    // --- Gallery & Preview Logic ---
+    let selectedGalleryFiles = [];
+
+    function previewMain(input) {
+        const container = document.getElementById('mainPreview');
+        container.innerHTML = "";
+        if (input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                container.innerHTML = `<div class="preview-item"><img src="${e.target.result}"></div>`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function handleGallery(input) {
+        const files = Array.from(input.files);
+        selectedGalleryFiles = [...selectedGalleryFiles, ...files];
+        renderGalleryPreview();
+        input.value = ""; // Reset input
+    }
+
+    function renderGalleryPreview() {
+        const container = document.getElementById('galleryPreview');
+        container.innerHTML = "";
+        selectedGalleryFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const div = document.createElement('div');
+                div.className = "preview-item";
+                div.innerHTML = `<img src="${e.target.result}"><button class="remove-btn" onclick="removeGalleryImage(${index})">×</button>`;
+                container.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function removeGalleryImage(index) {
+        selectedGalleryFiles.splice(index, 1);
+        renderGalleryPreview();
+    }
+
+    function addVariationRow() {
         const div = document.createElement('div');
-        div.className = 'variation-row row g-2';
+        div.className = 'dynamic-row row g-2';
         div.innerHTML = `
-            <div class="col-md-3"><input type="text" class="form-control v-size" placeholder="6ml"></div>
+            <div class="col-md-3"><input type="text" class="form-control v-size" placeholder="Size"></div>
             <div class="col-md-3"><input type="number" class="form-control v-price" placeholder="Price"></div>
             <div class="col-md-5"><input type="file" class="form-control v-file" accept="image/*"></div>
-            <div class="col-md-1"><button class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove()">×</button></div>`;
+            <div class="col-md-1"><button class="btn btn-danger btn-sm w-100" onclick="this.parentElement.parentElement.remove()">×</button></div>
+        `;
         document.getElementById('variationContainer').appendChild(div);
     }
 
-    // Load Data
-    db.collection("categories").onSnapshot(snap => {
-        const sel = document.getElementById('pCatSel');
-        const list = document.getElementById('catList');
-        sel.innerHTML = '<option value="">Select Category</option>';
-        list.innerHTML = "";
-        snap.forEach(doc => {
-            const name = doc.data().name;
-            sel.innerHTML += `<option value="${name}">${name}</option>`;
-            list.innerHTML += `<span class="badge bg-light text-dark border p-2">${name} <i class="fa fa-times text-danger ms-2" onclick="deleteCat('${doc.id}')" style="cursor:pointer"></i></span>`;
-        });
-    });
-
-    // Save Logic
+    // --- Publish Logic ---
     document.getElementById('savePBtn').onclick = async () => {
         const btn = document.getElementById('savePBtn');
-        btn.disabled = true; btn.innerText = "Uploading Images... Wait";
+        btn.disabled = true; btn.innerText = "Uploading all images...";
 
         try {
-            const mainFile = document.getElementById('mainImgFile').files[0];
-            if(!mainFile) throw new Error("Select main image!");
-            const mainImgUrl = await uploadImage(mainFile);
+            // Upload Main
+            const mainImgUrl = await uploadToImgBB(document.getElementById('mainImgFile').files[0]);
 
+            // Upload Gallery
             const galleryUrls = [];
-            const gallInputs = document.querySelectorAll('.gallery-file');
-            for(let input of gallInputs) {
-                if(input.files[0]) galleryUrls.push(await uploadImage(input.files[0]));
+            for(let file of selectedGalleryFiles) {
+                galleryUrls.push(await uploadToImgBB(file));
             }
 
+            // Upload Variations
             const variations = [];
-            const varRows = document.querySelectorAll('.variation-row');
+            const varRows = document.querySelectorAll('.dynamic-row');
             for(let row of varRows) {
-                const size = row.querySelector('.v-size').value;
-                const vPrice = row.querySelector('.v-price').value;
-                const vFile = row.querySelector('.v-file').files[0];
-                if(size && vPrice) {
-                    const vUrl = vFile ? await uploadImage(vFile) : mainImgUrl;
-                    variations.push({ size, price: parseFloat(vPrice), image: vUrl });
-                }
+                const file = row.querySelector('.v-file').files[0];
+                variations.push({
+                    size: row.querySelector('.v-size').value,
+                    price: row.querySelector('.v-price').value,
+                    image: file ? await uploadToImgBB(file) : mainImgUrl
+                });
             }
 
+            // Save to Firebase
             await db.collection("products").add({
                 name: document.getElementById('pName').value,
                 sku: document.getElementById('pSku').value,
-                price: parseFloat(document.getElementById('pPrice').value),
-                category: document.getElementById('pCatSel').value,
+                price: document.getElementById('pPrice').value,
                 image: mainImgUrl,
                 gallery: galleryUrls,
                 variations: variations,
@@ -232,34 +214,10 @@
                 created_at: new Date()
             });
 
-            alert("Product Published Successfully!");
+            alert("Product Published!");
             location.reload();
-
-        } catch(e) { alert(e.message); }
-        finally { btn.disabled = false; btn.innerText = "PUBLISH PRODUCT"; }
+        } catch(e) { alert(e.message); btn.disabled = false; }
     };
-
-    // Orders & Inventory Logic (Same as your previous system)
-    db.collection("orders").orderBy("timestamp", "desc").onSnapshot(snap => {
-        const list = document.getElementById('orderList');
-        list.innerHTML = "";
-        document.getElementById('totalOrders').innerText = snap.size;
-        snap.forEach(doc => {
-            const o = doc.data();
-            list.innerHTML += `<tr><td>${doc.id.slice(0,8)}</td><td>${o.customerName}</td><td>${o.phone}</td><td><span class="badge bg-dark">${o.status || 'Pending'}</span></td><td><button class="btn btn-sm btn-outline-dark" onclick="viewOrder('${doc.id}')">View</button></td></tr>`;
-        });
-    });
-
-    db.collection("products").orderBy("created_at", "desc").onSnapshot(snap => {
-        const list = document.getElementById('pList');
-        list.innerHTML = "";
-        document.getElementById('totalProducts').innerText = snap.size;
-        snap.forEach(doc => {
-            const p = doc.data();
-            list.innerHTML += `<tr><td><img src="${p.image}" class="p-img-preview"></td><td>${p.name}</td><td>${p.sku}</td><td>৳${p.price}</td><td><button class="btn btn-sm btn-danger" onclick="db.collection('products').doc('${doc.id}').delete()">Delete</button></td></tr>`;
-        });
-    });
-
 </script>
 </body>
 </html>
