@@ -32,6 +32,7 @@
         .status-completed { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
         .sync-btn { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -88,7 +89,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="small fw-bold">Price (৳) *</label>
-                    <input type="number" id="pPrice" class="form-control" placeholder="0.00">
+                    <input type="number" id="pPrice" class="form-control" placeholder="0.00" step="0.01">
                 </div>
                 <div class="col-md-6">
                     <label class="small fw-bold">Category</label>
@@ -112,6 +113,16 @@
                     <input type="file" id="galleryInput" class="d-none" accept="image/*" multiple>
                     <div id="galleryContainer"></div>
                 </div>
+                
+                <!-- Product Variations Section -->
+                <div class="col-12 mt-3">
+                    <h5>Product Variations (Optional)</h5>
+                    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="addVariation()">
+                        <i class="fa fa-plus"></i> Add Variation
+                    </button>
+                    <div id="variationsContainer"></div>
+                </div>
+                
                 <div class="col-12 mt-3">
                     <label class="small fw-bold">Detailed Description</label>
                     <div id="editor"></div>
@@ -134,6 +145,8 @@
                             <th>Name</th>
                             <th>SKU</th>
                             <th>Price</th>
+                            <th>Category</th>
+                            <th>Tags</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -168,6 +181,7 @@
                             <th>Phone</th>
                             <th>Total</th>
                             <th>Status</th>
+                            <th>Items</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -242,6 +256,12 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
+    // Enable persistence for better offline support
+    db.enablePersistence()
+        .catch((err) => {
+            console.log("Persistence failed:", err);
+        });
+
     // MoveDrop API Configuration
     const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
     const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
@@ -261,6 +281,46 @@
 
     // Gallery Array
     let galleryArr = [];
+    
+    // Variations Array
+    let variations = [];
+
+    // Add Variation Function
+    window.addVariation = () => {
+        const variationId = Date.now() + Math.random();
+        const container = document.getElementById('variationsContainer');
+        const variationHtml = `
+            <div class="variation-row" id="variation-${variationId}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" placeholder="SKU" id="var-sku-${variationId}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control form-control-sm" placeholder="Regular Price" id="var-price-${variationId}" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control form-control-sm" placeholder="Sale Price" id="var-sale-${variationId}" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control form-control-sm" placeholder="Stock" id="var-stock-${variationId}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Color" id="var-color-${variationId}">
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-sm btn-danger" onclick="removeVariation('${variationId}')">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', variationHtml);
+    };
+
+    window.removeVariation = (id) => {
+        document.getElementById(`variation-${id}`).remove();
+    };
 
     // Image to Base64
     const toBase64 = f => new Promise((resolve, reject) => {
@@ -375,6 +435,32 @@
             
             const allImages = [mainImageUrl, ...galleryUrls];
 
+            // Collect variations
+            const variationRows = document.querySelectorAll('[id^="variation-"]');
+            const variations = [];
+            variationRows.forEach(row => {
+                const rowId = row.id.replace('variation-', '');
+                const varSku = document.getElementById(`var-sku-${rowId}`)?.value;
+                const varPrice = document.getElementById(`var-price-${rowId}`)?.value;
+                const varSale = document.getElementById(`var-sale-${rowId}`)?.value;
+                const varStock = document.getElementById(`var-stock-${rowId}`)?.value;
+                const varColor = document.getElementById(`var-color-${rowId}`)?.value;
+                
+                if (varSku && varPrice) {
+                    variations.push({
+                        sku: varSku,
+                        regular_price: parseFloat(varPrice),
+                        sale_price: varSale ? parseFloat(varSale) : null,
+                        stock_quantity: parseInt(varStock) || 0,
+                        image: mainImageUrl,
+                        properties: varColor ? [{
+                            name: "Color",
+                            value: varColor
+                        }] : []
+                    });
+                }
+            });
+
             // Prepare images array for MoveDrop
             const moveDropImages = allImages.map((src, index) => ({
                 src: src,
@@ -390,16 +476,19 @@
                 description: quill.root.innerHTML,
                 image: mainImageUrl,
                 images: allImages,
+                variations: variations,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
 
             // Save to Firebase Firestore
             const docRef = await db.collection("products").add(productData);
+            console.log("Product saved to Firebase with ID:", docRef.id);
 
             // Sync to MoveDrop API
             try {
-                const moveDropResponse = await fetch(`${MOVEDROP_API_URL}?path=products`, {
+                // First create product
+                const productResponse = await fetch(`${MOVEDROP_API_URL}?path=products`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -410,17 +499,32 @@
                         sku: sku,
                         description: quill.root.innerHTML,
                         images: moveDropImages,
-                        category_ids: category ? [1] : [],
+                        category_ids: category ? [1] : [], // You'll need to map category names to IDs
                         tags: tags,
                         properties: []
                     })
                 });
 
-                const responseData = await moveDropResponse.json();
-                if (!moveDropResponse.ok) {
-                    console.error("MoveDrop API error:", responseData);
-                } else {
-                    console.log("MoveDrop sync success:", responseData);
+                const productResult = await productResponse.json();
+                console.log("MoveDrop product sync response:", productResult);
+
+                // If product created successfully and has variations, add them
+                if (variations.length > 0 && productResult.id) {
+                    const variationsResponse = await fetch(`${MOVEDROP_API_URL}?path=products/${productResult.id}/variations`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-KEY': MOVEDROP_API_KEY
+                        },
+                        body: JSON.stringify({ variations: variations })
+                    });
+                    
+                    const variationsResult = await variationsResponse.json();
+                    console.log("MoveDrop variations sync response:", variationsResult);
+                }
+
+                if (!productResponse.ok) {
+                    console.error("MoveDrop API error:", productResult);
                 }
             } catch (apiError) {
                 console.log("API sync failed:", apiError);
@@ -431,6 +535,7 @@
 
         } catch (error) {
             alert("Error: " + error.message);
+            console.error("Save error:", error);
             document.getElementById('savePBtn').innerHTML = '<i class="fa fa-save me-2"></i> PUBLISH PRODUCT';
             document.getElementById('savePBtn').disabled = false;
         }
@@ -484,12 +589,15 @@
             const p = doc.data();
             list.innerHTML += `
                 <tr>
-                    <td><img src="${p.image || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:cover;border-radius:5px;"></td>
+                    <td><img src="${p.image || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:cover;border-radius:5px;" onerror="this.src='https://via.placeholder.com/40'"></td>
                     <td>${p.name || ''}</td>
                     <td>${p.sku || 'N/A'}</td>
-                    <td>৳${p.price || '0'}</td>
+                    <td>৳${p.price ? parseFloat(p.price).toFixed(2) : '0.00'}</td>
+                    <td>${p.category || 'N/A'}</td>
+                    <td>${p.tags ? p.tags.join(', ') : 'N/A'}</td>
                     <td>
-                        <i class="fa fa-trash text-danger" style="cursor:pointer;" onclick="deleteProduct('${doc.id}')"></i>
+                        <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')"></i>
+                        <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')"></i>
                     </td>
                 </tr>`;
         });
@@ -516,6 +624,11 @@
         }
     };
 
+    // View Product
+    window.viewProduct = (id) => {
+        window.open(`single-product-details.html?id=${id}`, '_blank');
+    };
+
     // Load Orders
     db.collection("orders").onSnapshot((snapshot) => {
         const list = document.getElementById('orderList');
@@ -531,16 +644,18 @@
             
             const customerName = o.customer?.name || o.shipping_address?.first_name || 'N/A';
             const customerPhone = o.customer?.phone || o.shipping_address?.phone || 'N/A';
+            const itemCount = o.line_items ? o.line_items.length : 0;
             
             list.innerHTML += `
                 <tr>
                     <td>#${o.order_number || doc.id.slice(0,8)}</td>
                     <td>${customerName}</td>
                     <td>${customerPhone}</td>
-                    <td>৳${o.total || '0'}</td>
+                    <td>৳${o.total ? parseFloat(o.total).toFixed(2) : '0.00'}</td>
                     <td>
                         <span class="status-badge status-${status}">${status}</span>
                     </td>
+                    <td>${itemCount} items</td>
                     <td>
                         <select class="form-select form-select-sm" onchange="updateOrderStatus('${doc.id}', this.value)">
                             <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
@@ -558,27 +673,32 @@
 
     // Update Order Status
     window.updateOrderStatus = async (id, status) => {
-        await db.collection("orders").doc(id).update({ 
-            status: status,
-            updated_at: new Date().toISOString()
-        });
-        
-        // Sync to MoveDrop API
         try {
-            const response = await fetch(`${MOVEDROP_API_URL}?path=orders/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': MOVEDROP_API_KEY
-                },
-                body: JSON.stringify({ status: status })
+            await db.collection("orders").doc(id).update({ 
+                status: status,
+                updated_at: new Date().toISOString()
             });
             
-            if (!response.ok) {
-                console.log("Status sync warning:", await response.text());
+            // Sync to MoveDrop API
+            try {
+                const response = await fetch(`${MOVEDROP_API_URL}?path=orders/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': MOVEDROP_API_KEY
+                    },
+                    body: JSON.stringify({ status: status })
+                });
+                
+                if (!response.ok) {
+                    console.log("Status sync warning:", await response.text());
+                }
+            } catch (error) {
+                console.log("Status sync failed:", error);
             }
         } catch (error) {
-            console.log("Status sync failed:", error);
+            console.error("Status update failed:", error);
+            alert("Failed to update status: " + error.message);
         }
     };
 
@@ -657,11 +777,24 @@
                         })
                     });
                     
+                    const result = await response.json();
                     if (response.ok) {
                         synced++;
+                        
+                        // Sync variations if they exist
+                        if (p.variations && p.variations.length > 0 && result.id) {
+                            await fetch(`${MOVEDROP_API_URL}?path=products/${result.id}/variations`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-API-KEY': MOVEDROP_API_KEY
+                                },
+                                body: JSON.stringify({ variations: p.variations })
+                            });
+                        }
                     } else {
                         failed++;
-                        console.log("Failed to sync product:", doc.id, await response.text());
+                        console.log("Failed to sync product:", doc.id, result);
                     }
                 } catch (e) {
                     failed++;
@@ -693,7 +826,7 @@
                         order_number: o.order_number || "ORD-" + doc.id.slice(0, 8),
                         status: o.status || "pending",
                         currency: o.currency || "BDT",
-                        total: o.total || "0",
+                        total: o.total ? o.total.toString() : "0",
                         payment_method: o.payment_method || "cod",
                         shipping_address: o.shipping_address || {
                             first_name: o.customer?.name?.split(' ')[0] || "Customer",
