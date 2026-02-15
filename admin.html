@@ -17,8 +17,8 @@
         .nav-link { color: #333; padding: 12px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; display: block; text-decoration: none; }
         .nav-link.active { background: #111; color: #fff; }
         #editor { height: 200px; background: white; margin-bottom: 20px; }
-        .variation-row { background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 10px; }
-        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; display: block; margin-top: 5px; }
+        .variation-row { background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 15px; }
+        .p-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -29,14 +29,22 @@
         <a onclick="showSection('dashboard')" class="nav-link active"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
         <a onclick="showSection('products')" class="nav-link"><i class="fa fa-box me-2"></i> Products</a>
         <a onclick="showSection('categories')" class="nav-link"><i class="fa fa-list me-2"></i> Categories</a>
-        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-shopping-bag me-2"></i> Orders</a>
+        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-shopping-bag me-2"></i> Orders Management</a>
     </nav>
 </div>
 
 <div class="main">
-    <div id="products" class="section">
+    <div id="dashboard" class="section">
+        <h3 class="fw-bold mb-4">Admin Overview</h3>
+        <div class="row">
+            <div class="col-md-4"><div class="card-custom text-center"><h6>Total Products</h6><h2 id="totalProducts">0</h2></div></div>
+            <div class="col-md-4"><div class="card-custom text-center"><h6>Total Orders</h6><h2 id="totalOrders">0</h2></div></div>
+        </div>
+    </div>
+
+    <div id="products" class="section" style="display:none;">
         <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Add Product (Auto Image Upload)</h5>
+            <h5 class="mb-4 fw-bold">Add New Product</h5>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label small fw-bold">Product Name *</label>
@@ -54,26 +62,24 @@
                     <label class="form-label small fw-bold">Category *</label>
                     <select id="pCatSel" class="form-select"></select>
                 </div>
-
+                
                 <div class="col-md-6">
-                    <label class="form-label small fw-bold">Main Image *</label>
+                    <label class="form-label small fw-bold">Main Product Image (Select File) *</label>
                     <input type="file" id="mainImgFile" class="form-control" accept="image/*">
-                    <input type="hidden" id="mainImgUrl">
-                    <div id="mainPreview"></div>
                 </div>
 
                 <div class="col-12 mt-2">
-                    <label class="form-label small fw-bold">Gallery Images (Max 3)</label>
+                    <label class="form-label small fw-bold">Gallery Images (Optional - Upload Max 3)</label>
                     <div class="row g-2">
-                        <div class="col-md-4"><input type="file" class="form-control gallery-file" accept="image/*"></div>
-                        <div class="col-md-4"><input type="file" class="form-control gallery-file" accept="image/*"></div>
-                        <div class="col-md-4"><input type="file" class="form-control gallery-file" accept="image/*"></div>
+                        <div class="col-md-4"><input type="file" class="gallery-file form-control" accept="image/*"></div>
+                        <div class="col-md-4"><input type="file" class="gallery-file form-control" accept="image/*"></div>
+                        <div class="col-md-4"><input type="file" class="gallery-file form-control" accept="image/*"></div>
                     </div>
                 </div>
 
                 <div class="col-12 mt-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="fw-bold small">Variations (Size/Price)</label>
+                        <label class="fw-bold small">Product Variations (Size/Price/Image)</label>
                         <button type="button" class="btn btn-sm btn-dark" onclick="addVariation()">+ Add Variation</button>
                     </div>
                     <div id="variationContainer"></div>
@@ -86,11 +92,40 @@
                 <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold">PUBLISH PRODUCT</button>
             </div>
         </div>
+
+        <div class="card-custom mt-4">
+            <h5>Product Inventory</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Image</th><th>Name</th><th>SKU</th><th>Price</th><th>Action</th></tr></thead>
+                    <tbody id="pList"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div id="dashboard" class="section" style="display:none;"><h3>Dashboard</h3></div>
-    <div id="categories" class="section" style="display:none;"><h3>Categories</h3></div>
-    <div id="orders" class="section" style="display:none;"><h3>Order Management</h3></div>
+    <div id="orders" class="section" style="display:none;">
+        <div class="card-custom">
+            <h5 class="mb-4">Order List</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="orderList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="categories" class="section" style="display:none;">
+        <div class="card-custom">
+            <h5>Categories</h5>
+            <div class="input-group mb-3">
+                <input type="text" id="catName" class="form-control" placeholder="New Category">
+                <button id="saveCatBtn" class="btn btn-dark">Add</button>
+            </div>
+            <div id="catList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
@@ -111,15 +146,16 @@
     const db = firebase.firestore();
     const quill = new Quill('#editor', { theme: 'snow' });
 
-    // ImgBB API Key (Free)
     const IMGBB_API_KEY = '5a782e4f0d3b680c48e895844876b508'; 
 
     function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        event.currentTarget?.classList.add('active');
     }
 
-    // Image Upload Function
+    // IMAGE UPLOAD ENGINE
     async function uploadImage(file) {
         if (!file) return null;
         let formData = new FormData();
@@ -129,51 +165,49 @@
             body: formData
         });
         const data = await res.json();
-        return data.data.url;
+        return data.data.url; // Returns the public link
     }
 
     function addVariation() {
         const div = document.createElement('div');
         div.className = 'variation-row row g-2';
         div.innerHTML = `
-            <div class="col-md-3"><input type="text" class="form-control v-size" placeholder="Size (e.g. 6ml)"></div>
+            <div class="col-md-3"><input type="text" class="form-control v-size" placeholder="6ml"></div>
             <div class="col-md-3"><input type="number" class="form-control v-price" placeholder="Price"></div>
             <div class="col-md-5"><input type="file" class="form-control v-file" accept="image/*"></div>
             <div class="col-md-1"><button class="btn btn-danger w-100" onclick="this.parentElement.parentElement.remove()">×</button></div>`;
         document.getElementById('variationContainer').appendChild(div);
     }
 
-    // Load Categories
+    // Load Data
     db.collection("categories").onSnapshot(snap => {
         const sel = document.getElementById('pCatSel');
+        const list = document.getElementById('catList');
         sel.innerHTML = '<option value="">Select Category</option>';
+        list.innerHTML = "";
         snap.forEach(doc => {
-            sel.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`;
+            const name = doc.data().name;
+            sel.innerHTML += `<option value="${name}">${name}</option>`;
+            list.innerHTML += `<span class="badge bg-light text-dark border p-2">${name} <i class="fa fa-times text-danger ms-2" onclick="deleteCat('${doc.id}')" style="cursor:pointer"></i></span>`;
         });
     });
 
-    // Save Product
+    // Save Logic
     document.getElementById('savePBtn').onclick = async () => {
         const btn = document.getElementById('savePBtn');
-        btn.disabled = true; btn.innerText = "Uploading Images...";
+        btn.disabled = true; btn.innerText = "Uploading Images... Wait";
 
         try {
-            // 1. Upload Main Image
-            const mainImgFile = document.getElementById('mainImgFile').files[0];
-            const mainImageUrl = await uploadImage(mainImgFile);
-            if(!mainImageUrl) throw new Error("Main image upload failed!");
+            const mainFile = document.getElementById('mainImgFile').files[0];
+            if(!mainFile) throw new Error("Select main image!");
+            const mainImgUrl = await uploadImage(mainFile);
 
-            // 2. Upload Gallery Images
             const galleryUrls = [];
-            const gallFiles = document.querySelectorAll('.gallery-file');
-            for(let f of gallFiles) {
-                if(f.files[0]) {
-                    const url = await uploadImage(f.files[0]);
-                    galleryUrls.push(url);
-                }
+            const gallInputs = document.querySelectorAll('.gallery-file');
+            for(let input of gallInputs) {
+                if(input.files[0]) galleryUrls.push(await uploadImage(input.files[0]));
             }
 
-            // 3. Upload Variation Images
             const variations = [];
             const varRows = document.querySelectorAll('.variation-row');
             for(let row of varRows) {
@@ -181,33 +215,51 @@
                 const vPrice = row.querySelector('.v-price').value;
                 const vFile = row.querySelector('.v-file').files[0];
                 if(size && vPrice) {
-                    const vUrl = vFile ? await uploadImage(vFile) : mainImageUrl;
+                    const vUrl = vFile ? await uploadImage(vFile) : mainImgUrl;
                     variations.push({ size, price: parseFloat(vPrice), image: vUrl });
                 }
             }
 
-            // 4. Save to Firebase
             await db.collection("products").add({
                 name: document.getElementById('pName').value,
                 sku: document.getElementById('pSku').value,
                 price: parseFloat(document.getElementById('pPrice').value),
                 category: document.getElementById('pCatSel').value,
-                image: mainImageUrl,
+                image: mainImgUrl,
                 gallery: galleryUrls,
                 variations: variations,
                 description: quill.root.innerHTML,
                 created_at: new Date()
             });
 
-            alert("Product Published Successfully with Auto Upload!");
+            alert("Product Published Successfully!");
             location.reload();
 
-        } catch(e) {
-            alert("Error: " + e.message);
-        } finally {
-            btn.disabled = false; btn.innerText = "PUBLISH PRODUCT";
-        }
+        } catch(e) { alert(e.message); }
+        finally { btn.disabled = false; btn.innerText = "PUBLISH PRODUCT"; }
     };
+
+    // Orders & Inventory Logic (Same as your previous system)
+    db.collection("orders").orderBy("timestamp", "desc").onSnapshot(snap => {
+        const list = document.getElementById('orderList');
+        list.innerHTML = "";
+        document.getElementById('totalOrders').innerText = snap.size;
+        snap.forEach(doc => {
+            const o = doc.data();
+            list.innerHTML += `<tr><td>${doc.id.slice(0,8)}</td><td>${o.customerName}</td><td>${o.phone}</td><td><span class="badge bg-dark">${o.status || 'Pending'}</span></td><td><button class="btn btn-sm btn-outline-dark" onclick="viewOrder('${doc.id}')">View</button></td></tr>`;
+        });
+    });
+
+    db.collection("products").orderBy("created_at", "desc").onSnapshot(snap => {
+        const list = document.getElementById('pList');
+        list.innerHTML = "";
+        document.getElementById('totalProducts').innerText = snap.size;
+        snap.forEach(doc => {
+            const p = doc.data();
+            list.innerHTML += `<tr><td><img src="${p.image}" class="p-img-preview"></td><td>${p.name}</td><td>${p.sku}</td><td>৳${p.price}</td><td><button class="btn btn-sm btn-danger" onclick="db.collection('products').doc('${doc.id}').delete()">Delete</button></td></tr>`;
+        });
+    });
+
 </script>
 </body>
 </html>
