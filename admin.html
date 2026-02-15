@@ -23,7 +23,7 @@
         .remove-btn { position: absolute; top: -8px; right: -8px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .upload-trigger { border: 2px dashed #000; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; background: #fff; font-weight: bold; }
         #editor { height: 300px; background: white; }
-        .nav-link { color: #333; padding: 10px; border-radius: 8px; margin-bottom: 5px; }
+        .nav-link { color: #333; padding: 10px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
         .nav-link:hover { background: #f0f0f0; }
         .nav-link.active { background: #111; color: #fff; }
         .status-badge { padding: 5px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
@@ -31,14 +31,7 @@
         .status-processing { background: #cce5ff; color: #004085; }
         .status-completed { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
-        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
-        .category-badge { background: #f0f0f0; padding: 8px 15px; border-radius: 50px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
-        .category-badge i { cursor: pointer; color: #999; }
-        .category-badge i:hover { color: #ff4d4d; }
-        .product-table-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
-        .empty-state { text-align: center; padding: 50px; color: #999; }
-        .empty-state i { font-size: 50px; margin-bottom: 20px; color: #ddd; }
-        .debug-info { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; color: #666; margin-top: 10px; border-left: 3px solid #007bff; }
+        .variation-row { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -46,20 +39,16 @@
 <div class="sidebar">
     <h4 class="mb-4 fw-bold text-center">MAVRO ADMIN</h4>
     <nav class="nav flex-column">
-        <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
-        <a href="#products" class="nav-link" onclick="showSection('products')"><i class="fa fa-box me-2"></i> Products</a>
-        <a href="#categories" class="nav-link" onclick="showSection('categories')"><i class="fa fa-list me-2"></i> Categories</a>
-        <a href="#orders" class="nav-link" onclick="showSection('orders')"><i class="fa fa-shopping-cart me-2"></i> Orders</a>
-        <a href="#webhooks" class="nav-link" onclick="showSection('webhooks')"><i class="fa fa-link me-2"></i> Webhooks</a>
-        <a href="#sync" class="nav-link" onclick="showSection('sync')"><i class="fa fa-sync me-2"></i> MoveDrop Sync</a>
+        <a class="nav-link active" onclick="showSection('dashboard')"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
+        <a class="nav-link" onclick="showSection('products')"><i class="fa fa-box me-2"></i> Products</a>
+        <a class="nav-link" onclick="showSection('categories')"><i class="fa fa-list me-2"></i> Categories</a>
+        <a class="nav-link" onclick="showSection('orders')"><i class="fa fa-shopping-cart me-2"></i> Orders</a>
+        <a class="nav-link" onclick="showSection('webhooks')"><i class="fa fa-link me-2"></i> Webhooks</a>
+        <a class="nav-link" onclick="showSection('sync')"><i class="fa fa-sync me-2"></i> MoveDrop Sync</a>
     </nav>
-    <div class="debug-info" id="debugInfo">
-        <strong>Debug:</strong> Loading...
-    </div>
 </div>
 
 <div class="main">
-    <!-- Dashboard Section -->
     <div id="dashboard" class="section">
         <div class="row">
             <div class="col-md-4">
@@ -83,7 +72,6 @@
         </div>
     </div>
 
-    <!-- Products Section -->
     <div id="products" class="section" style="display: none;">
         <div class="card-custom">
             <h5 class="mb-4 fw-bold">Publish New Product</h5>
@@ -98,7 +86,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="small fw-bold">Price (৳) *</label>
-                    <input type="number" id="pPrice" class="form-control" placeholder="0.00" step="0.01">
+                    <input type="number" id="pPrice" class="form-control" placeholder="0.00">
                 </div>
                 <div class="col-md-6">
                     <label class="small fw-bold">Category</label>
@@ -108,7 +96,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="small fw-bold">Tags (comma separated)</label>
-                    <input type="text" id="pTags" class="form-control" placeholder="fashion, watch, new">
+                    <input type="text" id="pTags" class="form-control" placeholder="fashion, watch">
                 </div>
                 <div class="col-md-6">
                     <label class="small fw-bold">Main Thumbnail *</label>
@@ -124,12 +112,20 @@
                 </div>
                 
                 <div class="col-12 mt-3">
+                    <h5>Product Variations</h5>
+                    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="addVariation()">
+                        <i class="fa fa-plus"></i> Add Variation
+                    </button>
+                    <div id="variationsContainer"></div>
+                </div>
+                
+                <div class="col-12 mt-3">
                     <label class="small fw-bold">Detailed Description</label>
                     <div id="editor"></div>
                 </div>
                 <div class="col-12">
                     <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold shadow mt-2">
-                        <i class="fa fa-save me-2"></i> PUBLISH PRODUCT
+                        <i class="fa fa-save me-2"></i> PUBLISH TO MOVEDROP
                     </button>
                 </div>
             </div>
@@ -146,7 +142,6 @@
                             <th>SKU</th>
                             <th>Price</th>
                             <th>Category</th>
-                            <th>Tags</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -156,7 +151,6 @@
         </div>
     </div>
 
-    <!-- Categories Section -->
     <div id="categories" class="section" style="display: none;">
         <div class="card-custom">
             <h5>Add New Category</h5>
@@ -168,7 +162,6 @@
         </div>
     </div>
 
-    <!-- Orders Section -->
     <div id="orders" class="section" style="display: none;">
         <div class="card-custom">
             <h5>Order Management</h5>
@@ -178,10 +171,8 @@
                         <tr>
                             <th>Order #</th>
                             <th>Customer</th>
-                            <th>Phone</th>
                             <th>Total</th>
                             <th>Status</th>
-                            <th>Items</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -191,18 +182,15 @@
         </div>
     </div>
 
-    <!-- Webhooks Section -->
     <div id="webhooks" class="section" style="display: none;">
         <div class="card-custom">
             <h5>MoveDrop Webhooks</h5>
-            <p class="text-muted">These webhooks are registered by MoveDrop automatically</p>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Event</th>
-                            <th>Delivery URL</th>
-                            <th>Created</th>
+                            <th>URL</th>
                         </tr>
                     </thead>
                     <tbody id="webhookTableBody"></tbody>
@@ -211,25 +199,13 @@
         </div>
     </div>
 
-    <!-- Sync Section -->
     <div id="sync" class="section" style="display: none;">
         <div class="card-custom">
-            <h5>MoveDrop Sync Status</h5>
+            <h5>API Status</h5>
             <div class="alert alert-info">
-                <strong>API Status:</strong> <span id="apiStatus">Checking...</span>
+                <strong>Status:</strong> <span id="apiStatus">Checking...</span>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <button class="btn btn-success w-100 mb-2" onclick="syncProducts()">
-                        <i class="fa fa-sync me-2"></i> Sync Products to MoveDrop
-                    </button>
-                </div>
-                <div class="col-md-6">
-                    <button class="btn btn-primary w-100 mb-2" onclick="syncOrders()">
-                        <i class="fa fa-sync me-2"></i> Sync Orders to MoveDrop
-                    </button>
-                </div>
-            </div>
+            <button class="btn btn-success w-100 mb-2" onclick="syncProducts()">Manual Sync Products</button>
             <div id="syncResult" class="mt-3"></div>
         </div>
     </div>
@@ -251,566 +227,181 @@
         appId: "1:137893255543:web:a660bd412eb26ee322a972"
     };
     
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // Enable persistence
-    db.enablePersistence()
-        .then(() => console.log("Persistence enabled"))
-        .catch(err => console.log("Persistence error:", err));
-
-    // MoveDrop API Configuration
+    // MoveDrop Configuration
     const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
     const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
 
-    // Quill Editor
-    const quill = new Quill('#editor', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['link', 'image']
-            ]
-        }
-    });
-
-    // Gallery Array
+    let categoryMap = {}; 
     let galleryArr = [];
 
-    // Image to Base64
-    const toBase64 = f => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(f);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-    });
+    const quill = new Quill('#editor', { theme: 'snow' });
 
-    // Upload image to Firebase Storage
-    async function uploadImageToStorage(base64, path) {
-        try {
-            const storageRef = storage.ref(path);
-            await storageRef.putString(base64, 'data_url');
-            const url = await storageRef.getDownloadURL();
-            return url;
-        } catch (error) {
-            console.error("Storage upload failed:", error);
-            return base64;
-        }
-    }
-
-    // Compress Image
-    async function compressImage(base64, maxWidth = 800) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.src = base64;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                
-                if (width > maxWidth) {
-                    height = (maxWidth / width) * height;
-                    width = maxWidth;
-                }
-                
-                canvas.width = width;
-                canvas.height = height;
-                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7));
-            };
-        });
-    }
-
-    // Gallery Upload
-    document.getElementById('galleryInput').onchange = async (e) => {
-        const files = Array.from(e.target.files);
-        for (const file of files) {
-            const base64 = await toBase64(file);
-            const compressed = await compressImage(base64);
-            galleryArr.push(compressed);
-        }
-        renderGallery();
+    // Show Section
+    window.showSection = (sectionId) => {
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        event.currentTarget.classList.add('active');
     };
 
-    function renderGallery() {
-        const container = document.getElementById('galleryContainer');
-        container.innerHTML = "";
-        galleryArr.forEach((src, idx) => {
-            container.innerHTML += `
-                <div class="gallery-item">
-                    <img src="${src}">
-                    <button class="remove-btn" onclick="removeFromGallery(${idx})">×</button>
-                </div>`;
-        });
-    }
-
-    window.removeFromGallery = (idx) => {
-        galleryArr.splice(idx, 1);
-        renderGallery();
-    };
-
-    // Save Product
-    document.getElementById('savePBtn').onclick = async () => {
-        const name = document.getElementById('pName').value;
-        const sku = document.getElementById('pSku').value;
-        const price = document.getElementById('pPrice').value;
-        const category = document.getElementById('pCatSel').value;
-        const tags = document.getElementById('pTags').value.split(',').map(t => t.trim()).filter(t => t);
-        const mainImg = document.getElementById('pImg').files[0];
-
-        if (!name || !sku || !price || !mainImg) {
-            alert("Please fill all required fields and select main image");
-            return;
-        }
-
-        document.getElementById('savePBtn').innerHTML = '<i class="fa fa-spinner fa-spin"></i> Publishing...';
-        document.getElementById('savePBtn').disabled = true;
-
-        try {
-            // Process main image
-            const mainBase64 = await toBase64(mainImg);
-            const mainCompressed = await compressImage(mainBase64, 500);
-            
-            // Upload main image to Storage
-            const timestamp = Date.now();
-            const mainImageUrl = await uploadImageToStorage(
-                mainCompressed, 
-                `products/${sku}_${timestamp}/main.jpg`
-            );
-            
-            // Process gallery images
-            const galleryUrls = [];
-            for (let i = 0; i < galleryArr.length; i++) {
-                const url = await uploadImageToStorage(
-                    galleryArr[i],
-                    `products/${sku}_${timestamp}/gallery-${i}.jpg`
-                );
-                galleryUrls.push(url);
-            }
-            
-            const allImages = [mainImageUrl, ...galleryUrls];
-
-            // Prepare images array for MoveDrop
-            const moveDropImages = allImages.map((src, index) => ({
-                src: src,
-                is_default: index === 0
-            }));
-
-            // Get category ID
-            let categoryId = null;
-            if (category) {
-                const catSnapshot = await db.collection("categories")
-                    .where("name", "==", category)
-                    .get();
-                if (!catSnapshot.empty) {
-                    categoryId = catSnapshot.docs[0].id;
-                }
-            }
-
-            // Save to Firebase Firestore - using simple structure
-            const productData = {
-                name: name,
-                sku: sku,
-                price: parseFloat(price),
-                category: category,
-                category_id: categoryId,
-                tags: tags,
-                description: quill.root.innerHTML,
-                image: mainImageUrl,
-                images: allImages,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-
-            console.log("Saving product:", productData);
-            const docRef = await db.collection("products").add(productData);
-            console.log("Product saved with ID:", docRef.id);
-
-            // Sync to MoveDrop API
-            try {
-                const productResponse = await fetch(`${MOVEDROP_API_URL}?path=products`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-API-KEY': MOVEDROP_API_KEY
-                    },
-                    body: JSON.stringify({
-                        title: name,
-                        sku: sku,
-                        description: quill.root.innerHTML,
-                        images: moveDropImages,
-                        category_ids: categoryId ? [parseInt(categoryId) || 1] : [],
-                        tags: tags,
-                        properties: []
-                    })
-                });
-
-                const productResult = await productResponse.json();
-                console.log("MoveDrop response:", productResult);
-            } catch (apiError) {
-                console.log("API sync failed:", apiError);
-            }
-
-            alert("Product published successfully!");
-            
-            // Clear form
-            document.getElementById('pName').value = '';
-            document.getElementById('pSku').value = '';
-            document.getElementById('pPrice').value = '';
-            document.getElementById('pTags').value = '';
-            document.getElementById('pImg').value = '';
-            galleryArr = [];
-            renderGallery();
-            quill.setContents([]);
-
-        } catch (error) {
-            alert("Error: " + error.message);
-            console.error("Save error:", error);
-        } finally {
-            document.getElementById('savePBtn').innerHTML = '<i class="fa fa-save me-2"></i> PUBLISH PRODUCT';
-            document.getElementById('savePBtn').disabled = false;
-        }
-    };
-
-    // Load Categories
+    // Load Categories with ID Mapping
     db.collection("categories").onSnapshot((snapshot) => {
         const select = document.getElementById('pCatSel');
         const catList = document.getElementById('catList');
         select.innerHTML = '<option value="">Select Category</option>';
         catList.innerHTML = "";
         
-        if (snapshot.empty) {
-            catList.innerHTML = '<p class="text-muted">No categories yet</p>';
-            document.getElementById('debugInfo').innerHTML += '<br>📁 No categories found';
-        }
-        
+        let index = 1;
         snapshot.forEach(doc => {
             const cat = doc.data();
+            const cid = cat.id || index++;
+            categoryMap[cat.name] = cid;
             select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-            catList.innerHTML += `
-                <span class="category-badge">
-                    ${cat.name}
-                    <i class="fa fa-times" onclick="deleteCategory('${doc.id}')"></i>
-                </span>`;
+            catList.innerHTML += `<span class="badge bg-dark p-2">ID: ${cid} | ${cat.name} <i class="fa fa-times ms-2" onclick="deleteCategory('${doc.id}')"></i></span>`;
         });
     });
 
-    // Delete Category
-    window.deleteCategory = async (id) => {
-        if (confirm("Delete this category?")) {
-            await db.collection("categories").doc(id).delete();
-        }
-    };
+    // Image Handlers
+    const toBase64 = f => new Promise((res, rej) => {
+        const r = new FileReader(); r.readAsDataURL(f); r.onload = () => res(r.result);
+    });
 
-    // Add Category
-    document.getElementById('saveCatBtn').onclick = async () => {
-        const name = document.getElementById('catName').value.trim();
-        if (name) {
-            await db.collection("categories").add({ 
-                name: name,
-                created_at: new Date().toISOString()
+    async function compressImage(base64) {
+        return new Promise(resolve => {
+            const img = new Image(); img.src = base64;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 600; canvas.height = (600/img.width)*img.height;
+                canvas.getContext('2d').drawImage(img, 0,0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+        });
+    }
+
+    async function uploadToFirebase(base64, path) {
+        const ref = storage.ref(path);
+        await ref.putString(base64, 'data_url');
+        return await ref.getDownloadURL();
+    }
+
+    // Save Product
+    document.getElementById('savePBtn').onclick = async () => {
+        const btn = document.getElementById('savePBtn');
+        const name = document.getElementById('pName').value;
+        const sku = document.getElementById('pSku').value;
+        const price = document.getElementById('pPrice').value;
+        const catName = document.getElementById('pCatSel').value;
+        const mainImgFile = document.getElementById('pImg').files[0];
+
+        if(!name || !sku || !mainImgFile) return alert("Fill required fields");
+
+        btn.disabled = true; btn.innerHTML = "Processing...";
+
+        try {
+            const b64 = await toBase64(mainImgFile);
+            const compressed = await compressImage(b64);
+            const fireUrl = await uploadToFirebase(compressed, `products/${sku}_${Date.now()}.jpg`);
+
+            const payload = {
+                title: name,
+                sku: sku,
+                description: quill.root.innerHTML,
+                images: [{ src: fireUrl, is_default: true }],
+                category_ids: [parseInt(categoryMap[catName] || 1)],
+                tags: document.getElementById('pTags').value.split(','),
+                properties: []
+            };
+
+            const res = await fetch(`${MOVEDROP_API_URL}?path=products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-API-KEY': MOVEDROP_API_KEY },
+                body: JSON.stringify(payload)
             });
-            document.getElementById('catName').value = "";
+
+            const result = await res.json();
+            if(res.status === 201) {
+                await db.collection("products").add({ ...payload, image: fireUrl, api_id: result.data.id });
+                alert("Product Created Successfully on MoveDrop!");
+                location.reload();
+            } else {
+                alert("MoveDrop Error: " + (result.message || "Failed"));
+            }
+        } catch (e) {
+            console.error(e); alert("Error Occurred");
+        } finally {
+            btn.disabled = false; btn.innerHTML = "PUBLISH TO MOVEDROP";
         }
     };
 
-    // Load Products - FIXED VERSION
-    db.collection("products").onSnapshot((snapshot) => {
-        const list = document.getElementById('pList');
-        const debugInfo = document.getElementById('debugInfo');
-        list.innerHTML = "";
+    // Load Products
+    db.collection("products").onSnapshot(snap => {
+        const list = document.getElementById('pList'); list.innerHTML = "";
         let count = 0;
-        
-        console.log("Products snapshot received:", snapshot.size, "documents");
-        debugInfo.innerHTML = `<strong>Debug:</strong> Found ${snapshot.size} products<br>`;
-        
-        if (snapshot.empty) {
-            list.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty-state">
-                        <i class="fa fa-box-open"></i>
-                        <p>No products yet. Add your first product above.</p>
-                    </td>
-                </tr>`;
-            document.getElementById('totalProducts').innerText = "0";
-            return;
-        }
-        
-        snapshot.forEach(doc => {
-            count++;
-            const p = doc.data();
-            console.log(`Product ${count}:`, p); // Debug log
-            
-            // Handle different possible field names
-            const name = p.name || p.title || 'Unnamed';
-            const sku = p.sku || 'N/A';
-            const price = p.price ? parseFloat(p.price).toFixed(2) : '0.00';
-            const category = p.category || p.category_name || 'N/A';
-            const tags = p.tags && Array.isArray(p.tags) ? p.tags.join(', ') : (p.tags || 'N/A');
-            const image = p.image || p.images?.[0] || 'https://via.placeholder.com/50x50?text=No+Image';
-            
-            list.innerHTML += `
-                <tr>
-                    <td>
-                        <img src="${image}" 
-                             class="product-table-img" 
-                             onerror="this.src='https://via.placeholder.com/50x50?text=Error'">
-                    </td>
-                    <td>${name}</td>
-                    <td>${sku}</td>
-                    <td>৳${price}</td>
-                    <td>${category}</td>
-                    <td><small>${tags}</small></td>
-                    <td>
-                        <i class="fa fa-trash text-danger" style="cursor:pointer; margin-right:10px;" onclick="deleteProduct('${doc.id}')" title="Delete"></i>
-                        <i class="fa fa-eye text-info" style="cursor:pointer;" onclick="viewProduct('${doc.id}')" title="View"></i>
-                    </td>
-                </tr>`;
-        });
-        
-        document.getElementById('totalProducts').innerText = count;
-        debugInfo.innerHTML += `✅ Loaded ${count} products`;
-    }, (error) => {
-        console.error("Error loading products:", error);
-        document.getElementById('debugInfo').innerHTML = `<strong>Error:</strong> ${error.message}`;
-        document.getElementById('pList').innerHTML = `
-            <tr>
-                <td colspan="7" class="empty-state">
-                    <i class="fa fa-exclamation-triangle text-danger"></i>
-                    <p>Error loading products: ${error.message}</p>
-                </td>
+        snap.forEach(doc => {
+            count++; const p = doc.data();
+            list.innerHTML += `<tr>
+                <td><img src="${p.image}" width="40"></td>
+                <td>${p.title}</td>
+                <td>${p.sku}</td>
+                <td>${p.price || '0'}</td>
+                <td>${p.category_ids[0]}</td>
+                <td><i class="fa fa-trash text-danger" onclick="deleteProduct('${doc.id}', '${p.api_id}')"></i></td>
             </tr>`;
+        });
+        document.getElementById('totalProducts').innerText = count;
     });
 
-    // Delete Product
-    window.deleteProduct = async (id) => {
-        if (confirm("Delete this product?")) {
-            await db.collection("products").doc(id).delete();
-        }
-    };
-
-    // View Product
-    window.viewProduct = (id) => {
-        window.open(`single-product-details.html?id=${id}`, '_blank');
+    window.deleteProduct = async (fid, aid) => {
+        if(!confirm("Delete?")) return;
+        await db.collection("products").doc(fid).delete();
+        await fetch(`${MOVEDROP_API_URL}?path=products/${aid}`, { 
+            method: 'DELETE', 
+            headers: { 'X-API-KEY': MOVEDROP_API_KEY } 
+        });
     };
 
     // Load Orders
-    db.collection("orders").onSnapshot((snapshot) => {
-        const list = document.getElementById('orderList');
-        list.innerHTML = "";
-        let totalOrders = 0;
-        let pendingCount = 0;
-        
-        if (snapshot.empty) {
-            list.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty-state">
-                        <i class="fa fa-shopping-cart"></i>
-                        <p>No orders yet.</p>
-                    </td>
-                </tr>`;
-            document.getElementById('totalOrders').innerText = "0";
-            document.getElementById('pendingOrders').innerText = "0";
-            return;
-        }
-        
-        snapshot.forEach(doc => {
-            totalOrders++;
-            const o = doc.data();
-            const status = o.status || 'pending';
-            if (status === 'pending') pendingCount++;
-            
-            const customerName = o.customer?.name || o.shipping_address?.first_name || 'N/A';
-            const customerPhone = o.customer?.phone || o.shipping_address?.phone || 'N/A';
-            const itemCount = o.line_items ? o.line_items.length : 0;
-            
-            list.innerHTML += `
-                <tr>
-                    <td>#${o.order_number || doc.id.slice(0,8)}</td>
-                    <td>${customerName}</td>
-                    <td>${customerPhone}</td>
-                    <td>৳${o.total ? parseFloat(o.total).toFixed(2) : '0.00'}</td>
-                    <td>
-                        <span class="status-badge status-${status}">${status}</span>
-                    </td>
-                    <td>${itemCount} items</td>
-                    <td>
-                        <select class="form-select form-select-sm" onchange="updateOrderStatus('${doc.id}', this.value)">
-                            <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
-                            <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
-                            <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
-                            <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                        </select>
-                    </td>
-                </tr>`;
+    db.collection("orders").onSnapshot(snap => {
+        const list = document.getElementById('orderList'); list.innerHTML = "";
+        let tc = 0, pc = 0;
+        snap.forEach(doc => {
+            tc++; const o = doc.data(); if(o.status === 'pending') pc++;
+            list.innerHTML += `<tr>
+                <td>#${o.order_number || doc.id.slice(0,5)}</td>
+                <td>${o.shipping_address?.first_name || 'N/A'}</td>
+                <td>${o.total}</td>
+                <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+                <td>
+                    <select class="form-select form-select-sm" onchange="updateStatus('${doc.id}', '${o.api_id}', this.value)">
+                        <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+                        <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
+                        <option value="completed" ${o.status==='completed'?'selected':''}>Completed</option>
+                    </select>
+                </td>
+            </tr>`;
         });
-        
-        document.getElementById('totalOrders').innerText = totalOrders;
-        document.getElementById('pendingOrders').innerText = pendingCount;
+        document.getElementById('totalOrders').innerText = tc;
+        document.getElementById('pendingOrders').innerText = pc;
     });
 
-    // Update Order Status
-    window.updateOrderStatus = async (id, status) => {
-        await db.collection("orders").doc(id).update({ 
-            status: status,
-            updated_at: new Date().toISOString()
+    window.updateStatus = async (fid, aid, status) => {
+        await db.collection("orders").doc(fid).update({ status });
+        await fetch(`${MOVEDROP_API_URL}?path=orders/${aid}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-API-KEY': MOVEDROP_API_KEY },
+            body: JSON.stringify({ status })
         });
-        
-        // Sync to MoveDrop API
-        try {
-            await fetch(`${MOVEDROP_API_URL}?path=orders/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': MOVEDROP_API_KEY
-                },
-                body: JSON.stringify({ status: status })
-            });
-        } catch (error) {
-            console.log("Status sync failed:", error);
-        }
     };
 
-    // Load Webhooks
-    db.collection("webhooks").onSnapshot((snapshot) => {
-        const tbody = document.getElementById('webhookTableBody');
-        tbody.innerHTML = "";
-        
-        if (snapshot.empty) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center text-muted">No webhooks registered</td>
-                </tr>`;
-            return;
-        }
-        
-        snapshot.forEach(doc => {
-            const w = doc.data();
-            tbody.innerHTML += `
-                <tr>
-                    <td>${w.event || 'N/A'}</td>
-                    <td><small>${w.delivery_url || 'N/A'}</small></td>
-                    <td>${w.created_at ? new Date(w.created_at).toLocaleString() : 'N/A'}</td>
-                </tr>`;
-        });
-    });
+    // Health Check
+    fetch(`${MOVEDROP_API_URL}?path=categories`, { headers: { 'X-API-KEY': MOVEDROP_API_KEY }})
+    .then(() => document.getElementById('apiStatus').innerHTML = '<span class="text-success">Online</span>')
+    .catch(() => document.getElementById('apiStatus').innerHTML = '<span class="text-danger">Offline</span>');
 
-    // Show Section
-    window.showSection = (section) => {
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById(section).style.display = 'block';
-        
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        event.target.closest('.nav-link').classList.add('active');
-    };
-
-    // Sync Products to MoveDrop
-    window.syncProducts = async () => {
-        const resultDiv = document.getElementById('syncResult');
-        resultDiv.innerHTML = '<div class="alert alert-info">Syncing products...</div>';
-        
-        try {
-            const productsSnapshot = await db.collection("products").get();
-            let synced = 0;
-            let failed = 0;
-            
-            for (const doc of productsSnapshot.docs) {
-                const p = doc.data();
-                try {
-                    const images = [];
-                    if (p.image) {
-                        images.push({
-                            src: p.image,
-                            is_default: true
-                        });
-                    }
-
-                    const response = await fetch(`${MOVEDROP_API_URL}?path=products`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-API-KEY': MOVEDROP_API_KEY
-                        },
-                        body: JSON.stringify({
-                            title: p.name,
-                            sku: p.sku,
-                            description: p.description || '',
-                            images: images,
-                            category_ids: p.category_id ? [parseInt(p.category_id) || 1] : [],
-                            tags: p.tags || [],
-                            properties: []
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        synced++;
-                    } else {
-                        failed++;
-                    }
-                } catch (e) {
-                    failed++;
-                }
-            }
-            
-            resultDiv.innerHTML = `<div class="alert alert-success">✅ Synced ${synced} products, ❌ ${failed} failed</div>`;
-        } catch (error) {
-            resultDiv.innerHTML = `<div class="alert alert-danger">Sync failed: ${error.message}</div>`;
-        }
-    };
-
-    // Sync Orders to MoveDrop
-    window.syncOrders = async () => {
-        const resultDiv = document.getElementById('syncResult');
-        resultDiv.innerHTML = '<div class="alert alert-info">Syncing orders...</div>';
-        
-        try {
-            const ordersSnapshot = await db.collection("orders").get();
-            let synced = 0;
-            let failed = 0;
-            
-            for (const doc of ordersSnapshot.docs) {
-                const o = doc.data();
-                try {
-                    const response = await fetch(`${MOVEDROP_API_URL}?path=orders`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-API-KEY': MOVEDROP_API_KEY
-                        },
-                        body: JSON.stringify(o)
-                    });
-                    
-                    if (response.ok) synced++;
-                    else failed++;
-                } catch (e) {
-                    failed++;
-                }
-            }
-            
-            resultDiv.innerHTML = `<div class="alert alert-success">✅ Synced ${synced} orders, ❌ ${failed} failed</div>`;
-        } catch (error) {
-            resultDiv.innerHTML = `<div class="alert alert-danger">Sync failed: ${error.message}</div>`;
-        }
-    };
-
-    // Check API Status
-    fetch(`${MOVEDROP_API_URL}?path=health`, {
-        headers: { 'X-API-KEY': MOVEDROP_API_KEY }
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById('apiStatus').innerHTML = '<span class="text-success">● Online</span>';
-    })
-    .catch(() => {
-        document.getElementById('apiStatus').innerHTML = '<span class="text-danger">● Offline</span>';
-    });
-
-    // Show dashboard by default
-    showSection('dashboard');
 </script>
 </body>
-</html>
+                                                         </html>
