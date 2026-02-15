@@ -38,7 +38,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Phone Number *</label>
-                        <input type="text" id="phone" class="form-control" placeholder="017XXXXXXXX" required>
+                        <input type="tel" id="phone" class="form-control" placeholder="017XXXXXXXX" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email (Optional)</label>
@@ -80,7 +80,7 @@
     <div class="p-4">
         <h1 style="color: #4BB543;">✓</h1>
         <h2>Order Successful!</h2>
-        <p class="mt-2">Tracking ID: <span id="finalId" style="color: #ff5a5f; font-weight: bold;"></span></p>
+        <p class="mt-2">Order ID: <span id="finalId" style="color: #ff5a5f; font-weight: bold;"></span></p>
         <p style="font-size: 14px; opacity: 0.8;">Track your order at: track-order.html?id=<span id="trackId"></span></p>
         <button onclick="window.location.href='shop.html'" class="btn btn-outline-light mt-4">Continue Shopping</button>
     </div>
@@ -96,7 +96,6 @@
         authDomain: "espera-mavro-6ddc5.firebaseapp.com",
         projectId: "espera-mavro-6ddc5",
         storageBucket: "espera-mavro-6ddc5.appspot.com",
-        databaseURL: "https://espera-mavro-6ddc5-default-rtdb.firebaseio.com",
         messagingSenderId: "137893255543",
         appId: "1:137893255543:web:a660bd412eb26ee322a972"
     };
@@ -227,27 +226,32 @@
             },
             customer_notes: "",
             line_items: cart.map((item, index) => {
-                const variationId = item.variation ? parseInt(item.variation.sku.replace(/\D/g, '')) || index + 1 : 0;
+                // Generate variation info
+                const variations = [];
+                if (item.variation) {
+                    variations.push({
+                        id: index + 1,
+                        variation_id: parseInt(item.variation.sku?.replace(/\D/g, '')) || index + 1,
+                        sku: item.variation.sku || item.sku,
+                        quantity: 1,
+                        price: item.price
+                    });
+                }
+                
                 return {
                     id: index + 1,
                     product_id: parseInt(item.productId?.replace(/\D/g, '')) || 0,
                     name: item.name,
                     quantity: 1,
                     total: item.price,
-                    variations: item.variation ? [{
-                        id: variationId,
-                        variation_id: variationId,
-                        sku: item.variation.sku || item.sku,
-                        quantity: 1,
-                        price: item.price
-                    }] : []
+                    variations: variations
                 };
             }),
             created_at: new Date().toISOString()
         };
 
         try {
-            // 1. Save to Firebase with proper error handling
+            // 1. Save to Firebase
             const docRef = await db.collection("orders").add({
                 order_number: orderNumber,
                 status: "pending",
@@ -261,6 +265,7 @@
                     email: email || "",
                     address: addr
                 },
+                customer_notes: "",
                 line_items: cart.map(item => ({
                     id: item.id || item.productId,
                     name: item.name,
