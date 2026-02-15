@@ -3,289 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Mavro Essence</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Mavro Essence | Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
-        :root { --dark: #111; --bg: #f8f9fa; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; }
-        .sidebar { background: #fff; height: 100vh; position: fixed; width: 250px; border-right: 1px solid #ddd; padding: 20px; z-index: 100; overflow-y: auto; }
-        .main { margin-left: 250px; padding: 30px; }
-        @media (max-width: 768px) { 
-            .sidebar { height: auto; width: 100%; position: relative; } 
-            .main { margin-left: 0; padding: 15px; } 
+        :root { --primary: #111; --accent: #ff5a5f; --bg: #fcfcfc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--primary); padding-top: 140px; overflow-x: hidden; }
+
+        /* Header & Navigation */
+        .header { position: fixed; top: 0; width: 100%; height: 70px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1100; border-bottom: 1px solid #eee; }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-weight: 800; font-size: 22px; text-decoration: none; color: #000; letter-spacing: 2px; }
+        .hamburger { font-size: 22px; cursor: pointer; }
+        .cart-btn { cursor: pointer; background: var(--primary); color: #fff; padding: 10px 22px; border-radius: 50px; font-size: 13px; font-weight: 700; border: none; }
+
+        /* Search & Category Section */
+        .top-bar { position: fixed; top: 70px; width: 100%; background: #fff; z-index: 1000; padding: 15px 5%; border-bottom: 1px solid #f0f0f0; }
+        .search-box { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid #eee; background: #f9f9f9; margin-bottom: 15px; outline: none; transition: 0.3s; }
+        .search-box:focus { border-color: #000; background: #fff; }
+        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .cat-scroll::-webkit-scrollbar { display: none; }
+        .cat-chip { padding: 8px 20px; background: #f0f0f0; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .cat-chip.active { background: #111; color: #fff; }
+
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 20px 5%; }
+        .p-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s; text-decoration: none; color: inherit; display: block; border: 1px solid #f1f1f1; }
+        .p-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .p-img-box { width: 100%; height: 380px; overflow: hidden; position: relative; }
+        .p-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .p-card:hover .p-img { scale: 1.05; }
+        .p-info { padding: 20px; }
+        .p-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #111; }
+        .p-price { font-size: 18px; font-weight: 800; color: var(--accent); }
+
+        /* Drawers & Overlay */
+        .side-nav, .cart-drawer { position: fixed; top: 0; width: 320px; height: 100%; background: #fff; z-index: 2500; transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1); padding: 40px 25px; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .side-nav { left: -320px; }
+        .side-nav.active { left: 0; }
+        .cart-drawer { right: -320px; }
+        .cart-drawer.active { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 2000; display: none; backdrop-filter: blur(5px); }
+        .overlay.active { display: block; }
+
+        /* Cart Styles */
+        .cart-items { flex: 1; overflow-y: auto; margin: 20px 0; }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; border-bottom: 1px solid #f5f5f5; padding-bottom: 15px; }
+        .cart-item img { width: 70px; height: 90px; border-radius: 8px; object-fit: cover; }
+        .cart-item-details h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+        .cart-item-details p { font-size: 14px; color: var(--accent); font-weight: 600; }
+        .remove-item { font-size: 12px; color: #ff385c; cursor: pointer; font-weight: 700; margin-top: 8px; display: inline-block; }
+        .btn-checkout { width: 100%; padding: 18px; background: #111; color: #fff; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-checkout:hover { background: #333; }
+
+        @media (max-width: 600px) {
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+            .p-img-box { height: 220px; }
+            .p-info { padding: 12px; }
+            .p-title { font-size: 13px; height: 32px; overflow: hidden; }
+            .p-price { font-size: 14px; }
         }
-        .card-custom { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; border: none; }
-        .nav-link { color: #333; padding: 12px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; display: block; text-decoration: none; }
-        .nav-link:hover { background: #f0f0f0; }
-        .nav-link.active { background: #111; color: #fff; }
-        #editor { height: 250px; background: white; margin-bottom: 20px; }
-        .p-img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
-        .badge-cat { background: #eee; color: #333; padding: 8px 12px; border-radius: 20px; font-size: 12px; margin: 5px; display: inline-block; }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h4 class="mb-4 fw-bold text-center">MAVRO ADMIN</h4>
-    <nav class="nav flex-column">
-        <a onclick="showSection('dashboard')" class="nav-link active"><i class="fa fa-dashboard me-2"></i> Dashboard</a>
-        <a onclick="showSection('products')" class="nav-link"><i class="fa fa-box me-2"></i> Products</a>
-        <a onclick="showSection('categories')" class="nav-link"><i class="fa fa-list me-2"></i> Categories</a>
-        <a onclick="showSection('orders')" class="nav-link"><i class="fa fa-sync me-2"></i> Orders Sync</a>
-    </nav>
-    <div class="mt-5 p-2 border-top text-center">
-        <div id="apiStatus"><small class="text-muted">API: Checking...</small></div>
-    </div>
-</div>
-
-<div class="main">
-    <div id="dashboard" class="section">
-        <h3 class="fw-bold mb-4">Dashboard Overview</h3>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card-custom text-center">
-                    <h6 class="text-muted">Total Products</h6>
-                    <h2 id="totalProducts">0</h2>
-                </div>
-            </div>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="side-nav" id="sideNav">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <h3 style="font-weight:800; letter-spacing: -0.5px;">MENU</h3>
+            <i class="fa-solid fa-times" id="closeMenu" style="cursor:pointer; font-size:20px;"></i>
         </div>
+        <a href="index.html" style="display:block; padding:15px 0; text-decoration:none; color:#111; font-weight:700;">HOME</a>
+        <a href="shop.html" style="display:block; padding:15px 0; text-decoration:none; color:var(--accent); font-weight:700;">SHOP ALL</a>
+        <a href="admin.html" style="display:block; padding:15px 0; text-decoration:none; color:#111; font-weight:700;">ADMIN PANEL</a>
     </div>
 
-    <div id="products" class="section" style="display: none;">
-        <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Add New Product (via Link)</h5>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold small">Product Name *</label>
-                    <input type="text" id="pName" class="form-control" placeholder="Enter title">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold small">SKU *</label>
-                    <input type="text" id="pSku" class="form-control" placeholder="SKU-101">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold small">Price (৳) *</label>
-                    <input type="number" id="pPrice" class="form-control" placeholder="0.00">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold small">Category *</label>
-                    <select id="pCatSel" class="form-select"></select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold small">Image Direct URL *</label>
-                    <input type="text" id="pImgUrl" class="form-control" placeholder="https://example.com/image.jpg">
-                </div>
-                <div class="col-12">
-                    <label class="form-label fw-bold small">Description</label>
-                    <div id="editor"></div>
-                </div>
-                <div class="col-12 text-end">
-                    <button id="savePBtn" class="btn btn-dark w-100 py-3 fw-bold">
-                        <i class="fa fa-paper-plane me-2"></i> PUBLISH PRODUCT
-                    </button>
-                </div>
-            </div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-weight:800; letter-spacing: -0.5px;">MY BAG</h3>
+            <i class="fa-solid fa-times" id="closeCart" style="cursor:pointer; font-size:20px;"></i>
         </div>
-
-        <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Live Inventory</h5>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>SKU</th>
-                            <th>Price</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pList"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="categories" class="section" style="display: none;">
-        <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Manage Categories</h5>
-            <div class="input-group mb-3">
-                <input type="text" id="catName" class="form-control" placeholder="New Category Name">
-                <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
-            </div>
-            <div id="catList" class="mt-3"></div>
-        </div>
-    </div>
-
-    <div id="orders" class="section" style="display: none;">
-        <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Sync Orders to MoveDrop</h5>
-            <button id="syncOrdersBtn" class="btn btn-dark mb-3">Start Sync Now</button>
-            <div id="syncResult"></div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-<script>
-    // Firebase Setup
-    const firebaseConfig = {
-        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
-        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
-        projectId: "espera-mavro-6ddc5",
-        storageBucket: "espera-mavro-6ddc5.appspot.com",
-        messagingSenderId: "137893255543",
-        appId: "1:137893255543:web:a660bd412eb26ee322a972"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const quill = new Quill('#editor', { theme: 'snow' });
-
-    // MoveDrop Setup
-    const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
-    const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
-    let categoryMap = {};
-
-    // Navigation Logic
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-    }
-
-    // 1. Categories Management & Mapping
-    db.collection("categories").onSnapshot(snap => {
-        const sel = document.getElementById('pCatSel');
-        const list = document.getElementById('catList');
-        sel.innerHTML = '<option value="">Select Category</option>';
-        list.innerHTML = "";
         
-        let idTracker = 1;
-        snap.forEach(doc => {
-            const data = doc.data();
-            const cid = data.id || idTracker++;
-            categoryMap[data.name] = cid;
+        <div class="cart-items" id="cartItemsList"></div>
 
-            sel.innerHTML += `<option value="${data.name}">${data.name}</option>`;
-            list.innerHTML += `<span class="badge-cat">ID: ${cid} | ${data.name} <i class="fa fa-times ms-2 text-danger" style="cursor:pointer" onclick="deleteCat('${doc.id}')"></i></span>`;
-        });
-    });
+        <div class="cart-footer" style="border-top: 1px solid #eee; padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; margin-bottom: 20px;">
+                <span>TOTAL</span>
+                <span id="cartTotalPrice">৳ 0.00</span>
+            </div>
+            <button class="btn-checkout" onclick="location.href='checkout.html'">CHECKOUT NOW</button>
+        </div>
+    </div>
 
-    document.getElementById('saveCatBtn').onclick = () => {
-        const name = document.getElementById('catName').value;
-        if(name) db.collection("categories").add({ name, created_at: new Date() });
-        document.getElementById('catName').value = "";
-    };
+    <header class="header">
+        <div class="nav-left">
+            <i class="fa-solid fa-bars-staggered hamburger" id="openMenu"></i>
+            <a href="index.html" class="logo">MAVRO</a>
+        </div>
+        <button class="cart-btn" id="openCart">BAG (<span id="cartCount">0</span>)</button>
+    </header>
 
-    window.deleteCat = id => confirm("Delete this category?") && db.collection("categories").doc(id).delete();
+    <div class="top-bar">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search by name or scent...">
+        <div class="cat-scroll" id="catList">
+            <div class="cat-chip active" onclick="filterCat('All', this)">All Products</div>
+        </div>
+    </div>
 
-    // 2. Load & Display Products
-    db.collection("products").orderBy("created_at", "desc").onSnapshot(snap => {
-        const list = document.getElementById('pList');
-        list.innerHTML = "";
-        document.getElementById('totalProducts').innerText = snap.size;
-        snap.forEach(doc => {
-            const p = doc.data();
-            list.innerHTML += `
-                <tr>
-                    <td><img src="${p.image}" class="p-img-preview" onerror="this.src='https://via.placeholder.com/50'"></td>
-                    <td>${p.name}</td>
-                    <td>${p.sku}</td>
-                    <td>৳${p.price}</td>
-                    <td><button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${doc.id}')"><i class="fa fa-trash"></i></button></td>
-                </tr>`;
-        });
-    });
+    <main class="product-grid" id="productGrid"></main>
 
-    // 3. Save Product (No Storage Upload, Uses Link Only)
-    document.getElementById('savePBtn').onclick = async () => {
-        const name = document.getElementById('pName').value;
-        const sku = document.getElementById('pSku').value;
-        const price = document.getElementById('pPrice').value;
-        const catName = document.getElementById('pCatSel').value;
-        const imgUrl = document.getElementById('pImgUrl').value;
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-        if(!name || !sku || !price || !catName || !imgUrl) {
-            alert("All fields are required!");
-            return;
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.firebasestorage.app",
+            messagingSenderId: "137893255543",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let allProducts = [];
+        let selectedCat = "All";
+
+        // --- Drawer Control ---
+        const overlay = document.getElementById('overlay');
+        const sideNav = document.getElementById('sideNav');
+        const cartDrawer = document.getElementById('cartDrawer');
+
+        document.getElementById('openMenu').onclick = () => { sideNav.classList.add('active'); overlay.classList.add('active'); };
+        document.getElementById('closeMenu').onclick = () => { sideNav.classList.remove('active'); overlay.classList.remove('active'); };
+        document.getElementById('openCart').onclick = () => { cartDrawer.classList.add('active'); overlay.classList.add('active'); renderPopupCart(); };
+        document.getElementById('closeCart').onclick = () => { cartDrawer.classList.remove('active'); overlay.classList.remove('active'); };
+
+        overlay.onclick = () => {
+            sideNav.classList.remove('active');
+            cartDrawer.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        // --- Cart Logic ---
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+            document.getElementById('cartCount').innerText = cart.length;
         }
 
-        const btn = document.getElementById('savePBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Syncing...';
+        function renderPopupCart() {
+            const container = document.getElementById('cartItemsList');
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+            container.innerHTML = "";
+            let total = 0;
 
-        try {
-            const selectedCid = parseInt(categoryMap[catName]) || 1;
-            
-            // MoveDrop API Payload
-            const payload = {
-                title: name,
-                sku: sku,
-                description: quill.root.innerHTML,
-                images: [{ src: imgUrl, is_default: true }],
-                category_ids: [selectedCid]
-            };
-
-            const apiRes = await fetch(`${MOVEDROP_API_URL}?path=products`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': MOVEDROP_API_KEY 
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if(apiRes.status === 201) {
-                const apiData = await apiRes.json();
-                // Save to Firestore
-                await db.collection("products").add({
-                    name, sku, price, category: catName,
-                    image: imgUrl,
-                    description: quill.root.innerHTML,
-                    api_id: apiData.data.id,
-                    created_at: new Date()
-                });
-                alert("Product Published Successfully!");
-                location.reload();
+            if (cart.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding-top:40px; color:#999;"><i class="fa-solid fa-bag-shopping" style="font-size:30px; display:block; margin-bottom:10px;"></i><p>Your bag is empty</p></div>`;
             } else {
-                const err = await apiRes.json();
-                alert("API Error: " + (err.message || "Check fields"));
+                cart.forEach((item, index) => {
+                    const price = parseFloat(item.price) || 0;
+                    total += price;
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <img src="${item.image || 'https://via.placeholder.com/70x90'}" onerror="this.src='https://via.placeholder.com/70x90'">
+                            <div class="cart-item-details">
+                                <h4>${item.name}</h4>
+                                <p>৳ ${price.toLocaleString()}</p>
+                                <span class="remove-item" onclick="removeFromPopup(${index})">Remove</span>
+                            </div>
+                        </div>`;
+                });
             }
-        } catch(e) {
-            alert("System Error: " + e.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = 'PUBLISH PRODUCT';
+            document.getElementById('cartTotalPrice').innerText = `৳ ${total.toLocaleString()}`;
+            updateCartCount();
         }
-    };
 
-    window.deleteProduct = id => confirm("Delete this product?") && db.collection("products").doc(id).delete();
+        window.removeFromPopup = (index) => {
+            let cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+            cart.splice(index, 1);
+            localStorage.setItem('essence_cart', JSON.stringify(cart));
+            renderPopupCart();
+        };
 
-    // 4. Order Sync Logic
-    document.getElementById('syncOrdersBtn').onclick = async () => {
-        const resDiv = document.getElementById('syncResult');
-        resDiv.innerHTML = "Syncing...";
-        try {
-            // Placeholder logic for order sync
-            setTimeout(() => {
-                resDiv.innerHTML = '<div class="alert alert-success">Orders synced with MoveDrop!</div>';
-            }, 1500);
-        } catch(e) {
-            resDiv.innerHTML = '<div class="alert alert-danger">Sync failed.</div>';
+        // --- Database & Filtering ---
+        db.collection("categories").onSnapshot((snap) => {
+            const list = document.getElementById('catList');
+            list.innerHTML = `<div class="cat-chip active" onclick="filterCat('All', this)">All Products</div>`;
+            snap.forEach(doc => {
+                const name = doc.data().name;
+                list.innerHTML += `<div class="cat-chip" onclick="filterCat('${name}', this)">${name}</div>`;
+            });
+        });
+
+        window.filterCat = (name, el) => {
+            selectedCat = name;
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            renderProducts();
+        };
+
+        db.collection("products").orderBy("created_at", "desc").onSnapshot((snap) => {
+            allProducts = [];
+            snap.forEach(d => allProducts.push({id: d.id, ...d.data()}));
+            renderProducts();
+        });
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = "";
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = allProducts.filter(p => {
+                const matchCat = selectedCat === "All" || p.category === selectedCat;
+                const matchSearch = p.name ? p.name.toLowerCase().includes(term) : false;
+                return matchCat && matchSearch;
+            });
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:100px 0; color:#888;">No products found matching your criteria.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                grid.innerHTML += `
+                    <a href="single-product-details.html?id=${p.id}" class="p-card">
+                        <div class="p-img-box">
+                            <img src="${p.image || 'https://via.placeholder.com/400x500'}" class="p-img" onerror="this.src='https://via.placeholder.com/400x500'">
+                        </div>
+                        <div class="p-info">
+                            <h4 class="p-title">${p.name || 'Unnamed Essence'}</h4>
+                            <div class="p-price">৳ ${parseFloat(p.price || 0).toLocaleString()}</div>
+                        </div>
+                    </a>`;
+            });
         }
-    };
 
-    // 5. API Health Check
-    fetch(`${MOVEDROP_API_URL}?path=health`, { headers: { 'X-API-KEY': MOVEDROP_API_KEY } })
-    .then(r => r.ok ? document.getElementById('apiStatus').innerHTML = '<span class="text-success">● API Online</span>' : null)
-    .catch(() => document.getElementById('apiStatus').innerHTML = '<span class="text-danger">● API Offline</span>');
-
-</script>
+        document.getElementById('searchInput').oninput = renderProducts;
+        
+        // Load initial count
+        updateCartCount();
+    </script>
 </body>
 </html>
