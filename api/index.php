@@ -1,7 +1,8 @@
 <?php
 /**
- * Mavro Essence - Firestore API for MoveDrop
- * Collection Names: 'products', 'categories'
+ * Mavro Essence - Official Firestore API
+ * Project ID: espera-mavro-6ddc5
+ * Fixing: Category Add Issue & Product Association Error
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -14,9 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// আপনার Firestore প্রজেক্ট কনফিগারেশন
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
-// Firestore REST API URL (Project ID: espera-mavro-6ddc5)
-define('FIRESTORE_URL', 'https://firestore.googleapis.com/v1/projects/espera-mavro-6ddc5/databases/(default)/documents');
+define('PROJECT_ID', 'espera-mavro-6ddc5');
+define('FIRESTORE_BASE', "https://firestore.googleapis.com/v1/projects/" . PROJECT_ID . "/databases/(default)/documents");
 
 // Security Check
 $headers = array_change_key_case(getallheaders(), CASE_UPPER);
@@ -27,88 +29,97 @@ if ($providedKey !== API_KEY) {
     exit();
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
+// Firestore Helper: Data Mapping
+function toFirestore($data) {
+    $fields = [];
+    foreach ($data as $key => $value) {
+        if (is_array($value)) {
+            $values = [];
+            foreach ($value as $v) { $values[] = ["stringValue" => (string)$v]; }
+            $fields[$key] = ["arrayValue" => ["values" => $values]];
+        } else {
+            $fields[$key] = ["stringValue" => (string)$value];
+        }
+    }
+    return ["fields" => $fields];
+}
+
+function fromFirestore($doc) {
+    $data = ["id" => basename($doc['name'])];
+    if (isset($doc['fields'])) {
+        foreach ($doc['fields'] as $key => $value) {
+            if (isset($value['stringValue'])) $data[$key] = $value['stringValue'];
+            elseif (isset($value['arrayValue']['values'])) {
+                $data[$key] = array_map(function($v) { return $v['stringValue'] ?? ''; }, $value['arrayValue']['values']);
+            }
+        }
+    }
+    return $data;
+}
+
+// Firebase CURL Request
+function firestoreRequest($path, $method = 'GET', $body = null) {
+    $url = FIRESTORE_BASE . $path;
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    if ($body) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    $res = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($res, true);
+}
+
 $inputData = json_decode(file_get_contents('php://input'), true);
 $pathInfo = $_GET['path'] ?? '';
 $parts = explode('/', trim($pathInfo, '/'));
-$resource = $parts[0] ?? ''; // categories or products
-$id = $parts[1] ?? null;
-
-// Helper: Firestore API Request
-function firestore($path, $method = 'GET', $fields = null) {
-    $url = FIRESTORE_URL . $path;
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    if ($fields) {
-        // Firestore REST API expects data in a specific 'fields' format
-        $data = ["fields" => []];
-        foreach ($fields as $key => $value) {
-            if (is_array($value)) {
-                $data["fields"][$key] = ["arrayValue" => ["values" => array_map(function($v){ return ["stringValue" => (string)$v]; }, $value)]];
-            } else {
-                $data["fields"][$key] = ["stringValue" => (string)$value];
-            }
-        }
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    }
-    $response = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($response, true);
-}
+$resource = $parts[0] ?? '';
+$docId = $parts[1] ?? null;
 
 switch ($resource) {
     case 'categories':
-        if ($method === 'GET') {
-            $res = firestore('/categories');
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $res = firestoreRequest('/categories');
             $list = [];
             if (isset($res['documents'])) {
-                foreach ($res['documents'] as $doc) {
-                    $fields = $doc['fields'];
-                    $list[] = [
-                        "id" => basename($doc['name']),
-                        "name" => $fields['name']['stringValue'] ?? ''
-                    ];
-                }
+                foreach ($res['documents'] as $d) $list[] = fromFirestore($d);
             }
             echo json_encode(["data" => $list]);
         } 
-        elseif ($method === 'POST') {
-            $catId = 'cat_' . time();
-            $data = ['id' => $catId, 'name' => $inputData['name'] ?? 'New Cat'];
-            firestore('/categories?documentId=' . $catId, 'POST', $data);
-            echo json_encode(["data" => $data]);
+        elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = 'cat_' . time();
+            $payload = toFirestore(['id' => $id, 'name' => $inputData['name'] ?? 'New Category']);
+            firestoreRequest("/categories?documentId=$id", 'POST', $payload);
+            echo json_encode(["data" => ["id" => $id, "name" => $inputData['name']]]);
         }
         break;
 
     case 'products':
-        if ($method === 'POST') {
-            $categoryIds = $inputData['category_ids'] ?? ["uncategorized"];
-            $productId = $id ?? 'prod_' . time();
-
-            // Firestore Structure (MoveDrop + Shop.html Compatibility)
-            $productFields = [
-                'id' => $productId,
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $catIds = $inputData['category_ids'] ?? ["default"];
+            $id = $docId ?? 'prod_' . time();
+            
+            // শপ এবং মুভড্রপ উভয়ের জন্য ডাটা ফিল্ড
+            $fields = [
+                'id' => $id,
                 'name' => $inputData['title'] ?? '',
                 'title' => $inputData['title'] ?? '',
                 'sku' => $inputData['sku'] ?? '',
-                'price' => $inputData['regular_price'] ?? '0',
+                'price' => (string)($inputData['regular_price'] ?? '0'),
                 'image' => $inputData['images'][0]['src'] ?? '',
-                'category' => (string)$categoryIds[0], // Firestore এর জন্য string
-                'category_ids' => $categoryIds,         // MoveDrop এর জন্য array
+                'category' => (string)$catIds[0],
+                'category_ids' => $catIds,
                 'description' => strip_tags($inputData['description'] ?? '')
             ];
 
-            firestore('/products?documentId=' . $productId, 'POST', $productFields);
+            $res = firestoreRequest("/products?documentId=$id", 'POST', toFirestore($fields));
             
             http_response_code(201);
-            echo json_encode(["message" => "Created", "data" => ["id" => $productId]]);
+            echo json_encode(["message" => "Success", "id" => $id]);
         }
         break;
 
     case 'health':
-        echo json_encode(["status" => "online", "database" => "Firestore"]);
+        echo json_encode(["status" => "online", "mode" => "Firestore-REST"]);
         break;
 
     default:
