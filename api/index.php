@@ -4,76 +4,78 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, X-API-KEY");
 header("Content-Type: application/json");
 
-// API Configuration
+// API Security Key
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
 
-// Request Handling
+// Request Method
 $method = $_SERVER['REQUEST_METHOD'];
 $path = isset($_GET['path']) ? $_GET['path'] : '';
 $headers = getallheaders();
 
-// API Key Validation
+// 1. API Key Validation
 if (!isset($headers['X-API-KEY']) || $headers['X-API-KEY'] !== API_KEY) {
     http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Unauthorized Access"]);
+    echo json_encode(["status" => "error", "message" => "Unauthorized: API Key Mismatch"]);
     exit;
 }
 
-// Health Check
+// 2. Health Check (To verify if API is live)
 if ($path == 'health') {
-    echo json_encode(["status" => "online", "message" => "MoveDrop API is running"]);
+    echo json_encode(["status" => "online", "message" => "MoveDrop API is ready for Channel Connection"]);
     exit;
 }
 
-// Product Creation logic
+// 3. Product Sync Logic (With Channel & Variation Support)
 if ($path == 'products' && $method == 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
-    // --- CATEGORY ID FIX LOGIC ---
-    // এপিআই যদি ক্যাটাগরি আইডি না পায় বা ভুল পায় তবে এটি ১ সেট করে দিবে
+    // --- Critical Connection Fixes ---
+    
+    // Category ID Fix: এপিআই যদি ক্যাটাগরি আইডি না পায়, তবে ১ সেট করবে
     $category_ids = [1]; 
-    if (isset($input['category_ids']) && is_array($input['category_ids']) && !empty($input['category_ids'])) {
-        $category_ids = array_map('intval', $input['category_ids']); // স্ট্রিং থাকলেও নাম্বার বানিয়ে দিবে
+    if (isset($input['category_ids']) && is_array($input['category_ids'])) {
+        $category_ids = array_map('intval', $input['category_ids']);
     }
 
-    // আপনার ডাটাবেস বা অন্য সিস্টেমে পাঠানোর আগে ডাটা ক্লিন করা
-    $product_data = [
-        "title" => $input['title'] ?? 'Untitled',
-        "sku" => $input['sku'] ?? 'NO-SKU',
+    // Channel ID Fix: চ্যানেলের সাথে কানেক্ট করার জন্য এটি বাধ্যতামূলক (ID: 1 is default)
+    $channel_ids = [1];
+    if (isset($input['channel_ids']) && is_array($input['channel_ids'])) {
+        $channel_ids = array_map('intval', $input['channel_ids']);
+    }
+
+    // Variation Processing: ভেরিয়েশন ডাটা রিসিভ করা
+    $variations = isset($input['variations']) ? $input['variations'] : [];
+
+    // Final Data Structure for MoveDrop
+    $final_data = [
+        "title" => $input['title'] ?? 'New Product',
+        "sku" => $input['sku'] ?? 'SKU-'.time(),
         "description" => $input['description'] ?? '',
-        "price" => $input['price'] ?? 0,
+        "price" => floatval($input['price'] ?? 0),
         "images" => $input['images'] ?? [],
-        "category_ids" => $category_ids // এখন এটি ১০০% ফিক্সড
+        "category_ids" => $category_ids,
+        "channel_ids" => $channel_ids, // চ্যানেল কানেকশন নিশ্চিত করে
+        "variations" => $variations,   // ভেরিয়েশন সেভ করা
+        "status" => "published",
+        "sync_time" => date('Y-m-d H:i:s')
     ];
 
-    // এখানে আপনার ডাটাবেস সেভ করার কোড বসবে
-    // উদাহরণস্বরূপ আমরা সাকসেস মেসেজ দিচ্ছি:
+    // এখানে ডাটাবেসে ইনসার্ট করার কোড (PDO/MySQLi) বসাতে পারেন। 
+    // আপাতত আমরা সাকসেস মেসেজ রিটার্ন করছি।
+
     http_response_code(201);
     echo json_encode([
         "status" => "success",
-        "message" => "Product created successfully",
+        "message" => "Product connected to Channel successfully",
         "data" => [
-            "id" => rand(1000, 9999), // Mock ID
-            "sync_status" => "active"
+            "id" => rand(10000, 99999),
+            "payload_received" => $final_data
         ]
     ]);
     exit;
 }
 
-// Category List Fetch
-if ($path == 'categories' && $method == 'GET') {
-    // ডিফল্ট কিছু ক্যাটাগরি রিটার্ন করছে
-    echo json_encode([
-        "status" => "success",
-        "data" => [
-            ["id" => 1, "name" => "Uncategorized"],
-            ["id" => 2, "name" => "Perfumes"],
-            ["id" => 3, "name" => "Attar"]
-        ]
-    ]);
-    exit;
-}
-
+// 4. Default Not Found
 http_response_code(404);
-echo json_encode(["status" => "error", "message" => "Endpoint not found"]);
+echo json_encode(["status" => "error", "message" => "Invalid API Path"]);
 ?>
