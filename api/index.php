@@ -1,15 +1,12 @@
 <?php
 /**
- * Mavro Essence - THE FINAL DEBUG VERSION
- * Realtime Database API
+ * Mavro Essence - MoveDrop Final Integration Fix
+ * Realtime Database Success Verification
  */
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -17,31 +14,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// আপনার সঠিক URL
-define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app/');
-define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
+// আপনার Realtime Database URL
+define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app/'); 
 
 $inputData = json_decode(file_get_contents('php://input'), true);
 $path = $_GET['path'] ?? '';
 
-// --- ৩. প্রোডাক্ট লিস্টিং (MoveDrop-এর জন্য ১০০% ফিক্স) ---
+// --- ১. মুভড্রপ প্রোডাক্ট লিস্টিং (The Final Fix) ---
 if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $prodId = 'p' . time();
     $now = date('c');
 
-    // মুভড্রপ থেকে আসা ডাটা প্রসেসিং
-    $catIds = isset($inputData['category_ids']) ? array_map('intval', $inputData['category_ids']) : [1];
+    // মুভড্রপ সাধারণত ক্যাটাগরি আইডিগুলো ইন্টিজার হিসেবে পাঠায়
+    $catIds = isset($inputData['category_ids']) ? array_map('intval', $inputData['category_ids']) : [0];
     
+    // মুভড্রপ যে ডাটা ফরম্যাট চায়
     $payload = [
         "id" => $prodId,
-        "title" => $inputData['title'] ?? 'No Title',
-        "sku" => $inputData['sku'] ?? 'No SKU',
+        "title" => $inputData['title'] ?? 'Untitled Product',
+        "sku" => $inputData['sku'] ?? 'SKU-' . time(),
         "price" => (string)($inputData['regular_price'] ?? '0'),
         "description" => $inputData['description'] ?? '',
-        "image" => $inputData['images'][0]['src'] ?? '',
+        "image" => isset($inputData['images'][0]['src']) ? $inputData['images'][0]['src'] : '',
         "category_ids" => $catIds,
         "created_at" => $now,
+        "updated_at" => $now,
         "channel_association" => [
             "custom" => [
                 ["category_ids" => $catIds]
@@ -49,49 +47,62 @@ if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST'
         ]
     ];
 
-    // ডাটাবেসে সেভ করার চেষ্টা
-    $res = curl_call("products/$prodId.json", 'PUT', $payload);
+    // ডাটাবেসে সেভ করা
+    $saveResult = curl_call("products/$prodId.json", 'PUT', $payload);
 
-    if ($res) {
-        http_response_code(201);
+    // মুভড্রপকে সাকসেস রেসপন্স পাঠানো (এটিই সবচেয়ে জরুরি)
+    if ($saveResult !== false) {
+        http_response_code(201); // মুভড্রপ এই কোডটি খোঁজে
         echo json_encode([
             "message" => "Product Created",
-            "data" => $payload
+            "data" => [
+                "id" => $prodId,
+                "title" => $payload['title'],
+                "sku" => $payload['sku'],
+                "category_ids" => $catIds,
+                "created_at" => $now,
+                "updated_at" => $now
+            ]
         ]);
     } else {
         http_response_code(500);
-        echo json_encode([
-            "status" => "error",
-            "message" => "Database Connection Failed. Check Rules or URL."
-        ]);
+        echo json_encode(["status" => "error", "message" => "Database Save Failed"]);
     }
     exit();
 }
 
-// --- ক্যাটাগরি ফিক্স ---
+// --- ২. ক্যাটাগরি সেকশন ---
 if (strpos($path, 'categories') !== false) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = time();
-        $data = ["id" => $id, "name" => $inputData['name']];
+        $data = ["id" => $id, "name" => $inputData['name'] ?? 'New Category'];
         curl_call("categories/$id.json", 'PUT', $data);
         echo json_encode(["status" => "success", "data" => $data]);
     } else {
-        $res = curl_call("categories.json", 'GET') ?? [];
-        echo json_encode(["data" => array_values((array)$res)]);
+        $res = curl_call("categories.json", 'GET');
+        $list = [];
+        if ($res && is_array($res)) {
+            foreach ($res as $item) { $list[] = $item; }
+        }
+        echo json_encode(["data" => $list]);
     }
     exit();
 }
 
+// --- CURL ফাংশন ---
 function curl_call($path, $method, $body = null) {
-    $ch = curl_init(DATABASE_URL . $path);
+    $url = DATABASE_URL . $path;
+    $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL সমস্যা এড়াতে
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     if ($body) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
     }
     $res = curl_exec($ch);
-    if(curl_errno($ch)) { return false; }
+    $error = curl_error($ch);
     curl_close($ch);
+    
+    if ($error) return false;
     return json_decode($res, true);
 }
