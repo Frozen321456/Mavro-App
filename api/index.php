@@ -1,12 +1,12 @@
 <?php
 /**
- * Project: Mavro Essence - Official Firestore API
- * Designed for: MoveDrop Integration & Custom Shop
+ * Mavro Essence - Official Realtime Database API
+ * Fixed for MoveDrop Listing & Shop Sync
  */
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -14,114 +14,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Configuration
+// আপনার দেওয়া Realtime Database URL
+define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app/'); 
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
-define('PROJECT_ID', 'espera-mavro-6ddc5');
-define('BASE_URL', "https://firestore.googleapis.com/v1/projects/" . PROJECT_ID . "/databases/(default)/documents");
 
 $inputData = json_decode(file_get_contents('php://input'), true);
 $path = $_GET['path'] ?? '';
 
-// 1. Health Check
+// --- ১. হেলথ চেক ---
 if ($path === 'health') {
-    echo json_encode(["status" => "online", "message" => "System is fresh and ready"]);
+    echo json_encode(["status" => "online", "db" => "Realtime-Database-Ready"]);
     exit();
 }
 
-// 2. Categories Resource
+// --- ২. ক্যাটাগরি সেকশন (MoveDrop & Admin Support) ---
 if (strpos($path, 'categories') !== false) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id = time(); // Numeric ID for MoveDrop compatibility
-        $docId = (string)$id;
+        $id = time(); // Numeric ID
         $data = [
-            "fields" => [
-                "id" => ["integerValue" => $id],
-                "name" => ["stringValue" => (string)$inputData['name']]
-            ]
+            "id" => $id,
+            "name" => $inputData['name']
         ];
-        firestore_call("/categories?documentId=$docId", 'POST', $data);
-        echo json_encode(["status" => "success", "data" => ["id" => $id, "name" => $inputData['name']]]);
+        curl_call("categories/$id.json", 'PUT', $data);
+        echo json_encode(["status" => "success", "data" => $data]);
     } else {
-        $res = firestore_call("/categories", 'GET');
+        $res = curl_call("categories.json", 'GET');
         $list = [];
-        if (isset($res['documents'])) {
-            foreach ($res['documents'] as $doc) {
-                $f = $doc['fields'];
-                $list[] = [
-                    "id" => isset($f['id']['integerValue']) ? (int)$f['id']['integerValue'] : (int)basename($doc['name']),
-                    "name" => $f['name']['stringValue'] ?? 'Unnamed'
-                ];
-            }
+        if ($res) {
+            foreach ($res as $item) { $list[] = $item; }
         }
         echo json_encode(["data" => $list]);
     }
     exit();
 }
 
-// 3. Products Resource (MoveDrop Sync)
+// --- ৩. প্রোডাক্ট লিস্টিং (MoveDrop-এর সেই এরর ফিক্স) ---
 if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $prodId = 'p_' . time();
+    $prodId = 'p' . time();
     $now = date('c');
+
+    $catIds = isset($inputData['category_ids']) ? array_map('intval', $inputData['category_ids']) : [0];
     
-    // Category mapping logic
-    $rawCats = $inputData['category_ids'] ?? [];
-    $catArray = [];
-    foreach ($rawCats as $c) { $catArray[] = ["integerValue" => (int)$c]; }
-    if (empty($catArray)) { $catArray = [["integerValue" => 0]]; }
-
-    // Tag mapping
-    $tagArray = [];
-    foreach (($inputData['tags'] ?? []) as $t) { $tagArray[] = ["stringValue" => (string)$t]; }
-
-    // Prepare Firestore Structure
+    // মুভড্রপ যেভাবে সরাসরি JSON চায়, হুবহু সেই ফরম্যাট
     $payload = [
-        "fields" => [
-            "id" => ["stringValue" => $prodId],
-            "title" => ["stringValue" => (string)$inputData['title']],
-            "sku" => ["stringValue" => (string)$inputData['sku']],
-            "price" => ["stringValue" => (string)($inputData['regular_price'] ?? '0')],
-            "image" => ["stringValue" => $inputData['images'][0]['src'] ?? ''],
-            "description" => ["stringValue" => (string)($inputData['description'] ?? '')],
-            "category_ids" => ["arrayValue" => ["values" => $catArray]],
-            "tags" => ["arrayValue" => ["values" => $tagArray]],
-            "created_at" => ["stringValue" => $now],
-            "updated_at" => ["stringValue" => $now],
-            // Deep association for MoveDrop validation
-            "channel_association" => ["mapValue" => ["fields" => [
-                "custom" => ["arrayValue" => ["values" => [["mapValue" => ["fields" => [
-                    "category_ids" => ["arrayValue" => ["values" => $catArray]]
-                ]]]]]]
-            ]]]
+        "id" => $prodId,
+        "title" => $inputData['title'],
+        "sku" => $inputData['sku'],
+        "price" => (string)($inputData['regular_price'] ?? '0'),
+        "description" => $inputData['description'] ?? '',
+        "image" => $inputData['images'][0]['src'] ?? '',
+        "images" => $inputData['images'] ?? [],
+        "category_ids" => $catIds,
+        "tags" => $inputData['tags'] ?? [],
+        "properties" => $inputData['properties'] ?? [],
+        "created_at" => $now,
+        "updated_at" => $now,
+        // Association mapping for validation success
+        "channel_association" => [
+            "custom" => [
+                ["category_ids" => $catIds]
+            ]
         ]
     ];
 
-    firestore_call("/products?documentId=$prodId", 'POST', $payload);
+    curl_call("products/$prodId.json", 'PUT', $payload);
 
-    // Response for MoveDrop
+    // মুভড্রপ সাকসেস রেসপন্স (Strict Success)
     http_response_code(201);
     echo json_encode([
         "message" => "Product Created",
-        "data" => [
-            "id" => $prodId,
-            "title" => $inputData['title'],
-            "sku" => $inputData['sku'],
-            "category_ids" => $rawCats,
-            "created_at" => $now,
-            "updated_at" => $now
-        ]
+        "data" => $payload
     ]);
     exit();
 }
 
-// Firestore Helper
-function firestore_call($endpoint, $method, $data = null) {
-    $ch = curl_init(BASE_URL . $endpoint);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    if ($method === 'POST') {
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+// --- ৪. প্রোডাক্ট গেট (Shop/Admin এর জন্য) ---
+if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $res = curl_call("products.json", 'GET');
+    $list = [];
+    if ($res) {
+        foreach ($res as $item) { $list[] = $item; }
     }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    echo json_encode(["data" => $list]);
+    exit();
+}
+
+// Helper: CURL Call to Firebase
+function curl_call($path, $method, $body = null) {
+    $ch = curl_init(DATABASE_URL . $path);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    if ($body) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    }
     $res = curl_exec($ch);
     curl_close($ch);
     return json_decode($res, true);
