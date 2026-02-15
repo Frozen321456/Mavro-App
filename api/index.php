@@ -1,7 +1,7 @@
 <?php
 /**
- * Mavro Essence - MoveDrop EXCLUSIVE API
- * Firestore REST API Implementation
+ * Mavro Essence - MoveDrop Firestore API (Final Fix)
+ * Project ID: espera-mavro-6ddc5
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -14,12 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// আপনার Firestore প্রজেক্ট আইডি নিশ্চিত করুন
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
-define('PROJECT_ID', 'espera-mavro-6ddc5'); 
+define('PROJECT_ID', 'espera-mavro-6ddc5');
 define('FIRESTORE_URL', "https://firestore.googleapis.com/v1/projects/" . PROJECT_ID . "/databases/(default)/documents");
 
-// সিকিউরিটি চেক
+// Security Check
 $headers = array_change_key_case(getallheaders(), CASE_UPPER);
 $providedKey = $headers['X-API-KEY'] ?? $_SERVER['HTTP_X_API_KEY'] ?? '';
 if ($providedKey !== API_KEY) {
@@ -36,8 +35,7 @@ $resource = $parts[0] ?? '';
 switch ($resource) {
     case 'categories':
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Firestore থেকে ক্যাটাগরি আনা
-            $res = curl_request('/categories', 'GET');
+            $res = curl_call('/categories', 'GET');
             $list = [];
             if (isset($res['documents'])) {
                 foreach ($res['documents'] as $doc) {
@@ -50,15 +48,14 @@ switch ($resource) {
             echo json_encode(["data" => $list]);
         } 
         elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // মুভড্রপ থেকে নতুন ক্যাটাগরি তৈরি
             $id = 'cat_' . time();
-            $data = [
+            $payload = [
                 "fields" => [
                     "id" => ["stringValue" => $id],
                     "name" => ["stringValue" => $inputData['name'] ?? 'New Category']
                 ]
             ];
-            curl_request("/categories?documentId=$id", 'POST', $data);
+            curl_call("/categories?documentId=$id", 'POST', $payload);
             echo json_encode(["data" => ["id" => $id]]);
         }
         break;
@@ -67,41 +64,43 @@ switch ($resource) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $prodId = $parts[1] ?? 'prod_' . time();
             $catIds = $inputData['category_ids'] ?? ["uncategorized"];
-            $tags = $inputData['tags'] ?? [];
             
-            // ছবি হ্যান্ডলিং
-            $imgUrl = "";
-            if (!empty($inputData['images']) && isset($inputData['images'][0]['src'])) {
-                $imgUrl = $inputData['images'][0]['src'];
+            // MoveDrop এর সেই এররটি ফিক্স করার জন্য সঠিক ক্যাটাগরি অ্যারে ফরম্যাট
+            $catArray = [];
+            foreach ($catIds as $c) {
+                $catArray[] = ["stringValue" => (string)$c];
             }
 
-            // Firestore Fields (Strict Format)
-            $catValues = [];
-            foreach ($catIds as $c) { $catValues[] = ["stringValue" => (string)$c]; }
-            
-            $tagValues = [];
-            foreach ($tags as $t) { $tagValues[] = ["stringValue" => (string)$t]; }
-
+            // Firestore Data Structure
             $firestoreData = [
                 "fields" => [
                     "id" => ["stringValue" => $prodId],
-                    "title" => ["stringValue" => (string)$inputData['title']],
-                    "name" => ["stringValue" => (string)$inputData['title']], // For shop.html
+                    "title" => ["stringValue" => (string)($inputData['title'] ?? '')],
+                    "name" => ["stringValue" => (string)($inputData['title'] ?? '')], // Shop.html compatibility
                     "sku" => ["stringValue" => (string)($inputData['sku'] ?? '')],
                     "price" => ["stringValue" => (string)($inputData['regular_price'] ?? '0')],
-                    "image" => ["stringValue" => $imgUrl],
-                    "category" => ["stringValue" => (string)$catIds[0]],
-                    "category_ids" => ["arrayValue" => ["values" => $catValues]],
-                    "tags" => ["arrayValue" => ["values" => $tagValues]],
+                    "image" => ["stringValue" => $inputData['images'][0]['src'] ?? ''],
+                    "category" => ["stringValue" => (string)$catIds[0]], // Single string for Shop filter
+                    "category_ids" => ["arrayValue" => ["values" => $catArray]], // Array for MoveDrop
                     "description" => ["stringValue" => strip_tags($inputData['description'] ?? '')],
                     "created_at" => ["stringValue" => date('c')]
                 ]
             ];
 
-            // এই ফিল্ডটি মুভড্রপ এরর ফিক্স করার জন্য জরুরি
-            $firestoreData["fields"]["channel_association"] = ["stringValue" => "custom"];
+            // এই নেস্টেড অবজেক্টটি MoveDrop এর 'channel_association' এরর দূর করবে
+            $firestoreData["fields"]["channel_association"] = ["mapValue" => [
+                "fields" => [
+                    "custom" => ["arrayValue" => ["values" => [
+                        ["mapValue" => [
+                            "fields" => [
+                                "category_ids" => ["arrayValue" => ["values" => $catArray]]
+                            ]
+                        ]]
+                    ]]]
+                ]
+            ]];
 
-            curl_request("/products?documentId=$prodId", 'POST', $firestoreData);
+            curl_call("/products?documentId=$prodId", 'POST', $firestoreData);
             
             http_response_code(201);
             echo json_encode(["message" => "Success", "id" => $prodId]);
@@ -109,17 +108,16 @@ switch ($resource) {
         break;
 
     case 'health':
-        echo json_encode(["status" => "online", "db" => "Firestore REST"]);
+        echo json_encode(["status" => "online", "db" => "Firestore-REST-Fixed"]);
         break;
 
     default:
         http_response_code(404);
-        echo json_encode(["message" => "Endpoint Not Found"]);
+        echo json_encode(["message" => "Not Found"]);
         break;
 }
 
-// CURL Helper Function
-function curl_request($path, $method, $body = null) {
+function curl_call($path, $method, $body = null) {
     $ch = curl_init(FIRESTORE_URL . $path);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
