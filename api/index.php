@@ -30,83 +30,133 @@ if ($providedKey !== API_KEY) {
 $inputData = json_decode(file_get_contents('php://input'), true);
 $path = $_GET['path'] ?? '';
 
+// Only handle products creation for now (you can add more paths later)
 if (strpos($path, 'products') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $prodId = 'prod_' . time();
     $now = date('c');
 
-    // ১. Firestore Type Mapping
+    // ১. Category Mapping with Default Fallback
     $catValues = [];
-    foreach (($inputData['category_ids'] ?? []) as $id) { $catValues[] = ["stringValue" => (string)$id]; }
+    $providedCategories = $inputData['category_ids'] ?? [];
 
-    $tagValues = [];
-    foreach (($inputData['tags'] ?? []) as $tag) { $tagValues[] = ["stringValue" => (string)$tag]; }
-
-    // ২. Properties Mapping (Color, Size ইত্যাদি)
-    $propertyValues = [];
-    foreach (($inputData['properties'] ?? []) as $prop) {
-        $pVals = [];
-        foreach ($prop['values'] as $v) { $pVals[] = ["stringValue" => (string)$v]; }
-        
-        $propertyValues[] = ["mapValue" => [
-            "fields" => [
-                "name" => ["stringValue" => (string)$prop['name']],
-                "values" => ["arrayValue" => ["values" => $pVals]]
-            ]
-        ]];
+    foreach ($providedCategories as $id) {
+        $cleanId = trim((string)$id);
+        if (!empty($cleanId)) {
+            $catValues[] = ["stringValue" => $cleanId];
+        }
     }
 
-    // ৩. Firestore Data Structure
+    // যদি কোনো ক্যাটাগরি না থাকে তাহলে default ক্যাটাগরি ব্যবহার করা হবে
+    if (empty($catValues)) {
+        $defaultCategoryId = "1"; // ← এখানে আপনার Firestore-এর বৈধ category ID দিন !!!
+        // উদাহরণ: "uncategorized", "default", "1" ইত্যাদি
+        $catValues = [["stringValue" => $defaultCategoryId]];
+    }
+
+    // ২. Tags Mapping
+    $tagValues = [];
+    foreach (($inputData['tags'] ?? []) as $tag) {
+        $cleanTag = trim((string)$tag);
+        if (!empty($cleanTag)) {
+            $tagValues[] = ["stringValue" => $cleanTag];
+        }
+    }
+
+    // ৩. Properties Mapping (Color, Size ইত্যাদি)
+    $propertyValues = [];
+    foreach (($inputData['properties'] ?? []) as $prop) {
+        if (empty($prop['name']) || empty($prop['values'])) continue;
+
+        $pVals = [];
+        foreach ($prop['values'] as $v) {
+            $cleanVal = trim((string)$v);
+            if (!empty($cleanVal)) {
+                $pVals[] = ["stringValue" => $cleanVal];
+            }
+        }
+
+        if (!empty($pVals)) {
+            $propertyValues[] = ["mapValue" => [
+                "fields" => [
+                    "name"  => ["stringValue" => (string)$prop['name']],
+                    "values" => ["arrayValue" => ["values" => $pVals]]
+                ]
+            ]];
+        }
+    }
+
+    // ৪. Firestore Data Structure
     $firestoreData = [
         "fields" => [
-            "id" => ["stringValue" => $prodId],
-            "title" => ["stringValue" => (string)$inputData['title']],
-            "sku" => ["stringValue" => (string)$inputData['sku']],
-            "description" => ["stringValue" => (string)($inputData['description'] ?? '')],
-            "price" => ["stringValue" => (string)($inputData['regular_price'] ?? '0')],
-            "image" => ["stringValue" => $inputData['images'][0]['src'] ?? ''],
-            "category_ids" => ["arrayValue" => ["values" => $catValues]],
-            "tags" => ["arrayValue" => ["values" => $tagValues]],
-            "properties" => ["arrayValue" => ["values" => $propertyValues]],
-            "created_at" => ["stringValue" => $now],
-            "updated_at" => ["stringValue" => $now],
+            "id"              => ["stringValue" => $prodId],
+            "title"           => ["stringValue" => (string)($inputData['title'] ?? 'Untitled Product')],
+            "sku"             => ["stringValue" => (string)($inputData['sku'] ?? '')],
+            "description"     => ["stringValue" => (string)($inputData['description'] ?? '')],
+            "price"           => ["stringValue" => (string)($inputData['regular_price'] ?? '0')],
+            "image"           => ["stringValue" => $inputData['images'][0]['src'] ?? ''],
+            "category_ids"    => ["arrayValue" => ["values" => $catValues]],
+            "tags"            => ["arrayValue" => ["values" => $tagValues]],
+            "properties"      => ["arrayValue" => ["values" => $propertyValues]],
+            "created_at"      => ["stringValue" => $now],
+            "updated_at"      => ["stringValue" => $now],
             
-            // MoveDrop association fix
+            // MoveDrop association - এখন সবসময় কমপক্ষে ১টা category থাকবে
             "channel_association" => ["mapValue" => ["fields" => [
-                "custom" => ["arrayValue" => ["values" => [["mapValue" => ["fields" => [
-                    "category_ids" => ["arrayValue" => ["values" => $catValues]]
-                ]]]]]]
+                "custom" => ["arrayValue" => ["values" => [
+                    ["mapValue" => ["fields" => [
+                        "category_ids" => ["arrayValue" => ["values" => $catValues]]
+                    ]]]
+                ]]]]
             ]]]
         ]
     ];
 
     // Firestore API Call
-    $ch = curl_init(FIRESTORE_URL . "/products?documentId=$prodId");
+    $url = FIRESTORE_URL . "/products?documentId=" . urlencode($prodId);
+    
+    $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($firestoreData));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ]);
+
     $res = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
-    // ৪. Success Response (হুবহু মুভড্রপের ডকুমেন্টেশন অনুযায়ী)
-    if ($httpCode == 200 || $httpCode == 201) {
+    // Response Handling
+    if ($httpCode >= 200 && $httpCode < 300) {
         http_response_code(201);
         echo json_encode([
             "message" => "Product Created",
             "data" => [
-                "id" => $prodId,
-                "title" => $inputData['title'],
-                "sku" => $inputData['sku'],
-                "tags" => $inputData['tags'] ?? [],
+                "id"         => $prodId,
+                "title"      => $inputData['title'] ?? 'Untitled',
+                "sku"        => $inputData['sku'] ?? '',
+                "tags"       => $inputData['tags'] ?? [],
                 "created_at" => $now,
                 "updated_at" => $now
             ]
         ]);
     } else {
-        http_response_code($httpCode);
-        echo $res;
+        http_response_code($httpCode ?: 500);
+        $errorData = json_decode($res, true);
+        echo json_encode([
+            "status"  => "error",
+            "message" => $errorData['error']['message'] ?? "Firestore error",
+            "details" => $errorData ?? $res,
+            "curl_error" => $curlError ?: null
+        ]);
     }
+
     exit();
 }
+
+// যদি কোনো ম্যাচ না করে তাহলে 404
+http_response_code(404);
+echo json_encode(["status" => "error", "message" => "Endpoint not found"]);
