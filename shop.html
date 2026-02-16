@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mavro Essence | Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #111; --accent: #ff5a5f; --bg: #fcfcfc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--primary); padding-top: 130px; overflow-x: hidden; }
+
+        /* Header & Navigation */
+        .header { 
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            height: 70px; 
+            background: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 5%; 
+            z-index: 1100; 
+            border-bottom: 1px solid #eee; 
+        }
+        .logo { 
+            font-weight: 800; 
+            letter-spacing: 2px; 
+            font-size: 22px; 
+            color: #000; 
+            text-decoration: none; 
+        }
+        .cart-icon { 
+            position: relative; 
+            font-size: 20px; 
+            cursor: pointer; 
+            color: #000; 
+            text-decoration: none; 
+        }
+        .cart-count { 
+            position: absolute; 
+            top: -10px; 
+            right: -10px; 
+            background: var(--accent); 
+            color: #fff; 
+            font-size: 11px; 
+            width: 18px; 
+            height: 18px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 800; 
+        }
+
+        /* Filter Bar */
+        .filter-bar { 
+            position: fixed; 
+            top: 70px; 
+            width: 100%; 
+            background: #fff; 
+            z-index: 1000; 
+            border-bottom: 1px solid #eee; 
+            padding: 12px 5%;
+        }
+        
+        /* Categories Container */
+        .categories-container {
+            width: 100%;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .categories-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 2px;
+        }
+        
+        .categories-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .scroll-indicator {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .scroll-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            color: #333;
+        }
+        
+        .scroll-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .scroll-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .scroll-btn.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .categories-wrapper {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .categories { 
+            display: flex; 
+            gap: 10px; 
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+            padding: 2px 0;
+        }
+        
+        .cat-btn { 
+            padding: 8px 20px; 
+            border-radius: 30px; 
+            border: 1.5px solid #eee; 
+            background: #fff; 
+            font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            flex-shrink: 0;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .cat-btn:hover {
+            background: #f9f9f9;
+            transform: translateY(-1px);
+        }
+        
+        .cat-btn.active { 
+            background: var(--primary); 
+            color: #fff; 
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .cat-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Search Box */
+        .search-box { 
+            width: 100%; 
+            position: relative; 
+        }
+        
+        .search-box input { 
+            width: 100%; 
+            padding: 12px 45px; 
+            border-radius: 30px; 
+            border: 1.5px solid #eee; 
+            background: #f9f9f9; 
+            outline: none; 
+            font-size: 15px; 
+            transition: 0.2s;
+        }
+        
+        .search-box input:focus {
+            border-color: #999;
+            background: #fff;
+        }
+        
+        .search-box i { 
+            position: absolute; 
+            left: 18px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #888; 
+            font-size: 16px;
+        }
+
+        /* Product Grid */
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 30px; 
+            padding: 30px 5% 50px;
+            min-height: 50vh;
+        }
+        
+        .p-card { 
+            background: #fff; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            text-decoration: none; 
+            color: inherit; 
+            transition: all 0.3s ease; 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #f5f5f5;
+        }
+        
+        .p-card:hover { 
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+        
+        .p-img { 
+            width: 100%; 
+            aspect-ratio: 4/5; 
+            object-fit: cover; 
+            background: #f5f5f5;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .p-card:hover .p-img {
+            transform: scale(1.03);
+        }
+        
+        .p-info { 
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .p-title { 
+            font-size: 16px; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: #111;
+            line-height: 1.4;
+        }
+        
+        .price-range {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 18px;
+            margin-top: auto;
+        }
+        
+        .price-range small {
+            font-size: 14px;
+            font-weight: 400;
+            color: #888;
+            margin: 0 2px;
+        }
+        
+        .single-price {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* Loading State */
+        .loading {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 60px;
+            color: #888;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body { padding-top: 150px; }
+            
+            .filter-bar { 
+                padding: 12px 4%;
+            }
+            
+            .categories-header h3 {
+                font-size: 13px;
+            }
+            
+            .scroll-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .product-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 15px; 
+                padding: 20px 4% 40px;
+            }
+            
+            .p-info { 
+                padding: 15px; 
+            }
+            
+            .p-title { 
+                font-size: 14px; 
+                margin-bottom: 6px;
+            }
+            
+            .price-range, .single-price { 
+                font-size: 16px; 
+            }
+            
+            .cat-btn { 
+                padding: 7px 16px; 
+                font-size: 13px; 
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 380px) {
+            .product-grid { 
+                gap: 10px; 
+            }
+            
+            .p-info { 
+                padding: 12px; 
+            }
+            
+            .p-title { 
+                font-size: 13px; 
+            }
+            
+            .price-range, .single-price { 
+                font-size: 15px; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="index.html" class="logo">MAVRO</a>
+        <a href="cart.html" class="cart-icon">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span class="cart-count" id="cartCount">0</span>
+        </a>
+    </header>
+
+    <div class="filter-bar">
+        <div class="categories-container">
+            <div class="categories-header">
+                <h3><i class="fa-regular fa-grid-2" style="margin-right: 5px;"></i> CATEGORIES</h3>
+                <div class="scroll-indicator">
+                    <button class="scroll-btn" id="scrollLeftBtn" onclick="scrollCategories('left')">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="scroll-btn" id="scrollRightBtn" onclick="scrollCategories('right')">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="categories-wrapper" id="categoriesWrapper">
+                <div class="categories" id="categoryList">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search products...">
+        </div>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+        <div class="loading">Loading products...</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        let allProducts = [];
+        let filteredProducts = [];
+        let categories = {}; // Store categories with their IDs
+        let selectedCatId = 'All';
+        let currentScrollPosition = 0;
+
+        // Load categories from Firebase
+        function loadCategories() {
+            database.ref('categories').once('value', (snapshot) => {
+                const catList = document.getElementById('categoryList');
+                catList.innerHTML = '<button class="cat-btn active" onclick="filterCat(\'All\', \'All\', this)">All</button>';
+                
+                snapshot.forEach((child) => {
+                    const catId = child.key;
+                    const catData = child.val();
+                    const catName = catData.name || catData;
+                    
+                    // Store category with its ID
+                    categories[catId] = catName;
+                    
+                    if (catName && catName !== 'All') {
+                        // Add category button with category ID
+                        catList.innerHTML += `
+                            <button class="cat-btn" onclick="filterCat('${catId}', '${catName.replace(/'/g, "\\'")}', this)">
+                                ${catName}
+                            </button>`;
+                    }
+                });
+
+                // Update scroll buttons after categories load
+                setTimeout(() => {
+                    updateScrollButtons();
+                }, 100);
+            });
+        }
+
+        // Smooth scroll categories
+        window.scrollCategories = (direction) => {
+            const container = document.getElementById('categoriesWrapper');
+            const categories = document.getElementById('categoryList');
+            const containerWidth = container.offsetWidth;
+            const categoriesWidth = categories.scrollWidth;
+            
+            if (direction === 'left') {
+                currentScrollPosition = Math.max(0, currentScrollPosition - 200);
+            } else {
+                const maxScroll = Math.max(0, categoriesWidth - containerWidth);
+                currentScrollPosition = Math.min(maxScroll, currentScrollPosition + 200);
+            }
+            
+            categories.style.transform = `translateX(-${currentScrollPosition}px)`;
+            updateScrollButtons();
+        };
+
+        // Update scroll buttons state
+        function updateScrollButtons() {
+            const container = document.getElementById('categoriesWrapper');
+            const categories = document.getElementById('categoryList');
+            const leftBtn = document.getElementById('scrollLeftBtn');
+            const rightBtn = document.getElementById('scrollRightBtn');
+            
+            const containerWidth = container.offsetWidth;
+            const categoriesWidth = categories.scrollWidth;
+            const maxScroll = Math.max(0, categoriesWidth - containerWidth);
+            
+            leftBtn.classList.toggle('disabled', currentScrollPosition <= 0);
+            rightBtn.classList.toggle('disabled', currentScrollPosition >= maxScroll);
+        }
+
+        // Filter by category using category ID
+        window.filterCat = (catId, catName, btn) => {
+            selectedCatId = catId;
+            
+            // Update active button
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Center the selected category
+            centerCategory(btn);
+            
+            // Apply filter
+            filterProducts();
+        };
+
+        // Center the selected category in view
+        function centerCategory(btn) {
+            const container = document.getElementById('categoriesWrapper');
+            const categories = document.getElementById('categoryList');
+            const containerWidth = container.offsetWidth;
+            
+            const btnOffset = btn.offsetLeft;
+            const btnWidth = btn.offsetWidth;
+            
+            const targetScroll = btnOffset - (containerWidth / 2) + (btnWidth / 2);
+            const maxScroll = Math.max(0, categories.scrollWidth - containerWidth);
+            currentScrollPosition = Math.max(0, Math.min(maxScroll, targetScroll));
+            
+            categories.style.transform = `translateX(-${currentScrollPosition}px)`;
+            updateScrollButtons();
+        }
+
+        // Load products from Firebase
+        function loadProducts() {
+            database.ref('products').on('value', (snapshot) => {
+                allProducts = [];
+                
+                snapshot.forEach((child) => {
+                    const product = child.val();
+                    allProducts.push({
+                        id: child.key,
+                        ...product
+                    });
+                });
+                
+                filterProducts();
+            });
+        }
+
+        // Check if product belongs to selected category
+        function productInCategory(product, catId) {
+            if (catId === 'All') return true;
+            
+            // Check category_ids field (from your Firebase screenshot)
+            if (product.category_ids) {
+                // If category_ids is an object with keys
+                if (typeof product.category_ids === 'object') {
+                    return Object.keys(product.category_ids).some(key => 
+                        product.category_ids[key] == catId || key == catId
+                    );
+                }
+                // If category_ids is an array
+                if (Array.isArray(product.category_ids)) {
+                    return product.category_ids.includes(catId) || 
+                           product.category_ids.includes(parseInt(catId));
+                }
+            }
+            
+            // Check category field (direct string)
+            if (product.category) {
+                return product.category == catId || product.category === categories[catId];
+            }
+            
+            return false;
+        }
+
+        // Filter products based on selected category and search
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredProducts = allProducts.filter(p => {
+                const name = (p.name || p.title || "").toLowerCase();
+                const matchesSearch = name.includes(searchTerm);
+                const matchesCat = productInCategory(p, selectedCatId);
+                return matchesSearch && matchesCat;
+            });
+            
+            renderProducts();
+        }
+
+        // Calculate price range from variations
+        function getPriceRange(product) {
+            // Check for variations first
+            if (product.variations) {
+                let prices = [];
+                const variations = Array.isArray(product.variations) ? product.variations : Object.values(product.variations);
+                
+                variations.forEach(v => {
+                    if (v) {
+                        let price = null;
+                        
+                        if (v.sale_price && v.sale_price !== "undefined" && v.sale_price !== "") {
+                            price = parseFloat(v.sale_price);
+                        } else if (v.regular_price && v.regular_price !== "undefined" && v.regular_price !== "") {
+                            price = parseFloat(v.regular_price);
+                        } else if (v.price) {
+                            price = parseFloat(v.price);
+                        }
+                        
+                        if (price && !isNaN(price) && price > 0) {
+                            prices.push(price);
+                        }
+                    }
+                });
+                
+                if (prices.length > 0) {
+                    return {
+                        min: Math.min(...prices),
+                        max: Math.max(...prices),
+                        hasVariations: true
+                    };
+                }
+            }
+            
+            // Single price
+            let price = product.sale_price || product.price || product.regular_price || 0;
+            if (price === "undefined" || price === "") price = 0;
+            
+            return {
+                single: parseFloat(price) || 0,
+                hasVariations: false
+            };
+        }
+
+        // Format price
+        function formatPrice(price) {
+            return '৳ ' + price.toFixed(0);
+        }
+
+        // Render products grid
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#888;"><i class="fa-regular fa-face-frown" style="font-size: 40px; margin-bottom: 15px; display: block;"></i>No products found</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredProducts.map(p => {
+                // Get image
+                let displayImg = p.image;
+                if (!displayImg && p.images && p.images.length > 0) {
+                    displayImg = p.images[0].src || p.images[0];
+                }
+                displayImg = displayImg || 'https://via.placeholder.com/400x500?text=MAVRO';
+
+                // Get price display
+                const priceInfo = getPriceRange(p);
+                let priceHtml = '';
+                
+                if (priceInfo.hasVariations) {
+                    if (priceInfo.min === priceInfo.max) {
+                        priceHtml = `<div class="single-price">${formatPrice(priceInfo.min)}</div>`;
+                    } else {
+                        priceHtml = `<div class="price-range">${formatPrice(priceInfo.min)} <small>–</small> ${formatPrice(priceInfo.max)}</div>`;
+                    }
+                } else {
+                    priceHtml = `<div class="single-price">${formatPrice(priceInfo.single)}</div>`;
+                }
+
+                return `
+                    <a href="single-product-details.html?id=${p.id}" class="p-card">
+                        <img src="${displayImg}" class="p-img" loading="lazy" onerror="this.src='https://via.placeholder.com/400x500?text=MAVRO'">
+                        <div class="p-info">
+                            <h4 class="p-title">${p.name || p.title || 'Mavro Product'}</h4>
+                            ${priceHtml}
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // Search input handler
+        document.getElementById('searchInput').addEventListener('input', () => {
+            filterProducts();
+        });
+
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+            document.getElementById('cartCount').innerText = cart.length;
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            updateScrollButtons();
+            
+            // Reset scroll position if needed
+            const container = document.getElementById('categoriesWrapper');
+            const categories = document.getElementById('categoryList');
+            const maxScroll = Math.max(0, categories.scrollWidth - container.offsetWidth);
+            currentScrollPosition = Math.min(currentScrollPosition, maxScroll);
+            categories.style.transform = `translateX(-${currentScrollPosition}px)`;
+        });
+
+        // Initialize
+        window.onload = function() {
+            loadCategories();
+            loadProducts();
+            updateCartCount();
+        };
+
+        // Listen for cart updates
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>
