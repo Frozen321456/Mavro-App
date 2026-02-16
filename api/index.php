@@ -2,11 +2,11 @@
 
 /**
 
- * Mavro Essence - MoveDrop Final Official Implementation
+* Mavro Essence - MoveDrop Final Official Implementation
 
- * Fixed: Regular Price & Sale Price Support for Realtime Database
+* Fixed: Regular Price & Sale Price Support for Realtime Database
 
- */
+*/ 
 
 
 header("Access-Control-Allow-Origin: *");
@@ -15,7 +15,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 header("Access-Control-Allow-Methods: POST, DELETE, OPTIONS");
 
-header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept");
+header("Access-Control-Allow-Headers: Content-Type, X-API-KEY, Authorization, Accept"); 
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -24,12 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
     exit();
 
-}
+} 
 
 
 define('API_KEY', 'MAVRO-ESSENCE-SECURE-KEY-2026');
 
-define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app');
+define('DATABASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app'); 
 
 
 // সিকিউরিটি চেক
@@ -46,14 +46,14 @@ if ($providedKey !== API_KEY) {
 
     exit();
 
-}
+} 
 
 
 $path = $_GET['path'] ?? '';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-$inputData = json_decode(file_get_contents('php://input'), true);
+$inputData = json_decode(file_get_contents('php://input'), true); 
 
 
 // ১. পন্য তৈরি (Create Product)
@@ -62,7 +62,7 @@ if ($path === 'products' && $method === 'POST') {
 
     $prodId = time(); 
 
-    $now = date('c');
+    $now = date('c'); 
 
 
     $images = [];
@@ -75,7 +75,7 @@ if ($path === 'products' && $method === 'POST') {
 
         }
 
-    }
+    } 
 
 
     $productData = [
@@ -102,10 +102,10 @@ if ($path === 'products' && $method === 'POST') {
 
         "updated_at" => $now
 
-    ];
+    ]; 
 
 
-    $res = firebaseRequest("PUT", "/products/$prodId.json", $productData);
+    $res = firebaseRequest("PUT", "/products/$prodId.json", $productData); 
 
 
     if ($res['status'] == 200) {
@@ -138,7 +138,7 @@ if ($path === 'products' && $method === 'POST') {
 
     exit();
 
-}
+} 
 
 
 // ২. ভ্যারিয়েশন যোগ করা (Create Product Variations)
@@ -151,7 +151,7 @@ if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === '
 
     $vars = $inputData['variations'] ?? [];
 
-    $responseEntries = [];
+    $responseEntries = []; 
 
 
     if (!empty($vars)) {
@@ -170,7 +170,7 @@ if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === '
 
             "sale_price" => (string)$firstSalePrice
 
-        ]);
+        ]); 
 
 
         foreach ($vars as $index => $v) {
@@ -187,7 +187,7 @@ if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === '
 
                 $propName = $v['properties'][0]['value'] ?? $propName;
 
-            }
+            } 
 
 
             $varData = [
@@ -212,7 +212,7 @@ if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === '
 
         }
 
-    }
+    } 
 
 
     http_response_code(201);
@@ -227,7 +227,7 @@ if (preg_match('/products\/(.+)\/variations/', $path, $matches) && $method === '
 
     exit();
 
-}
+} 
 
 
 // ৩. পন্য ডিলিট করা (Delete Product)
@@ -246,7 +246,7 @@ if (preg_match('/products\/(.+)/', $path, $matches) && $method === 'DELETE') {
 
     exit();
 
-}
+} 
 
 
 // সাহায্যকারী ফাংশন (Firebase REST API)
