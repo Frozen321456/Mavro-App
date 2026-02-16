@@ -1,8 +1,8 @@
 <?php
 /**
  * MAVRO ESSENCE - MOVE-DROP OFFICIAL API
- * Version: 3.0.0
- * Complete MoveDrop implementation with Categories, Products, Orders & Webhooks
+ * Version: 3.1.0
+ * Fixed Categories endpoints for MoveDrop
  */
 
 // Headers
@@ -24,7 +24,7 @@ define('FIREBASE_URL', 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.
 define('ITEMS_PER_PAGE', 20);
 
 // API Key verification
-$headers = getallheaders();
+$headers = array_change_key_case(getallheaders(), CASE_UPPER);
 $apiKey = $headers['X-API-KEY'] ?? $_SERVER['HTTP_X_API_KEY'] ?? '';
 
 if ($apiKey !== API_KEY) {
@@ -42,7 +42,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true) ?? [];
 
 // Get pagination parameters
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : ITEMS_PER_PAGE;
 $offset = ($page - 1) * $per_page;
 
@@ -63,7 +63,6 @@ if ($path === 'health' && $method === 'GET') {
 // WEBHOOKS REGISTRATION
 // ============================================
 if ($path === 'webhooks' && $method === 'POST') {
-    // Store webhook URLs in Firebase
     $webhooks = $input['webhooks'] ?? [];
     
     if (empty($webhooks)) {
@@ -72,12 +71,9 @@ if ($path === 'webhooks' && $method === 'POST') {
         exit();
     }
     
-    // Save webhooks to Firebase
     $saved = [];
     foreach ($webhooks as $webhook) {
-        $webhook_id = uniqid('webhook_');
         $webhook_data = [
-            'id' => $webhook_id,
             'name' => $webhook['name'],
             'event' => $webhook['event'],
             'delivery_url' => $webhook['delivery_url'],
@@ -97,90 +93,118 @@ if ($path === 'webhooks' && $method === 'POST') {
 }
 
 // ============================================
-// CATEGORIES ENDPOINTS
+// CATEGORIES ENDPOINTS - FIXED VERSION
 // ============================================
 
 // GET /categories - List categories with pagination
 if ($path === 'categories' && $method === 'GET') {
-    $categories = firebase_get('/categories.json') ?? [];
+    // Get all categories from Firebase
+    $categories_data = firebase_get('/categories.json');
     
-    // Convert to array and format
-    $formatted = [];
-    $index = 1;
+    $formatted_categories = [];
     
-    foreach ($categories as $key => $cat) {
-        // Generate slug from name
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $cat['name'])));
-        
-        $formatted[] = [
-            'id' => (int)($cat['id'] ?? $index),
-            'name' => $cat['name'],
-            'slug' => $slug,
-            'created_at' => $cat['created_at'] ?? date('c')
-        ];
-        $index++;
+    if ($categories_data && is_array($categories_data)) {
+        foreach ($categories_data as $key => $category) {
+            // Handle both indexed and key-value formats
+            if (is_array($category)) {
+                // Generate slug from name if not present
+                $name = $category['name'] ?? 'Unnamed Category';
+                $slug = $category['slug'] ?? generate_slug($name);
+                
+                $formatted_categories[] = [
+                    'id' => (int)($category['id'] ?? (is_numeric($key) ? $key : crc32($key))),
+                    'name' => $name,
+                    'slug' => $slug,
+                    'created_at' => $category['created_at'] ?? date('c')
+                ];
+            }
+        }
     }
     
-    // Paginate
-    $total = count($formatted);
-    $paginated = array_slice($formatted, $offset, $per_page);
+    // Sort by ID
+    usort($formatted_categories, function($a, $b) {
+        return $a['id'] - $b['id'];
+    });
+    
+    // Pagination
+    $total = count($formatted_categories);
+    $paginated = array_slice($formatted_categories, $offset, $per_page);
+    
+    // Calculate meta
+    $last_page = ceil($total / $per_page);
+    $from = $offset + 1;
+    $to = min($offset + $per_page, $total);
     
     http_response_code(200);
     echo json_encode([
         'data' => $paginated,
         'meta' => [
             'current_page' => $page,
-            'from' => $offset + 1,
-            'last_page' => ceil($total / $per_page),
+            'from' => $from,
+            'last_page' => $last_page,
             'per_page' => $per_page,
-            'to' => min($offset + $per_page, $total),
+            'to' => $to,
             'total' => $total
         ]
     ]);
     exit();
 }
 
-// POST /categories - Create new category
+// POST /categories - Create new category (FIXED)
 if ($path === 'categories' && $method === 'POST') {
+    // Get category name from request
     $name = $input['name'] ?? '';
     
     if (empty($name)) {
         http_response_code(422);
         echo json_encode([
-            'message' => 'Category name is required',
-            'errors' => ['name' => ['The name field is required.']]
+            'message' => 'The name field is required.',
+            'errors' => [
+                'name' => ['The name field is required.']
+            ]
         ]);
         exit();
     }
     
-    // Check if category already exists
-    $existing = firebase_get('/categories.json');
-    foreach ($existing ?? [] as $cat) {
-        if (strtolower($cat['name']) === strtolower($name)) {
+    // Get all existing categories
+    $existing_categories = firebase_get('/categories.json') ?? [];
+    
+    // Check for duplicate name
+    foreach ($existing_categories as $cat) {
+        if (is_array($cat) && isset($cat['name']) && strtolower($cat['name']) === strtolower($name)) {
             http_response_code(400);
             echo json_encode([
-                'message' => 'Category already exists'
+                'message' => 'Category with this name already exists'
             ]);
             exit();
         }
     }
     
-    // Generate category ID
-    $cat_id = time();
-    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+    // Generate new ID
+    $max_id = 0;
+    foreach ($existing_categories as $cat) {
+        if (is_array($cat) && isset($cat['id']) && $cat['id'] > $max_id) {
+            $max_id = $cat['id'];
+        }
+    }
+    $new_id = $max_id + 1;
+    
+    // Generate slug
+    $slug = generate_slug($name);
     $timestamp = date('c');
     
+    // Create category data in MoveDrop format
     $category_data = [
-        'id' => $cat_id,
+        'id' => $new_id,
         'name' => $name,
         'slug' => $slug,
         'created_at' => $timestamp
     ];
     
-    // Save to Firebase
-    $result = firebase_put("/categories/{$cat_id}.json", $category_data);
+    // Save to Firebase using the ID as key
+    $save_result = firebase_put("/categories/{$new_id}.json", $category_data);
     
-    if ($result) {
+    if ($save_result) {
         http_response_code(201);
         echo json_encode([
             'data' => $category_data
@@ -241,7 +265,7 @@ if ($path === 'products' && $method === 'POST') {
     // Check for duplicate SKU
     $existing = firebase_get('/products.json');
     foreach ($existing ?? [] as $key => $prod) {
-        if ($prod['sku'] === $input['sku']) {
+        if (isset($prod['sku']) && $prod['sku'] === $input['sku']) {
             http_response_code(400);
             echo json_encode([
                 'message' => 'Product with given SKU already exists',
@@ -273,31 +297,15 @@ if ($path === 'products' && $method === 'POST') {
         ];
     }
     
-    // Get category IDs (if any)
-    $category_ids = $input['category_ids'] ?? [];
-    
-    // Get category names for storage
-    $categories = firebase_get('/categories.json') ?? [];
-    $category_names = [];
-    foreach ($category_ids as $cat_id) {
-        foreach ($categories as $cat) {
-            if ($cat['id'] == $cat_id) {
-                $category_names[] = $cat['name'];
-                break;
-            }
-        }
-    }
-    
     // Prepare product data
     $product_data = [
         'id' => $product_id,
         'title' => $input['title'],
-        'name' => $input['title'], // For admin panel
+        'name' => $input['title'],
         'sku' => $input['sku'],
         'description' => $input['description'] ?? '',
         'images' => $images,
-        'category_ids' => $category_ids,
-        'categories' => $category_names,
+        'category_ids' => $input['category_ids'] ?? [],
         'tags' => $input['tags'] ?? [],
         'properties' => $input['properties'] ?? [],
         'created_at' => $timestamp,
@@ -320,10 +328,6 @@ if ($path === 'products' && $method === 'POST') {
                 'updated_at' => $timestamp
             ]
         ]);
-        
-        // Trigger webhook for product creation if needed
-        trigger_webhook('product.created', ['id' => $product_id]);
-        
     } else {
         http_response_code(500);
         echo json_encode([
@@ -367,7 +371,7 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
     }
     
     foreach ($variations as $index => $var) {
-        $variation_id = $product_id * 100 + $index;
+        $variation_id = (int)($product_id . sprintf("%02d", $index));
         
         // Check for duplicate SKU
         if (isset($existing_skus[$var['sku']])) {
@@ -407,16 +411,6 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
         $existing_skus[$var['sku']] = true;
     }
     
-    // Update main product with first variation's price
-    if (!empty($variations[0])) {
-        firebase_patch("/products/{$product_id}.json", [
-            'regular_price' => (string)($variations[0]['regular_price'] ?? '0'),
-            'sale_price' => (string)($variations[0]['sale_price'] ?? ''),
-            'price' => (string)($variations[0]['regular_price'] ?? '0'),
-            'updated_at' => date('c')
-        ]);
-    }
-    
     http_response_code(201);
     echo json_encode([
         'message' => 'Product Variations Created',
@@ -447,10 +441,6 @@ if (preg_match('/^products\/(.+)$/', $path, $matches) && $method === 'DELETE') {
         echo json_encode([
             'message' => 'Product Deleted Successfully'
         ]);
-        
-        // Trigger webhook
-        trigger_webhook('product.deleted', ['id' => (int)$product_id]);
-        
     } else {
         http_response_code(500);
         echo json_encode([
@@ -471,15 +461,8 @@ if ($path === 'orders' && $method === 'GET') {
     $formatted = [];
     foreach ($orders as $key => $order) {
         // Apply filters
-        if (isset($_GET['order_number']) && $order['order_number'] !== $_GET['order_number']) {
+        if (isset($_GET['order_number']) && ($order['order_number'] ?? '') !== $_GET['order_number']) {
             continue;
-        }
-        
-        // Date filter
-        if (isset($_GET['created_at']) && is_array($_GET['created_at'])) {
-            $from = $_GET['created_at'][0] ?? '';
-            $to = $_GET['created_at'][1] ?? '';
-            // Implement date filtering logic here
         }
         
         $formatted[] = format_order_for_movedrop($key, $order);
@@ -546,10 +529,6 @@ if (preg_match('/^orders\/(.+)$/', $path, $matches) && $method === 'PUT') {
         echo json_encode([
             'data' => format_order_for_movedrop($order_id, $updated_order)
         ]);
-        
-        // Trigger webhook
-        trigger_webhook('order.updated', format_order_for_movedrop($order_id, $updated_order));
-        
     } else {
         http_response_code(500);
         echo json_encode([
@@ -623,6 +602,22 @@ echo json_encode([
 // ============================================
 
 /**
+ * Generate URL slug from string
+ */
+function generate_slug($string) {
+    // Convert to lowercase
+    $slug = strtolower($string);
+    
+    // Replace non-alphanumeric characters with hyphens
+    $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+    
+    // Remove leading/trailing hyphens
+    $slug = trim($slug, '-');
+    
+    return $slug;
+}
+
+/**
  * Format product for MoveDrop API
  */
 function format_product_for_movedrop($id, $product) {
@@ -641,12 +636,12 @@ function format_product_for_movedrop($id, $product) {
     }
     
     // Ensure at least one default image
-    if (!empty($images)) {
+    if (!empty($images) && !in_array(true, array_column($images, 'is_default'))) {
         $images[0]['is_default'] = true;
     }
     
     return [
-        'id' => (int)($product['id'] ?? $id),
+        'id' => (int)($product['id'] ?? (is_numeric($id) ? $id : crc32($id))),
         'title' => $product['title'] ?? $product['name'] ?? 'Untitled',
         'sku' => $product['sku'] ?? '',
         'description' => $product['description'] ?? '',
@@ -664,7 +659,7 @@ function format_product_for_movedrop($id, $product) {
  */
 function format_order_for_movedrop($id, $order) {
     return [
-        'id' => (int)$id,
+        'id' => (int)(is_numeric($id) ? $id : crc32($id)),
         'order_number' => $order['order_number'] ?? '#' . substr($id, -6),
         'status' => $order['status'] ?? 'pending',
         'currency' => $order['currency'] ?? 'BDT',
@@ -705,26 +700,6 @@ function format_order_for_movedrop($id, $order) {
         }, $order['line_items'] ?? []),
         'created_at' => $order['created_at'] ?? date('c')
     ];
-}
-
-/**
- * Trigger webhook event
- */
-function trigger_webhook($event, $data) {
-    $webhook = firebase_get("/webhooks/{$event}.json");
-    
-    if ($webhook && !empty($webhook['delivery_url'])) {
-        $ch = curl_init($webhook['delivery_url']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        curl_exec($ch);
-        curl_close($ch);
-    }
 }
 
 /**
