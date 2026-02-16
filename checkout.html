@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Checkout Test | Mavro Essence</title>
+    <title>Checkout | Mavro Essence</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Your existing CSS - keep as is */
         * {
             margin: 0;
             padding: 0;
@@ -32,7 +33,6 @@
             padding: 20px 0;
         }
 
-        /* Header */
         .header {
             background: var(--white);
             padding: 15px 5%;
@@ -71,85 +71,6 @@
             transition: 0.2s;
         }
 
-        /* Test Banner */
-        .test-banner {
-            background: #ff385c;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .test-banner i {
-            margin-right: 8px;
-        }
-
-        /* Debug Console */
-        .debug-console {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 1200px;
-            margin: 20px auto;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .debug-console.show {
-            display: block;
-        }
-
-        .debug-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .debug-header button {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .debug-line {
-            margin: 3px 0;
-            border-bottom: 1px solid #333;
-            padding-bottom: 3px;
-        }
-
-        .debug-line.success { color: #4BB543; }
-        .debug-line.error { color: #ff4444; }
-        .debug-line.warning { color: #ffbb33; }
-
-        /* Quick Test Button */
-        .quick-test-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 10px auto;
-            display: block;
-            max-width: 300px;
-        }
-
-        /* Checkout Container */
         .checkout-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -165,14 +86,12 @@
             gap: 10px;
         }
 
-        /* Two Column Layout */
         .checkout-layout {
             display: grid;
             grid-template-columns: 1fr 0.8fr;
             gap: 30px;
         }
 
-        /* Form Sections */
         .form-section {
             background: var(--white);
             border-radius: 20px;
@@ -194,7 +113,6 @@
             color: var(--accent);
         }
 
-        /* Form Fields */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -237,7 +155,6 @@
             resize: vertical;
         }
 
-        /* Payment Methods */
         .payment-methods {
             display: flex;
             flex-direction: column;
@@ -305,7 +222,6 @@
             color: var(--primary);
         }
 
-        /* Order Summary */
         .order-summary {
             background: var(--white);
             border-radius: 20px;
@@ -407,7 +323,6 @@
             font-weight: 500;
         }
 
-        /* Place Order Button */
         .place-order-btn {
             background: var(--primary);
             color: var(--white);
@@ -433,7 +348,6 @@
             pointer-events: none;
         }
 
-        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -463,7 +377,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Success Popup */
         .success-popup {
             display: none;
             position: fixed;
@@ -498,12 +411,6 @@
             word-break: break-all;
         }
 
-        .track-link {
-            color: #999;
-            font-size: 14px;
-            margin: 20px 0;
-        }
-
         .continue-btn {
             background: white;
             color: black;
@@ -515,19 +422,6 @@
             margin-top: 20px;
         }
 
-        /* Toggle Debug Button */
-        .toggle-debug {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 30px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        /* Responsive */
         @media (max-width: 992px) {
             .checkout-layout {
                 grid-template-columns: 1fr;
@@ -556,29 +450,6 @@
     </style>
 </head>
 <body>
-    <!-- Test Banner -->
-    <div class="test-banner">
-        <i class="fas fa-flask"></i>
-        TEST MODE - Webhook Testing with silver-cat-71.webhook.cool
-        <button class="toggle-debug" onclick="toggleDebug()">
-            <i class="fas fa-terminal"></i> Show Debug Console
-        </button>
-    </div>
-
-    <!-- Quick Test Button -->
-    <button class="quick-test-btn" onclick="quickWebhookTest()">
-        <i class="fas fa-bolt"></i> Quick Webhook Test (silver-cat-71)
-    </button>
-
-    <!-- Debug Console -->
-    <div class="debug-console" id="debugConsole">
-        <div class="debug-header">
-            <span><i class="fas fa-terminal"></i> Debug Console</span>
-            <button onclick="clearDebug()">Clear</button>
-        </div>
-        <div id="debugLogs"></div>
-    </div>
-
     <div class="header">
         <a href="cart.html" class="back-btn">
             <i class="fas fa-arrow-left"></i>
@@ -606,22 +477,22 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label class="form-label">Full Name *</label>
-                            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" value="Test User" required>
+                            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Phone Number *</label>
-                            <input type="tel" id="phone" class="form-control" placeholder="017XXXXXXXX" value="01712345678" required>
+                            <input type="tel" id="phone" class="form-control" placeholder="017XXXXXXXX" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Email (Optional)</label>
-                            <input type="email" id="email" class="form-control" placeholder="email@example.com" value="test@example.com">
+                            <input type="email" id="email" class="form-control" placeholder="email@example.com">
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label">Address *</label>
-                            <textarea id="address" class="form-control" placeholder="House, Road, Area, City" required>Test Address, Dhaka</textarea>
+                            <textarea id="address" class="form-control" placeholder="House, Road, Area, City" required></textarea>
                         </div>
 
                         <div class="form-group">
@@ -676,6 +547,17 @@
                                 <i class="fas fa-coins"></i>
                             </div>
                         </div>
+
+                        <div class="payment-option" onclick="selectPayment('card')" id="payment-card">
+                            <div class="payment-radio" id="radio-card"></div>
+                            <div class="payment-info">
+                                <div class="payment-name">Credit/Debit Card</div>
+                                <div class="payment-desc">Visa, Mastercard, American Express</div>
+                            </div>
+                            <div class="payment-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -702,11 +584,11 @@
                 </div>
 
                 <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
-                    PLACE ORDER (TEST MODE)
+                    PLACE ORDER
                 </button>
 
                 <p style="font-size: 12px; color: #888; text-align: center; margin-top: 15px;">
-                    <i class="fas fa-flask"></i> Test Mode Active - Webhooks sent to silver-cat-71.webhook.cool
+                    <i class="fas fa-shield-alt"></i> Your information is secure
                 </p>
             </div>
         </div>
@@ -725,9 +607,8 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <h2>Order Successful!</h2>
-            <p>Your test order has been placed.</p>
+            <p>Your order has been placed successfully.</p>
             <p class="order-id" id="orderId"></p>
-            <p class="track-link">Check silver-cat-71.webhook.cool for webhook data</p>
             <button class="continue-btn" onclick="continueShopping()">Continue Shopping</button>
         </div>
     </div>
@@ -750,93 +631,16 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Constants
-        const API_BASE_URL = 'https://mavro.xo.je/api';
+        // Constants - FIXED for Vercel
+        const API_BASE_URL = 'https://mavro-app.vercel.app/api';
         const API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
         const DELIVERY_CHARGE = 130;
         const FREE_DELIVERY_THRESHOLD = 2000;
-        
-        // TESTING: silver-cat-71.webhook.cool URL
-        const WEBHOOK_TEST_URL = 'https://silver-cat-71.webhook.cool';
 
         // State
         let cart = [];
         let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, isFreeDelivery: false };
         let selectedPayment = 'cod';
-
-        // ============================================
-        // DEBUG FUNCTIONS
-        // ============================================
-        function addDebugLog(message, type = 'info') {
-            const debugLogs = document.getElementById('debugLogs');
-            const timestamp = new Date().toLocaleTimeString();
-            const logLine = document.createElement('div');
-            logLine.className = `debug-line ${type}`;
-            logLine.innerHTML = `[${timestamp}] ${message}`;
-            debugLogs.appendChild(logLine);
-            debugLogs.scrollTop = debugLogs.scrollHeight;
-            
-            // Also log to console
-            if (type === 'error') console.error(message);
-            else if (type === 'warning') console.warn(message);
-            else console.log(message);
-        }
-
-        window.toggleDebug = function() {
-            document.getElementById('debugConsole').classList.toggle('show');
-        };
-
-        window.clearDebug = function() {
-            document.getElementById('debugLogs').innerHTML = '';
-            addDebugLog('Debug console cleared');
-        };
-
-        // ============================================
-        // QUICK WEBHOOK TEST FUNCTION
-        // ============================================
-        window.quickWebhookTest = async function() {
-            addDebugLog('=================================', 'info');
-            addDebugLog('⚡ QUICK WEBHOOK TEST STARTED', 'info');
-            addDebugLog(`🎯 Target URL: ${WEBHOOK_TEST_URL}`, 'info');
-            
-            const testPayload = {
-                test: true,
-                message: 'Quick test from Mavro Essence',
-                timestamp: new Date().toISOString(),
-                source: 'quick-test-button',
-                random: Math.floor(Math.random() * 1000)
-            };
-
-            addDebugLog(`📦 Test Payload: ${JSON.stringify(testPayload)}`, 'info');
-
-            try {
-                const response = await fetch(WEBHOOK_TEST_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Test-Source': 'Mavro-Essence'
-                    },
-                    body: JSON.stringify(testPayload)
-                });
-
-                const responseText = await response.text();
-                addDebugLog(`✅ Response Status: ${response.status}`, 'success');
-                addDebugLog(`📨 Response Body: ${responseText || '(empty)'}`, 'success');
-                
-                if (response.ok) {
-                    alert('✅ Quick test successful! Check console for details.');
-                } else {
-                    alert(`⚠️ Quick test returned status ${response.status}`);
-                }
-                
-            } catch (error) {
-                addDebugLog(`❌ Error: ${error.message}`, 'error');
-                alert(`❌ Quick test failed: ${error.message}`);
-            }
-            
-            addDebugLog('⚡ QUICK WEBHOOK TEST COMPLETE', 'info');
-            addDebugLog('=================================', 'info');
-        };
 
         // Format variation for display
         function formatVariationForDisplay(variation) {
@@ -868,10 +672,7 @@
         function loadCart() {
             cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
             
-            addDebugLog(`Cart loaded: ${cart.length} items`);
-            
             if (cart.length === 0) {
-                addDebugLog('Cart empty, redirecting to shop', 'warning');
                 window.location.href = 'shop.html';
                 return;
             }
@@ -903,8 +704,6 @@
             const total = subtotal + deliveryTotal;
 
             totals = { subtotal, deliveryTotal, total, itemCount, isFreeDelivery };
-            
-            addDebugLog(`Totals: Subtotal=৳${subtotal}, Total=৳${total}`);
         }
 
         // Render order summary
@@ -943,18 +742,21 @@
             }).join('');
 
             document.getElementById('summarySubtotal').innerHTML = `৳ ${totals.subtotal.toFixed(0)}`;
-            document.getElementById('summaryDelivery').innerHTML = totals.isFreeDelivery ? 
-                '<span style="color: #2e7d32;">FREE</span>' : 
-                `৳ ${totals.deliveryTotal.toFixed(0)}`;
+            
+            if (totals.isFreeDelivery) {
+                document.getElementById('summaryDelivery').innerHTML = '<span style="color: #2e7d32;">FREE</span>';
+                document.getElementById('deliveryBadge').innerHTML = 'Free Delivery';
+            } else {
+                document.getElementById('summaryDelivery').innerHTML = `৳ ${totals.deliveryTotal.toFixed(0)}`;
+                document.getElementById('deliveryBadge').innerHTML = 'Per item: ৳130';
+            }
+            
             document.getElementById('summaryTotal').innerHTML = `৳ ${totals.total.toFixed(0)}`;
-            document.getElementById('deliveryBadge').innerHTML = totals.isFreeDelivery ? 
-                'Free Delivery' : 'Per item: ৳130';
         }
 
         // Select payment method
         window.selectPayment = (method) => {
             selectedPayment = method;
-            addDebugLog(`Payment method: ${method}`);
             
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelectorAll('.payment-radio').forEach(radio => radio.classList.remove('selected'));
@@ -975,41 +777,10 @@
                    Math.random().toString(36).substring(2, 6).toUpperCase();
         }
 
-        // ============================================
-        // SEND TO WEBHOOK (silver-cat-71)
-        // ============================================
-        async function sendToWebhook(event, payload) {
-            addDebugLog(`🚀 Sending to webhook - Event: ${event}`, 'info');
-            addDebugLog(`📦 Payload preview: ${JSON.stringify(payload).substring(0, 200)}...`, 'info');
-            
-            try {
-                const response = await fetch(WEBHOOK_TEST_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Event': event,
-                        'X-Source': 'Mavro-Essence'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const responseText = await response.text();
-                addDebugLog(`✅ Webhook Response (${response.status}): ${responseText}`, 'success');
-                
-                return { success: response.ok, status: response.status, data: responseText };
-            } catch (error) {
-                addDebugLog(`❌ Webhook Error: ${error.message}`, 'error');
-                return { success: false, error: error.message };
-            }
-        }
-
-        // ============================================
         // Send order to API
-        // ============================================
         async function sendOrderToAPI(orderData) {
             try {
                 const url = `${API_BASE_URL}/index.php?path=orders`;
-                addDebugLog(`📡 Sending to API: ${url}`, 'info');
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -1021,18 +792,25 @@
                 });
 
                 const responseText = await response.text();
-                addDebugLog(`📡 API Status: ${response.status}`, response.ok ? 'success' : 'error');
-                
-                return { success: response.ok, status: response.status, data: responseText };
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = { raw: responseText };
+                }
+
+                return { 
+                    success: response.ok, 
+                    status: response.status,
+                    data: responseData 
+                };
             } catch (error) {
-                addDebugLog(`❌ API Error: ${error.message}`, 'error');
+                console.error('API Error:', error);
                 return { success: false, error: error.message };
             }
         }
 
-        // ============================================
         // Prepare order for API
-        // ============================================
         function prepareOrderForAPI(orderData) {
             const nameParts = orderData.customer_name.split(' ');
             const firstName = nameParts[0];
@@ -1077,13 +855,8 @@
             };
         }
 
-        // ============================================
         // Main place order function
-        // ============================================
         window.placeOrder = async () => {
-            addDebugLog('=================================', 'info');
-            addDebugLog('🛒 PLACE ORDER STARTED', 'info');
-            
             // Get form values
             const name = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -1093,26 +866,29 @@
             const postcode = document.getElementById('postcode').value.trim() || '1200';
 
             // Validation
-            if (!name || !phone || !address) {
-                addDebugLog('❌ Validation failed: Required fields missing', 'error');
-                alert('Please fill all required fields');
+            if (!name) {
+                alert('Please enter your full name');
+                return;
+            }
+
+            if (!phone) {
+                alert('Please enter your phone number');
                 return;
             }
 
             if (!validateBDPhone(phone)) {
-                addDebugLog('❌ Invalid phone format', 'error');
                 alert('Please enter a valid Bangladesh phone number');
                 return;
             }
 
-            addDebugLog('✅ Validation passed', 'success');
+            if (!address) {
+                alert('Please enter your address');
+                return;
+            }
 
             // Generate IDs
-            const orderId = 'test_' + Date.now();
+            const orderId = 'order_' + Date.now();
             const orderNumber = generateOrderNumber();
-
-            addDebugLog(`🆔 Order ID: ${orderId}`);
-            addDebugLog(`🔢 Order Number: ${orderNumber}`);
 
             // Prepare data
             const orderData = {
@@ -1132,71 +908,54 @@
             document.getElementById('placeOrderBtn').disabled = true;
 
             try {
-                // STEP 1: Save to Firebase
-                addDebugLog('💾 Saving to Firebase...', 'info');
-                
+                // Save to Firebase
                 const firebaseOrder = {
                     order_id: orderId,
                     order_number: orderNumber,
                     customer: { name, phone, email, address, city, postcode },
                     payment_method: selectedPayment,
+                    payment_status: selectedPayment === 'cod' ? 'pending' : 'paid',
                     subtotal: totals.subtotal,
                     delivery_charge: totals.deliveryTotal,
                     total: totals.total,
                     items: cart,
                     status: 'pending',
                     created_at: new Date().toISOString(),
-                    test_mode: true
+                    updated_at: new Date().toISOString()
                 };
 
                 await database.ref('orders/' + orderId).set(firebaseOrder);
-                addDebugLog('✅ Firebase save successful', 'success');
 
-                // STEP 2: Send to MoveDrop API
-                addDebugLog('📤 Sending to MoveDrop API...', 'info');
+                // Send to MoveDrop API
                 const apiResult = await sendOrderToAPI(apiPayload);
                 
                 if (apiResult.success) {
-                    addDebugLog('✅ MoveDrop API successful', 'success');
+                    await database.ref('orders/' + orderId).update({
+                        move_drop_sync: true,
+                        move_drop_response: apiResult.data,
+                        updated_at: new Date().toISOString()
+                    });
                 } else {
-                    addDebugLog('⚠️ MoveDrop API failed', 'warning');
+                    await database.ref('orders/' + orderId).update({
+                        move_drop_sync: false,
+                        move_drop_error: apiResult.error || 'API Error',
+                        updated_at: new Date().toISOString()
+                    });
                 }
-
-                // STEP 3: Send webhook to silver-cat-71.webhook.cool
-                addDebugLog('📤 Sending webhook to silver-cat-71...', 'info');
-                
-                const webhookPayload = {
-                    id: orderId,
-                    order_number: orderNumber,
-                    status: 'pending',
-                    currency: 'BDT',
-                    total: totals.total.toFixed(2),
-                    payment_method: selectedPayment,
-                    shipping_address: apiPayload.shipping_address,
-                    line_items: apiPayload.line_items,
-                    created_at: new Date().toISOString(),
-                    test: true
-                };
-                
-                const webhookResult = await sendToWebhook('order.created', webhookPayload);
 
                 // Clear cart
                 localStorage.removeItem('essence_cart');
-                addDebugLog('🧹 Cart cleared', 'info');
 
                 // Show success
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('orderId').innerText = orderNumber;
                 document.getElementById('successPopup').style.display = 'flex';
-                
-                addDebugLog('✅✅ ORDER COMPLETE!', 'success');
-                addDebugLog('=================================', 'info');
 
             } catch (error) {
-                addDebugLog(`❌ Order failed: ${error.message}`, 'error');
+                console.error('Order failed:', error);
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('placeOrderBtn').disabled = false;
-                alert('Order failed! Check debug console. Error: ' + error.message);
+                alert('Order failed! Please try again. Error: ' + error.message);
             }
         };
 
@@ -1206,11 +965,7 @@
         };
 
         // Initialize
-        window.onload = function() {
-            addDebugLog('🚀 Test checkout page loaded', 'success');
-            addDebugLog(`🎯 Webhook URL: ${WEBHOOK_TEST_URL}`, 'info');
-            loadCart();
-        };
+        loadCart();
     </script>
 </body>
 </html>
