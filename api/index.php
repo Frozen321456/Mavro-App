@@ -1,8 +1,8 @@
 <?php
 /**
  * MAVRO ESSENCE - MOVE-DROP OFFICIAL API
- * Version: 3.1.0
- * Fully fixed for MoveDrop integration
+ * Version: 3.2.0
+ * Complete fixed version for MoveDrop integration
  */
 
 // Headers
@@ -36,8 +36,17 @@ if ($apiKey !== API_KEY) {
     exit();
 }
 
-// Parse request
-$path = $_GET['path'] ?? '';
+// Parse request path - FIXED
+$request_uri = $_SERVER['REQUEST_URI'];
+$script_name = $_SERVER['SCRIPT_NAME'];
+$path = str_replace($script_name, '', $request_uri);
+$path = trim(parse_url($path, PHP_URL_PATH), '/');
+
+// Also support query parameter for backward compatibility
+if (empty($path) && isset($_GET['path'])) {
+    $path = $_GET['path'];
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true) ?? [];
 
@@ -60,7 +69,7 @@ if ($path === 'health' && $method === 'GET') {
 }
 
 // ============================================
-// WEBHOOKS REGISTRATION
+// WEBHOOKS REGISTRATION - FIXED
 // ============================================
 if ($path === 'webhooks' && $method === 'POST') {
     $webhooks = $input['webhooks'] ?? [];
@@ -80,7 +89,16 @@ if ($path === 'webhooks' && $method === 'POST') {
             'created_at' => date('c')
         ];
         
-        firebase_put("/webhooks/{$webhook['event']}.json", $webhook_data);
+        // Store with unique key
+        $key = md5($webhook['event'] . $webhook['delivery_url']);
+        firebase_put("/webhooks/{$key}.json", $webhook_data);
+        
+        // Index by event
+        $event_webhooks = firebase_get("/webhooks_by_event/{$webhook['event']}.json") ?? [];
+        if (!is_array($event_webhooks)) $event_webhooks = [];
+        $event_webhooks[] = $webhook_data;
+        firebase_put("/webhooks_by_event/{$webhook['event']}.json", $event_webhooks);
+        
         $saved[] = $webhook_data;
     }
     
@@ -93,28 +111,23 @@ if ($path === 'webhooks' && $method === 'POST') {
 }
 
 // ============================================
-// CATEGORIES ENDPOINTS
+// CATEGORIES ENDPOINTS - FIXED
 // ============================================
-
-// GET /categories - List categories with pagination
 if ($path === 'categories' && $method === 'GET') {
-    $categories_data = firebase_get('/categories.json');
+    $categories_data = firebase_get('/categories.json') ?? [];
     
     $formatted_categories = [];
-    
-    if ($categories_data && is_array($categories_data)) {
-        foreach ($categories_data as $key => $category) {
-            if (is_array($category)) {
-                $name = $category['name'] ?? 'Unnamed Category';
-                $slug = $category['slug'] ?? generate_slug($name);
-                
-                $formatted_categories[] = [
-                    'id' => (int)($category['id'] ?? (is_numeric($key) ? $key : crc32($key))),
-                    'name' => $name,
-                    'slug' => $slug,
-                    'created_at' => $category['created_at'] ?? date('c')
-                ];
-            }
+    foreach ($categories_data as $key => $category) {
+        if (is_array($category)) {
+            $name = $category['name'] ?? 'Unnamed Category';
+            $slug = $category['slug'] ?? generate_slug($name);
+            
+            $formatted_categories[] = [
+                'id' => (int)($category['id'] ?? (is_numeric($key) ? $key : crc32($key))),
+                'name' => $name,
+                'slug' => $slug,
+                'created_at' => $category['created_at'] ?? date('c')
+            ];
         }
     }
     
@@ -143,7 +156,6 @@ if ($path === 'categories' && $method === 'GET') {
     exit();
 }
 
-// POST /categories - Create new category
 if ($path === 'categories' && $method === 'POST') {
     $name = $input['name'] ?? '';
     
@@ -174,14 +186,11 @@ if ($path === 'categories' && $method === 'POST') {
     }
     $new_id = $max_id + 1;
     
-    $slug = generate_slug($name);
-    $timestamp = date('c');
-    
     $category_data = [
         'id' => $new_id,
         'name' => $name,
-        'slug' => $slug,
-        'created_at' => $timestamp
+        'slug' => generate_slug($name),
+        'created_at' => date('c')
     ];
     
     $save_result = firebase_put("/categories/{$new_id}.json", $category_data);
@@ -197,64 +206,45 @@ if ($path === 'categories' && $method === 'POST') {
 }
 
 // ============================================
-// PRODUCTS ENDPOINTS
+// PRODUCTS ENDPOINTS - ADDED MISSING GET
 // ============================================
-
-// GET /products - List all products (for MoveDrop sync)
 if ($path === 'products' && $method === 'GET') {
-    $products = firebase_get('/products.json') ?? [];
+    $products_data = firebase_get('/products.json') ?? [];
     
     $formatted_products = [];
-    foreach ($products as $key => $product) {
-        // Process images
-        $images = [];
-        if (!empty($product['images'])) {
-            foreach ($product['images'] as $img) {
-                if (is_string($img)) {
-                    $images[] = [
-                        'is_default' => count($images) === 0,
-                        'src' => $img
-                    ];
-                } else {
-                    $images[] = $img;
-                }
-            }
-        }
-        
-        $formatted_products[] = [
-            'id' => (int)($product['id'] ?? (is_numeric($key) ? $key : crc32($key))),
-            'title' => $product['title'] ?? $product['name'] ?? 'Untitled',
-            'sku' => $product['sku'] ?? '',
-            'description' => $product['description'] ?? '',
-            'images' => $images,
-            'category_ids' => $product['category_ids'] ?? [],
-            'tags' => $product['tags'] ?? [],
-            'properties' => $product['properties'] ?? [],
-            'created_at' => $product['created_at'] ?? date('c'),
-            'updated_at' => $product['updated_at'] ?? date('c')
-        ];
+    foreach ($products_data as $key => $product) {
+        $formatted_products[] = format_product_for_movedrop($key, $product);
     }
     
+    // Sort by ID
+    usort($formatted_products, function($a, $b) {
+        return $a['id'] - $b['id'];
+    });
+    
+    $total = count($formatted_products);
+    $paginated = array_slice($formatted_products, $offset, $per_page);
+    
     http_response_code(200);
-    echo json_encode($formatted_products);
+    echo json_encode([
+        'data' => $paginated,
+        'meta' => [
+            'current_page' => $page,
+            'from' => $offset + 1,
+            'last_page' => ceil($total / $per_page),
+            'per_page' => $per_page,
+            'to' => min($offset + $per_page, $total),
+            'total' => $total
+        ]
+    ]);
     exit();
 }
 
-// POST /products - Create new product
 if ($path === 'products' && $method === 'POST') {
+    // Validate required fields
     $errors = [];
-    
-    if (empty($input['title'])) {
-        $errors['title'] = ['The title field is required.'];
-    }
-    
-    if (empty($input['sku'])) {
-        $errors['sku'] = ['The sku field is required.'];
-    }
-    
-    if (empty($input['images']) || !is_array($input['images'])) {
-        $errors['images'] = ['At least one image is required.'];
-    }
+    if (empty($input['title'])) $errors['title'] = ['The title field is required.'];
+    if (empty($input['sku'])) $errors['sku'] = ['The sku field is required.'];
+    if (empty($input['images']) || !is_array($input['images'])) $errors['images'] = ['At least one image is required.'];
     
     if (!empty($errors)) {
         http_response_code(422);
@@ -265,9 +255,9 @@ if ($path === 'products' && $method === 'POST') {
         exit();
     }
     
-    // Check for duplicate SKU
-    $existing = firebase_get('/products.json');
-    foreach ($existing ?? [] as $key => $prod) {
+    // Check duplicate SKU
+    $existing = firebase_get('/products.json') ?? [];
+    foreach ($existing as $prod) {
         if (isset($prod['sku']) && $prod['sku'] === $input['sku']) {
             http_response_code(400);
             echo json_encode([
@@ -276,10 +266,7 @@ if ($path === 'products' && $method === 'POST') {
                     'error' => [
                         'code' => 'product_duplicate_sku',
                         'message' => 'SKU already exists.',
-                        'data' => [
-                            'product_id' => (int)$key,
-                            'sku' => $input['sku']
-                        ]
+                        'data' => ['sku' => $input['sku']]
                     ]
                 ]
             ]);
@@ -287,19 +274,31 @@ if ($path === 'products' && $method === 'POST') {
         }
     }
     
+    // Generate product ID
     $product_id = time();
     $timestamp = date('c');
     
+    // Process images
+    $images = [];
+    foreach ($input['images'] as $img) {
+        $images[] = [
+            'is_default' => $img['is_default'] ?? (count($images) === 0),
+            'src' => $img['src']
+        ];
+    }
+    
+    // Prepare product data
     $product_data = [
         'id' => $product_id,
         'title' => $input['title'],
         'name' => $input['title'],
         'sku' => $input['sku'],
         'description' => $input['description'] ?? '',
-        'images' => $input['images'],
-        'category_ids' => $input['category_ids'] ?? [],
+        'images' => $images,
+        'category_ids' => array_map('intval', (array)($input['category_ids'] ?? [])),
         'tags' => $input['tags'] ?? [],
         'properties' => $input['properties'] ?? [],
+        'variations' => [],
         'created_at' => $timestamp,
         'updated_at' => $timestamp
     ];
@@ -326,7 +325,7 @@ if ($path === 'products' && $method === 'POST') {
     exit();
 }
 
-// POST /products/:id/variations - Create product variations
+// POST /products/:id/variations
 if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method === 'POST') {
     $product_id = $matches[1];
     $variations = $input['variations'] ?? [];
@@ -354,7 +353,7 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
     }
     
     foreach ($variations as $index => $var) {
-        $variation_id = (int)($product_id . sprintf("%02d", $index));
+        $variation_id = (int)($product_id . sprintf("%02d", $index + 1));
         
         if (isset($existing_skus[$var['sku']])) {
             $saved_variations[] = [
@@ -400,7 +399,7 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
     exit();
 }
 
-// DELETE /products/:id - Delete product
+// DELETE /products/:id
 if (preg_match('/^products\/(.+)$/', $path, $matches) && $method === 'DELETE') {
     $product_id = $matches[1];
     
@@ -426,8 +425,6 @@ if (preg_match('/^products\/(.+)$/', $path, $matches) && $method === 'DELETE') {
 // ============================================
 // ORDERS ENDPOINTS
 // ============================================
-
-// GET /orders - List orders with filters
 if ($path === 'orders' && $method === 'GET') {
     $orders = firebase_get('/orders.json') ?? [];
     
@@ -436,14 +433,8 @@ if ($path === 'orders' && $method === 'GET') {
         if (isset($_GET['order_number']) && ($order['order_number'] ?? '') !== $_GET['order_number']) {
             continue;
         }
-        
         $formatted[] = format_order_for_movedrop($key, $order);
     }
-    
-    // Sort by created_at desc
-    usort($formatted, function($a, $b) {
-        return strtotime($b['created_at']) - strtotime($a['created_at']);
-    });
     
     $total = count($formatted);
     $paginated = array_slice($formatted, $offset, $per_page);
@@ -463,52 +454,6 @@ if ($path === 'orders' && $method === 'GET') {
     exit();
 }
 
-// POST /orders - Create new order (MoveDrop webhook)
-if ($path === 'orders' && $method === 'POST') {
-    $order_data = $input;
-    
-    // Validate required fields
-    if (empty($order_data['order_number']) || empty($order_data['line_items'])) {
-        http_response_code(422);
-        echo json_encode(['message' => 'Invalid order data']);
-        exit();
-    }
-    
-    $order_id = 'ORD-' . time() . '-' . rand(100, 999);
-    $timestamp = date('c');
-    
-    // Store in Firebase
-    $firebase_order = [
-        'order_id' => $order_id,
-        'order_number' => $order_data['order_number'],
-        'status' => $order_data['status'] ?? 'pending',
-        'currency' => $order_data['currency'] ?? 'BDT',
-        'total' => $order_data['total'] ?? '0',
-        'payment_method' => $order_data['payment_method'] ?? 'cod',
-        'shipping_address' => $order_data['shipping_address'] ?? [],
-        'customer_notes' => $order_data['customer_notes'] ?? '',
-        'line_items' => $order_data['line_items'] ?? [],
-        'created_at' => $timestamp,
-        'updated_at' => $timestamp,
-        'source' => 'movedrop'
-    ];
-    
-    $result = firebase_put("/orders/{$order_id}.json", $firebase_order);
-    
-    if ($result) {
-        http_response_code(201);
-        echo json_encode([
-            'message' => 'Order created successfully',
-            'data' => $firebase_order
-        ]);
-    } else {
-        http_response_code(500);
-        echo json_encode(['message' => 'Failed to create order']);
-    }
-    exit();
-}
-
-// PUT /orders/:id - Update order status
 if (preg_match('/^orders\/(.+)$/', $path, $matches) && $method === 'PUT') {
     $order_id = $matches[1];
     $status = $input['status'] ?? '';
@@ -551,7 +496,6 @@ if (preg_match('/^orders\/(.+)$/', $path, $matches) && $method === 'PUT') {
     exit();
 }
 
-// POST /orders/:id/timelines - Add order timeline
 if (preg_match('/^orders\/(.+)\/timelines$/', $path, $matches) && $method === 'POST') {
     $order_id = $matches[1];
     $message = $input['message'] ?? '';
@@ -611,6 +555,40 @@ function generate_slug($string) {
     return $slug;
 }
 
+function format_product_for_movedrop($id, $product) {
+    // Process images
+    $images = [];
+    if (!empty($product['images'])) {
+        foreach ($product['images'] as $img) {
+            if (is_string($img)) {
+                $images[] = [
+                    'is_default' => count($images) === 0,
+                    'src' => $img
+                ];
+            } elseif (is_array($img)) {
+                $images[] = [
+                    'is_default' => $img['is_default'] ?? (count($images) === 0),
+                    'src' => $img['src'] ?? $img['url'] ?? ''
+                ];
+            }
+        }
+    }
+    
+    return [
+        'id' => (int)($product['id'] ?? (is_numeric($id) ? $id : crc32($id))),
+        'title' => $product['title'] ?? $product['name'] ?? 'Untitled',
+        'name' => $product['title'] ?? $product['name'] ?? 'Untitled',
+        'sku' => $product['sku'] ?? '',
+        'description' => $product['description'] ?? '',
+        'images' => $images,
+        'category_ids' => array_map('intval', (array)($product['category_ids'] ?? [])),
+        'tags' => $product['tags'] ?? [],
+        'properties' => $product['properties'] ?? [],
+        'created_at' => $product['created_at'] ?? date('c'),
+        'updated_at' => $product['updated_at'] ?? date('c')
+    ];
+}
+
 function format_order_for_movedrop($id, $order) {
     return [
         'id' => (int)(is_numeric($id) ? $id : crc32($id)),
@@ -620,15 +598,15 @@ function format_order_for_movedrop($id, $order) {
         'total' => (string)($order['total'] ?? '0'),
         'payment_method' => $order['payment_method'] ?? 'cod',
         'shipping_address' => $order['shipping_address'] ?? [
-            'first_name' => 'Customer',
+            'first_name' => $order['customer']['name'] ?? 'Customer',
             'last_name' => '',
-            'email' => '',
-            'phone' => '',
-            'address_1' => '',
+            'email' => $order['customer']['email'] ?? '',
+            'phone' => $order['customer']['phone'] ?? '',
+            'address_1' => $order['customer']['address'] ?? '',
             'address_2' => '',
-            'city' => '',
-            'state' => '',
-            'postcode' => '',
+            'city' => $order['customer']['city'] ?? 'Dhaka',
+            'state' => 'Dhaka',
+            'postcode' => $order['customer']['postcode'] ?? '1200',
             'country' => 'Bangladesh'
         ],
         'customer_notes' => $order['customer_notes'] ?? '',
