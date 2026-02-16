@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Checkout | Mavro Essence</title>
+    <title>Checkout Test | Mavro Essence</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -70,6 +70,70 @@
             text-decoration: none;
             transition: 0.2s;
         }
+
+        /* Test Banner */
+        .test-banner {
+            background: #ff385c;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .test-banner i {
+            margin-right: 8px;
+        }
+
+        /* Debug Console */
+        .debug-console {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 1200px;
+            margin: 20px auto;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug-console.show {
+            display: block;
+        }
+
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .debug-header button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .debug-line {
+            margin: 3px 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 3px;
+        }
+
+        .debug-line.success { color: #4BB543; }
+        .debug-line.error { color: #ff4444; }
+        .debug-line.warning { color: #ffbb33; }
 
         /* Checkout Container */
         .checkout-container {
@@ -451,6 +515,18 @@
             margin-top: 20px;
         }
 
+        /* Toggle Debug Button */
+        .toggle-debug {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .checkout-layout {
@@ -480,6 +556,24 @@
     </style>
 </head>
 <body>
+    <!-- Test Banner -->
+    <div class="test-banner">
+        <i class="fas fa-flask"></i>
+        TEST MODE - Webhook Testing with HookListener
+        <button class="toggle-debug" onclick="toggleDebug()">
+            <i class="fas fa-terminal"></i> Show Debug Console
+        </button>
+    </div>
+
+    <!-- Debug Console -->
+    <div class="debug-console" id="debugConsole">
+        <div class="debug-header">
+            <span><i class="fas fa-terminal"></i> Debug Console</span>
+            <button onclick="clearDebug()">Clear</button>
+        </div>
+        <div id="debugLogs"></div>
+    </div>
+
     <div class="header">
         <a href="cart.html" class="back-btn">
             <i class="fas fa-arrow-left"></i>
@@ -507,22 +601,22 @@
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label class="form-label">Full Name *</label>
-                            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required>
+                            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" value="Test User" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Phone Number *</label>
-                            <input type="tel" id="phone" class="form-control" placeholder="017XXXXXXXX" required>
+                            <input type="tel" id="phone" class="form-control" placeholder="017XXXXXXXX" value="01712345678" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Email (Optional)</label>
-                            <input type="email" id="email" class="form-control" placeholder="email@example.com">
+                            <input type="email" id="email" class="form-control" placeholder="email@example.com" value="test@example.com">
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label">Address *</label>
-                            <textarea id="address" class="form-control" placeholder="House, Road, Area, City" required></textarea>
+                            <textarea id="address" class="form-control" placeholder="House, Road, Area, City" required>Test Address, Dhaka</textarea>
                         </div>
 
                         <div class="form-group">
@@ -577,17 +671,6 @@
                                 <i class="fas fa-coins"></i>
                             </div>
                         </div>
-
-                        <div class="payment-option" onclick="selectPayment('card')" id="payment-card">
-                            <div class="payment-radio" id="radio-card"></div>
-                            <div class="payment-info">
-                                <div class="payment-name">Credit/Debit Card</div>
-                                <div class="payment-desc">Visa, Mastercard, American Express</div>
-                            </div>
-                            <div class="payment-icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -614,11 +697,11 @@
                 </div>
 
                 <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
-                    PLACE ORDER
+                    PLACE ORDER (TEST MODE)
                 </button>
 
                 <p style="font-size: 12px; color: #888; text-align: center; margin-top: 15px;">
-                    <i class="fas fa-shield-alt"></i> Your information is secure
+                    <i class="fas fa-flask"></i> Test Mode Active - Webhooks sent to HookListener
                 </p>
             </div>
         </div>
@@ -637,9 +720,9 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <h2>Order Successful!</h2>
-            <p>Your order has been placed successfully.</p>
+            <p>Your test order has been placed.</p>
             <p class="order-id" id="orderId"></p>
-            <p class="track-link">Track your order with this ID</p>
+            <p class="track-link">Check HookListener for webhook data</p>
             <button class="continue-btn" onclick="continueShopping()">Continue Shopping</button>
         </div>
     </div>
@@ -655,7 +738,6 @@
             databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "espera-mavro-6ddc5",
             storageBucket: "espera-mavro-6ddc5.appspot.com",
-            messagingSenderId: "137893255543",
             appId: "1:137893255543:web:a660bd412eb26ee322a972"
         };
         
@@ -668,11 +750,41 @@
         const API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
         const DELIVERY_CHARGE = 130;
         const FREE_DELIVERY_THRESHOLD = 2000;
+        
+        // TESTING: HookListener URL
+        const HOOKLISTENER_URL = 'https://app.hooklistener.com/w/my-first-endpoint-zyp';
 
         // State
         let cart = [];
         let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, isFreeDelivery: false };
         let selectedPayment = 'cod';
+
+        // ============================================
+        // DEBUG FUNCTIONS
+        // ============================================
+        function addDebugLog(message, type = 'info') {
+            const debugLogs = document.getElementById('debugLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logLine = document.createElement('div');
+            logLine.className = `debug-line ${type}`;
+            logLine.innerHTML = `[${timestamp}] ${message}`;
+            debugLogs.appendChild(logLine);
+            debugLogs.scrollTop = debugLogs.scrollHeight;
+            
+            // Also log to console
+            if (type === 'error') console.error(message);
+            else if (type === 'warning') console.warn(message);
+            else console.log(message);
+        }
+
+        window.toggleDebug = function() {
+            document.getElementById('debugConsole').classList.toggle('show');
+        };
+
+        window.clearDebug = function() {
+            document.getElementById('debugLogs').innerHTML = '';
+            addDebugLog('Debug console cleared');
+        };
 
         // Format variation for display
         function formatVariationForDisplay(variation) {
@@ -711,7 +823,10 @@
         function loadCart() {
             cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
             
+            addDebugLog(`Cart loaded: ${cart.length} items`);
+            
             if (cart.length === 0) {
+                addDebugLog('Cart empty, redirecting to shop', 'warning');
                 window.location.href = 'shop.html';
                 return;
             }
@@ -749,6 +864,8 @@
                 itemCount,
                 isFreeDelivery
             };
+            
+            addDebugLog(`Totals calculated: Subtotal=৳${subtotal}, Delivery=৳${deliveryTotal}, Total=৳${total}`);
         }
 
         // Render order summary
@@ -802,6 +919,7 @@
         // Select payment method
         window.selectPayment = (method) => {
             selectedPayment = method;
+            addDebugLog(`Payment method selected: ${method}`);
             
             document.querySelectorAll('.payment-option').forEach(opt => {
                 opt.classList.remove('selected');
@@ -831,14 +949,41 @@
         }
 
         // ============================================
-        // FIXED: Send order to API
+        // TEST: Send to HookListener
+        // ============================================
+        async function sendToHookListener(event, payload) {
+            addDebugLog(`🚀 Sending to HookListener - Event: ${event}`, 'info');
+            addDebugLog(`📦 Payload preview: ${JSON.stringify(payload).substring(0, 200)}...`, 'info');
+            
+            try {
+                const response = await fetch(HOOKLISTENER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Test-Source': 'Mavro-Essence',
+                        'X-Test-Event': event
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const responseText = await response.text();
+                addDebugLog(`✅ HookListener Response (${response.status}): ${responseText}`, 'success');
+                
+                return { success: true, status: response.status, data: responseText };
+            } catch (error) {
+                addDebugLog(`❌ HookListener Error: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        // ============================================
+        // Send order to API
         // ============================================
         async function sendOrderToAPI(orderData) {
             try {
                 const url = `${API_BASE_URL}/index.php?path=orders`;
                 
-                console.log('Sending to API:', url);
-                console.log('Order data:', orderData);
+                addDebugLog(`📡 Sending to API: ${url}`, 'info');
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -851,8 +996,8 @@
                 });
 
                 const responseText = await response.text();
-                console.log('API Response Status:', response.status);
-                console.log('API Response:', responseText);
+                addDebugLog(`📡 API Response Status: ${response.status}`, response.ok ? 'success' : 'error');
+                addDebugLog(`📡 API Response: ${responseText}`, 'info');
 
                 let responseData;
                 try {
@@ -867,13 +1012,13 @@
                     data: responseData 
                 };
             } catch (error) {
-                console.error('API call failed:', error);
+                addDebugLog(`❌ API call failed: ${error.message}`, 'error');
                 return { success: false, error: error.message };
             }
         }
 
         // ============================================
-        // FIXED: Prepare order for API
+        // Prepare order for API
         // ============================================
         function prepareOrderForAPI(orderData) {
             const nameParts = orderData.customer_name.split(' ');
@@ -897,8 +1042,7 @@
                 }]
             }));
 
-            // API expects this exact format
-            return {
+            const apiPayload = {
                 order_number: orderData.order_number,
                 status: 'pending',
                 currency: 'BDT',
@@ -919,12 +1063,19 @@
                 customer_notes: '',
                 line_items: lineItems
             };
+            
+            addDebugLog(`📋 API Payload prepared`, 'info');
+            
+            return apiPayload;
         }
 
         // ============================================
-        // FIXED: Main place order function
+        // Main place order function
         // ============================================
         window.placeOrder = async () => {
+            addDebugLog('=================================', 'info');
+            addDebugLog('🛒 PLACE ORDER STARTED', 'info');
+            
             // Get form values
             const name = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -935,28 +1086,37 @@
 
             // Validation
             if (!name) {
+                addDebugLog('❌ Validation failed: Name required', 'error');
                 alert('Please enter your full name');
                 return;
             }
 
             if (!phone) {
+                addDebugLog('❌ Validation failed: Phone required', 'error');
                 alert('Please enter your phone number');
                 return;
             }
 
             if (!validateBDPhone(phone)) {
+                addDebugLog('❌ Validation failed: Invalid phone format', 'error');
                 alert('Please enter a valid Bangladesh phone number (01XXXXXXXXX)');
                 return;
             }
 
             if (!address) {
+                addDebugLog('❌ Validation failed: Address required', 'error');
                 alert('Please enter your address');
                 return;
             }
 
+            addDebugLog('✅ Validation passed', 'success');
+
             // Generate IDs
-            const orderId = 'order_' + Date.now();
+            const orderId = 'test_' + Date.now();
             const orderNumber = generateOrderNumber();
+
+            addDebugLog(`🆔 Order ID: ${orderId}`, 'info');
+            addDebugLog(`🔢 Order Number: ${orderNumber}`, 'info');
 
             // Prepare order data
             const orderData = {
@@ -977,7 +1137,9 @@
             document.getElementById('placeOrderBtn').disabled = true;
 
             try {
-                // Step 1: Save to Firebase
+                // STEP 1: Save to Firebase
+                addDebugLog('💾 Saving to Firebase...', 'info');
+                
                 const firebaseOrder = {
                     order_id: orderId,
                     order_number: orderNumber,
@@ -997,24 +1159,26 @@
                     items: cart,
                     status: 'pending',
                     created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
+                    updated_at: new Date().toISOString(),
+                    test_mode: true
                 };
 
                 await database.ref('orders/' + orderId).set(firebaseOrder);
-                console.log('Order saved to Firebase');
+                addDebugLog('✅ Firebase save successful', 'success');
 
-                // Step 2: Send to MoveDrop API
+                // STEP 2: Send to MoveDrop API
+                addDebugLog('📤 Sending to MoveDrop API...', 'info');
                 const apiResult = await sendOrderToAPI(apiPayload);
                 
                 if (apiResult.success) {
-                    console.log('Order sent to MoveDrop API successfully');
+                    addDebugLog('✅ MoveDrop API successful', 'success');
                     await database.ref('orders/' + orderId).update({
                         move_drop_sync: true,
                         move_drop_response: apiResult.data,
                         updated_at: new Date().toISOString()
                     });
                 } else {
-                    console.warn('MoveDrop API failed but order saved locally:', apiResult);
+                    addDebugLog('⚠️ MoveDrop API failed but order saved locally', 'warning');
                     await database.ref('orders/' + orderId).update({
                         move_drop_sync: false,
                         move_drop_error: apiResult.error || 'API Error',
@@ -1022,20 +1186,43 @@
                     });
                 }
 
+                // STEP 3: TEST: Send webhook to HookListener
+                addDebugLog('📤 Sending webhook to HookListener...', 'info');
+                
+                const webhookPayload = {
+                    id: orderId,
+                    order_number: orderNumber,
+                    status: 'pending',
+                    currency: 'BDT',
+                    total: totals.total.toFixed(2),
+                    payment_method: selectedPayment,
+                    shipping_address: apiPayload.shipping_address,
+                    line_items: apiPayload.line_items,
+                    created_at: new Date().toISOString(),
+                    test: true
+                };
+                
+                await sendToHookListener('order.created', webhookPayload);
+
                 // Clear cart
                 localStorage.removeItem('essence_cart');
                 localStorage.removeItem('cart_totals');
+                addDebugLog('🧹 Cart cleared', 'info');
 
                 // Show success
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('orderId').innerText = orderNumber;
                 document.getElementById('successPopup').style.display = 'flex';
+                
+                addDebugLog('✅✅ ORDER COMPLETE! Check HookListener for webhook data', 'success');
+                addDebugLog('=================================', 'info');
 
             } catch (error) {
+                addDebugLog(`❌ Order failed: ${error.message}`, 'error');
                 console.error('Order failed:', error);
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('placeOrderBtn').disabled = false;
-                alert('Order failed! Please try again. Error: ' + error.message);
+                alert('Order failed! Please check debug console. Error: ' + error.message);
             }
         };
 
@@ -1045,7 +1232,12 @@
         };
 
         // Initialize
-        loadCart();
+        window.onload = function() {
+            addDebugLog('🚀 Test checkout page loaded', 'success');
+            addDebugLog(`🎯 HookListener URL: ${HOOKLISTENER_URL}`, 'info');
+            addDebugLog('🔧 Test mode active - All webhooks will be sent to HookListener', 'warning');
+            loadCart();
+        };
     </script>
 </body>
 </html>
