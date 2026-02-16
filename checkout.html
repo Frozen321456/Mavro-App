@@ -32,6 +32,7 @@
             padding: 20px 0;
         }
 
+        /* Header */
         .header {
             background: var(--white);
             padding: 15px 5%;
@@ -70,6 +71,7 @@
             transition: 0.2s;
         }
 
+        /* Checkout Container */
         .checkout-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -85,12 +87,14 @@
             gap: 10px;
         }
 
+        /* Two Column Layout */
         .checkout-layout {
             display: grid;
             grid-template-columns: 1fr 0.8fr;
             gap: 30px;
         }
 
+        /* Form Sections */
         .form-section {
             background: var(--white);
             border-radius: 20px;
@@ -112,6 +116,7 @@
             color: var(--accent);
         }
 
+        /* Form Fields */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -154,6 +159,7 @@
             resize: vertical;
         }
 
+        /* Payment Methods */
         .payment-methods {
             display: flex;
             flex-direction: column;
@@ -221,6 +227,7 @@
             color: var(--primary);
         }
 
+        /* Order Summary */
         .order-summary {
             background: var(--white);
             border-radius: 20px;
@@ -304,6 +311,7 @@
             font-weight: 500;
         }
 
+        /* Place Order Button */
         .place-order-btn {
             background: var(--primary);
             color: var(--white);
@@ -333,6 +341,7 @@
             pointer-events: none;
         }
 
+        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -362,6 +371,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Success Popup */
         .success-popup {
             display: none;
             position: fixed;
@@ -413,6 +423,7 @@
             margin-top: 20px;
         }
 
+        /* Responsive */
         @media (max-width: 992px) {
             .checkout-layout {
                 grid-template-columns: 1fr;
@@ -456,7 +467,9 @@
         </h1>
 
         <div class="checkout-layout">
+            <!-- Left Column - Forms -->
             <div class="checkout-forms">
+                <!-- Shipping Information -->
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-truck"></i>
@@ -496,6 +509,7 @@
                     </div>
                 </div>
 
+                <!-- Payment Method -->
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-credit-card"></i>
@@ -550,6 +564,7 @@
                 </div>
             </div>
 
+            <!-- Right Column - Order Summary -->
             <div class="order-summary">
                 <h3 style="margin-bottom: 20px;">Order Summary</h3>
                 
@@ -581,11 +596,13 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <p>Processing your order...</p>
     </div>
 
+    <!-- Success Popup -->
     <div class="success-popup" id="successPopup">
         <div class="success-content">
             <div class="success-icon">
@@ -616,16 +633,20 @@
         const database = firebase.database();
 
         // MoveDrop Configuration
-        const MOVEDROP_API_URL = 'https://mavro.xo.je/api';
+        const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
         const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
 
+        // Constants
         const DELIVERY_CHARGE = 130;
         const FREE_DELIVERY_THRESHOLD = 2000;
 
+        // State
         let cart = [];
         let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, isFreeDelivery: false };
         let selectedPayment = 'cod';
+        let webhooks = [];
 
+        // Load cart from localStorage
         function loadCart() {
             cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
             
@@ -634,6 +655,7 @@
                 return;
             }
 
+            // Ensure all items have quantity
             cart = cart.map(item => ({
                 ...item,
                 quantity: item.quantity || 1,
@@ -644,6 +666,7 @@
             renderSummary();
         }
 
+        // Calculate totals with delivery charge
         function calculateTotals() {
             let subtotal = 0;
             let itemCount = 0;
@@ -668,6 +691,7 @@
             };
         }
 
+        // Render order summary
         function renderSummary() {
             const summaryItems = document.getElementById('summaryItems');
             
@@ -703,9 +727,11 @@
             document.getElementById('summaryTotal').innerHTML = `৳ ${totals.total.toFixed(0)}`;
         }
 
+        // Select payment method
         window.selectPayment = (method) => {
             selectedPayment = method;
             
+            // Update UI
             document.querySelectorAll('.payment-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -717,21 +743,27 @@
             document.getElementById(`radio-${method}`).classList.add('selected');
         };
 
+        // Load webhooks from Firebase
         async function loadWebhooks() {
             try {
                 const snapshot = await database.ref('webhooks').once('value');
-                return snapshot.val() || {};
+                const webhooksData = snapshot.val();
+                
+                if (webhooksData) {
+                    webhooks = Object.values(webhooksData);
+                }
             } catch (error) {
                 console.error('Error loading webhooks:', error);
-                return {};
             }
         }
 
+        // Validate Bangladesh phone number
         function validateBDPhone(phone) {
             const cleaned = phone.replace(/[^0-9]/g, '');
             return /^(01[3-9]\d{8})$/.test(cleaned);
         }
 
+        // Generate random order number
         function generateOrderNumber() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let result = '';
@@ -741,32 +773,9 @@
             return result;
         }
 
-        async function triggerWebhooks(eventType, payload) {
-            try {
-                const webhooks = await loadWebhooks();
-                const eventWebhooks = Object.values(webhooks).filter(w => w.event === eventType);
-                
-                for (const webhook of eventWebhooks) {
-                    try {
-                        await fetch(webhook.delivery_url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        console.log(`Webhook sent to ${webhook.delivery_url}`);
-                    } catch (error) {
-                        console.error(`Webhook failed for ${webhook.delivery_url}:`, error);
-                    }
-                }
-            } catch (error) {
-                console.error('Error triggering webhooks:', error);
-            }
-        }
-
+        // Send to MoveDrop API
         async function sendToMoveDrop(orderData) {
             try {
-                console.log('Sending to MoveDrop:', orderData);
-                
                 const response = await fetch(`${MOVEDROP_API_URL}?path=orders`, {
                     method: 'POST',
                     headers: {
@@ -778,7 +787,6 @@
                 });
 
                 const responseData = await response.json();
-                console.log('MoveDrop response:', responseData);
                 
                 if (!response.ok) {
                     console.error('MoveDrop API error:', responseData);
@@ -792,7 +800,28 @@
             }
         }
 
+        // Trigger webhooks
+        async function triggerWebhooks(event, payload) {
+            const orderWebhooks = webhooks.filter(w => w.event === event);
+            
+            for (const webhook of orderWebhooks) {
+                try {
+                    await fetch(webhook.delivery_url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (error) {
+                    console.error(`Webhook failed for ${webhook.delivery_url}:`, error);
+                }
+            }
+        }
+
+        // Place order
         window.placeOrder = async () => {
+            // Get form values
             const name = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const address = document.getElementById('address').value.trim();
@@ -800,6 +829,7 @@
             const city = document.getElementById('city').value.trim() || 'Dhaka';
             const postcode = document.getElementById('postcode').value.trim() || '1200';
 
+            // Validation
             if (!name) {
                 alert('Please enter your full name');
                 return;
@@ -820,14 +850,33 @@
                 return;
             }
 
+            // Split name into first and last
             const nameParts = name.split(' ');
             const firstName = nameParts[0];
             const lastName = nameParts.slice(1).join(' ') || '';
 
+            // Generate order number
             const orderNumber = generateOrderNumber();
             const orderId = 'ORD-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
-            // Prepare MoveDrop order format
+            // Prepare line items for MoveDrop
+            const lineItems = cart.map((item, index) => ({
+                id: index + 1,
+                product_id: parseInt(item.id) || 0,
+                name: item.name || 'Product',
+                quantity: item.quantity || 1,
+                total: (item.price * (item.quantity || 1)).toFixed(2),
+                variations: [{
+                    id: index + 1,
+                    variation_id: 0,
+                    sku: item.sku || `SKU-${item.id || index}`,
+                    quantity: item.quantity || 1,
+                    price: item.price.toFixed(2),
+                    created_at: new Date().toISOString()
+                }]
+            }));
+
+            // Prepare order data for MoveDrop
             const moveDropOrder = {
                 order_number: orderNumber,
                 status: 'pending',
@@ -847,24 +896,10 @@
                     country: 'Bangladesh'
                 },
                 customer_notes: '',
-                line_items: cart.map((item, index) => ({
-                    id: index + 1,
-                    product_id: parseInt(item.id) || 0,
-                    name: item.name || 'Product',
-                    quantity: item.quantity || 1,
-                    total: (item.price * (item.quantity || 1)).toFixed(2),
-                    variations: [{
-                        id: index + 1,
-                        variation_id: parseInt(item.variation_id) || 0,
-                        sku: item.sku || `SKU-${item.id || index}`,
-                        quantity: item.quantity || 1,
-                        price: item.price.toFixed(2),
-                        created_at: new Date().toISOString()
-                    }]
-                }))
+                line_items: lineItems
             };
 
-            // Prepare Firebase order
+            // Prepare order data for Firebase
             const firebaseOrder = {
                 order_id: orderId,
                 order_number: orderNumber,
@@ -888,14 +923,15 @@
                 move_drop_sync: false
             };
 
+            // Show loading
             document.getElementById('loadingOverlay').style.display = 'flex';
             document.getElementById('placeOrderBtn').disabled = true;
 
             try {
-                // Save to Firebase
+                // Step 1: Save to Firebase first
                 await database.ref('orders/' + orderId).set(firebaseOrder);
 
-                // Send to MoveDrop
+                // Step 2: Try to send to MoveDrop API
                 const moveDropResult = await sendToMoveDrop(moveDropOrder);
                 
                 // Update Firebase with sync status
@@ -905,12 +941,49 @@
                         move_drop_response: moveDropResult.data,
                         updated_at: new Date().toISOString()
                     });
-                    
-                    // Trigger webhooks
-                    await triggerWebhooks('order.created', moveDropOrder);
                 } else {
                     await database.ref('orders/' + orderId).update({
                         move_drop_error: moveDropResult.error,
+                        updated_at: new Date().toISOString()
+                    });
+                }
+
+                // Step 3: Trigger order.created webhook
+                await triggerWebhooks('order.created', {
+                    id: orderId,
+                    order_number: orderNumber,
+                    status: 'pending',
+                    currency: 'BDT',
+                    total: totals.total.toFixed(2),
+                    payment_method: selectedPayment,
+                    shipping_address: moveDropOrder.shipping_address,
+                    customer_notes: '',
+                    line_items: lineItems,
+                    created_at: new Date().toISOString()
+                });
+
+                // Step 4: Simulate payment processing for non-COD methods
+                if (selectedPayment !== 'cod') {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // Update payment status
+                    await database.ref('orders/' + orderId).update({
+                        payment_status: 'paid',
+                        paid_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    });
+
+                    // Trigger order.updated webhook for payment
+                    await triggerWebhooks('order.updated', {
+                        id: orderId,
+                        order_number: orderNumber,
+                        status: 'pending',
+                        payment_status: 'paid',
+                        currency: 'BDT',
+                        total: totals.total.toFixed(2),
+                        payment_method: selectedPayment,
+                        shipping_address: moveDropOrder.shipping_address,
+                        line_items: lineItems,
                         updated_at: new Date().toISOString()
                     });
                 }
@@ -919,6 +992,7 @@
                 localStorage.removeItem('essence_cart');
                 localStorage.removeItem('cart_totals');
 
+                // Show success
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('orderId').innerText = orderId;
                 document.getElementById('successPopup').style.display = 'flex';
@@ -931,15 +1005,18 @@
             }
         };
 
+        // Continue shopping
         window.continueShopping = () => {
             window.location.href = 'shop.html';
         };
 
+        // Initialize
         async function init() {
+            await loadWebhooks();
             loadCart();
         }
 
         init();
     </script>
 </body>
-    </html>
+</html>

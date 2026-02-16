@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="ESPERA MAVRO Dropshipping Blog - Tips, guides, and news for successful dropshipping">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>ESPERA MAVRO | Dropshipping Blog</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #000000;
+            --accent: #ff385c;
+            --bg: #ffffff;
+            --secondary-bg: #f8f8f8;
+            --text-muted: #666;
+            --border: #e2e2e2;
+            --gold: #c5a059;
+            --success: #2e7d32;
+            --info: #0288d1;
+            --warning: #ed6c02;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--primary);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #000;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: var(--accent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            color: #000;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+            padding: 2px 5px;
+            border-radius: 50px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Blog Hero */
+        .blog-hero {
+            margin-top: 70px;
+            padding: 60px 5%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .blog-hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .blog-hero p {
+            font-size: 18px;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Blog Categories */
+        .blog-categories {
+            padding: 30px 5%;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-slider {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: none;
+        }
+
+        .category-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            padding: 10px 24px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Blog Grid */
+        .blog-wrapper {
+            padding: 60px 5%;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .blog-category-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 6px 12px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .blog-content {
+            padding: 25px;
+        }
+
+        .blog-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .blog-meta i {
+            margin-right: 5px;
+            color: var(--accent);
+        }
+
+        .blog-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .blog-title a {
+            text-decoration: none;
+            color: #000;
+            transition: color 0.3s;
+        }
+
+        .blog-title a:hover {
+            color: var(--accent);
+        }
+
+        .blog-excerpt {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .blog-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .read-more {
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .read-more i {
+            transition: transform 0.3s;
+        }
+
+        .read-more:hover i {
+            transform: translateX(5px);
+        }
+
+        .blog-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .blog-stats span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* Featured Post */
+        .featured-post {
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+        }
+
+        .featured-post .featured-label {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .featured-post h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            max-width: 800px;
+        }
+
+        .featured-post p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+
+        .featured-post .read-more {
+            color: white;
+            background: rgba(255,255,255,0.2);
+            padding: 12px 24px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .featured-post .read-more:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Sidebar */
+        .blog-sidebar {
+            background: var(--secondary-bg);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-widget {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-widget:last-child {
+            margin-bottom: 0;
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .widget-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            margin-bottom: 12px;
+        }
+
+        .category-list a {
+            text-decoration: none;
+            color: #444;
+            display: flex;
+            justify-content: space-between;
+            transition: color 0.3s;
+            font-size: 14px;
+        }
+
+        .category-list a:hover {
+            color: var(--accent);
+        }
+
+        .category-list span {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .recent-post {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .recent-post:last-child {
+            margin-bottom: 0;
+        }
+
+        .recent-post img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .recent-post-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .recent-post-info h4 a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        .recent-post-info .date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 6px 12px;
+            background: white;
+            border-radius: 25px;
+            font-size: 11px;
+            text-decoration: none;
+            color: #444;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .tag:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 5%;
+            text-align: center;
+            color: white;
+        }
+
+        .newsletter h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .newsletter p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .newsletter-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+        }
+
+        .newsletter-form button {
+            padding: 15px 30px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .newsletter-form button:hover {
+            background: #e62e4c;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+
+        .page-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: #000;
+            transition: all 0.3s;
+        }
+
+        .page-link:hover,
+        .page-link.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Footer */
+        .footer {
+            background: #000;
+            color: #fff;
+            padding: 60px 5% 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo span {
+            color: var(--accent);
+        }
+
+        .footer p {
+            color: #888;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            color: #888;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: var(--accent);
+        }
+
+        .footer h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #222;
+            color: #444;
+            font-size: 13px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .blog-hero h1 {
+                font-size: 32px;
+            }
+
+            .blog-hero p {
+                font-size: 16px;
+            }
+
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-post h2 {
+                font-size: 24px;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter h2 {
+                font-size: 28px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
+        
+        <nav class="nav-menu">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="blog.html" class="active">Blog</a>
+            <a href="contact.html">Contact</a>
+            <a href="track-order.html">Track Order</a>
+        </nav>
+
+        <div class="nav-actions">
+            <i class="fa-solid fa-magnifying-glass nav-icon"></i>
+            <a href="cart.html" class="nav-icon">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count">0</span>
+            </a>
+            <div class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Blog Hero -->
+    <section class="blog-hero">
+        <h1>Dropshipping Blog</h1>
+        <p>Expert tips, success stories, and guides to grow your dropshipping business</p>
+    </section>
+
+    <!-- Blog Categories -->
+    <div class="blog-categories">
+        <div class="category-slider">
+            <button class="category-btn active">All Posts</button>
+            <button class="category-btn">Dropshipping Guides</button>
+            <button class="category-btn">Product Sourcing</button>
+            <button class="category-btn">Marketing Tips</button>
+            <button class="category-btn">Supplier Stories</button>
+            <button class="category-btn">Success Stories</button>
+            <button class="category-btn">China to BD</button>
+            <button class="category-btn">Wholesale Tips</button>
+        </div>
+    </div>
+
+    <!-- Blog Content -->
+    <div class="blog-wrapper">
+        <!-- Featured Post -->
+        <div class="featured-post">
+            <span class="featured-label">✨ FEATURED</span>
+            <h2>Complete Guide to Dropshipping from China to Bangladesh</h2>
+            <p>Learn everything about starting your dropshipping business, finding reliable suppliers, and shipping products directly to your customers in Bangladesh.</p>
+            <a href="single-blog.html" class="read-more">
+                Read Full Guide <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Blog Grid -->
+        <div class="blog-grid">
+            <!-- Post 1 - Dropshipping Guide -->
+            <article class="blog-card">
+                <div style="position: relative;">
+                    <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=800&q=80" alt="Dropshipping Guide" class="blog-image">
+                    <span class="blog-category-badge">Dropshipping Guides</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> June 15, 2026</span>
+                        <span><i class="fa-regular fa-user"></i> Rafiq Ahmed</span>
+                    </div>
+                    <h3 class="blog-title">
+                        <a href="single-blog.html">How to Start Dropshipping with Zero Investment</a>
+                    </h3>
+                    <p class="blog-excerpt">
+                        Discover proven strategies to launch your dropshipping business without any upfront inventory costs. Perfect for beginners...
+                    </p>
+                    <div class="blog-footer">
+                        <a href="single-blog.html" class="read-more">
+                            Read More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <div class="blog-stats">
+                            <span><i class="fa-regular fa-heart"></i> 342</span>
+                            <span><i class="fa-regular fa-comment"></i> 28</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Post 2 - Product Sourcing -->
+            <article class="blog-card">
+                <div style="position: relative;">
+                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80" alt="Product Sourcing" class="blog-image">
+                    <span class="blog-category-badge">Product Sourcing</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> June 10, 2026</span>
+                        <span><i class="fa-regular fa-user"></i> Nusrat Jahan</span>
+                    </div>
+                    <h3 class="blog-title">
+                        <a href="single-blog.html">Best Products to Dropship in 2026: Trending Items for Bangladesh</a>
+                    </h3>
+                    <p class="blog-excerpt">
+                        Discover the hottest products that are selling like crazy in the Bangladeshi market. From electronics to fashion...
+                    </p>
+                    <div class="blog-footer">
+                        <a href="single-blog.html" class="read-more">
+                            Read More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <div class="blog-stats">
+                            <span><i class="fa-regular fa-heart"></i> 289</span>
+                            <span><i class="fa-regular fa-comment"></i> 34</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Post 3 - Marketing Tips -->
+            <article class="blog-card">
+                <div style="position: relative;">
+                    <img src="https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=800&q=80" alt="Marketing Tips" class="blog-image">
+                    <span class="blog-category-badge">Marketing Tips</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> June 5, 2026</span>
+                        <span><i class="fa-regular fa-user"></i> Tanvir Hasan</span>
+                    </div>
+                    <h3 class="blog-title">
+                        <a href="single-blog.html">Facebook & Instagram Ads for Dropshipping: Complete Guide</a>
+                    </h3>
+                    <p class="blog-excerpt">
+                        Learn how to create high-converting social media ads that drive sales. Budget tips, targeting strategies, and ad examples...
+                    </p>
+                    <div class="blog-footer">
+                        <a href="single-blog.html" class="read-more">
+                            Read More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <div class="blog-stats">
+                            <span><i class="fa-regular fa-heart"></i> 412</span>
+                            <span><i class="fa-regular fa-comment"></i> 45</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Post 4 - China to BD -->
+            <article class="blog-card">
+                <div style="position: relative;">
+                    <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80" alt="China Shipping" class="blog-image">
+                    <span class="blog-category-badge">China to BD</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> May 28, 2026</span>
+                        <span><i class="fa-regular fa-user"></i> Farida Begum</span>
+                    </div>
+                    <h3 class="blog-title">
+                        <a href="single-blog.html">Shipping from China to Bangladesh: Costs, Time, and Best Methods</a>
+                    </h3>
+                    <p class="blog-excerpt">
+                        Complete breakdown of shipping options, customs clearance, and how to save money on logistics...
+                    </p>
+                    <div class="blog-footer">
+                        <a href="single-blog.html" class="read-more">
+                            Read More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <div class="blog-stats">
+                            <span><i class="fa-regular fa-heart"></i> 567</span>
+                            <span><i class="fa-regular fa-comment"></i> 89</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Post 5 - Supplier Stories -->
+            <article class="blog-card">
+                <div style="position: relative;">
+                    <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=800&q=80" alt="Supplier" class="blog-image">
+                    <span class="blog-category-badge">Supplier Stories</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> May 20, 2026</span>
+                        <span><i class="fa-regular fa-user"></i> Sharmin Akter</span>
+                    </div>
+                    <h3 class="blog-title">
+                        <a href="single-blog.html">How to Find Reliable Suppliers on Alibaba: 10 Red Flags to Avoid</a>
+                    </h3>
+                    <p class="blog-excerpt">
+                        Essential tips for vetting suppliers, avoiding scams, and building long-term partnerships with manufacturers...
+                    </p>
+                    <div class="blog-footer">
+                        <a href="single-blog.html" class="read-more">
+                            Read More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <div class="blog-stats">
+                            <span><i class="fa-regular fa-heart"></i> 398</span>
+                            <span><i class="fa-regular fa-comment"></i> 52</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Post 6 - Success Stories -->
+            <article class="blog-card">
+                <div style="position: relative;">
+                    <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=800&q=80" alt="Success Story" class="blog-image">
+                    <span class="blog-category-badge">Success Stories</span>
+                </div>
+                <div class="blog-content">
+                    <div class="blog-meta">
+                        <span><i class="fa-regular fa-calendar"></i> May 12, 2026</span>
+                        <span><i class="fa-regular fa-user"></i> Kamal Hossain</span>
+                    </div>
+                    <h3 class="blog-title">
+                        <a href="single-blog.html">From Zero to 1 Lakh Taka Monthly: A Dropshipping Success Story</a>
+                    </h3>
+                    <p class="blog-excerpt">
+                        Read how a college student built a successful dropshipping business in just 6 months. Real tips and lessons learned...
+                    </p>
+                    <div class="blog-footer">
+                        <a href="single-blog.html" class="read-more">
+                            Read More <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <div class="blog-stats">
+                            <span><i class="fa-regular fa-heart"></i> 789</span>
+                            <span><i class="fa-regular fa-comment"></i> 112</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="blog-sidebar">
+            <!-- Popular Categories -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Popular Categories</h3>
+                <ul class="category-list">
+                    <li><a href="#">Dropshipping Guides <span>24</span></a></li>
+                    <li><a href="#">Product Sourcing <span>18</span></a></li>
+                    <li><a href="#">Marketing Tips <span>15</span></a></li>
+                    <li><a href="#">China to BD Shipping <span>12</span></a></li>
+                    <li><a href="#">Supplier Stories <span>10</span></a></li>
+                    <li><a href="#">Success Stories <span>8</span></a></li>
+                </ul>
+            </div>
+
+            <!-- Recent Posts -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Recent Posts</h3>
+                <div class="recent-post">
+                    <img src="https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=100&q=80" alt="Recent post">
+                    <div class="recent-post-info">
+                        <h4><a href="#">How to Start Dropshipping with Zero Investment</a></h4>
+                        <div class="date">June 15, 2026</div>
+                    </div>
+                </div>
+                <div class="recent-post">
+                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=100&q=80" alt="Recent post">
+                    <div class="recent-post-info">
+                        <h4><a href="#">Best Products to Dropship in 2026</a></h4>
+                        <div class="date">June 10, 2026</div>
+                    </div>
+                </div>
+                <div class="recent-post">
+                    <img src="https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=100&q=80" alt="Recent post">
+                    <div class="recent-post-info">
+                        <h4><a href="#">Facebook Ads for Dropshipping</a></h4>
+                        <div class="date">June 5, 2026</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Tags -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Popular Tags</h3>
+                <div class="tags">
+                    <a href="#" class="tag">Dropshipping</a>
+                    <a href="#" class="tag">Bangladesh</a>
+                    <a href="#" class="tag">China to BD</a>
+                    <a href="#" class="tag">Alibaba</a>
+                    <a href="#" class="tag">Wholesale</a>
+                    <a href="#" class="tag">Marketing</a>
+                    <a href="#" class="tag">Facebook Ads</a>
+                    <a href="#" class="tag">Shipping</a>
+                    <a href="#" class="tag">Suppliers</a>
+                    <a href="#" class="tag">Success Tips</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <a href="#" class="page-link active">1</a>
+            <a href="#" class="page-link">2</a>
+            <a href="#" class="page-link">3</a>
+            <a href="#" class="page-link">4</a>
+            <a href="#" class="page-link">5</a>
+            <a href="#" class="page-link"><i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <h2>Get Dropshipping Tips</h2>
+        <p>Subscribe to our newsletter for weekly dropshipping guides, product ideas, and exclusive deals</p>
+        <form class="newsletter-form">
+            <input type="email" placeholder="Enter your email address" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">ESPERA <span>MAVRO.</span></div>
+                <p>Your trusted partner for global dropshipping. Source products from China and deliver to Bangladesh with ease.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="shop.html">Shop Products</a></li>
+                    <li><a href="blog.html">Dropshipping Blog</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="track-order.html">Track Order</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4>Resources</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Dropshipping Guide</a></li>
+                    <li><a href="#">Supplier Directory</a></li>
+                    <li><a href="#">Shipping Calculator</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4>Contact Info</h4>
+                <ul class="footer-links">
+                    <li><i class="fa-regular fa-map"></i> Dhaka, Bangladesh</li>
+                    <li><i class="fa-regular fa-envelope"></i> hello@esperamavro.com</li>
+                    <li><i class="fa-regular fa-phone"></i> +880 1234-567890</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 ESPERA MAVRO. All rights reserved. | Dropshipping Marketplace</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            alert('Mobile menu would open here');
+        });
+
+        // Category filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Here you would filter blog posts
+            });
+        });
+
+        // Cart count update
+        function updateCartCount() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+                document.querySelector('.cart-count').innerText = cart.length;
+            } catch (e) {}
+        }
+        
+        updateCartCount();
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>
