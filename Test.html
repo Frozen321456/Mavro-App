@@ -1,100 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>MoveDrop API Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Checkout | Mavro Essence</title>
     <style>
         body { font-family: monospace; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .card { background: white; padding: 20px; margin: 10px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow: auto; }
+        .debug-panel { background: #fff; padding: 20px; margin: 20px 0; border-radius: 5px; border: 1px solid #ddd; }
         .success { color: green; }
         .error { color: red; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow: auto; max-height: 300px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>MoveDrop API Test</h1>
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1>🔍 MoveDrop API Debugger</h1>
         
-        <div class="card">
-            <h3>Test Health</h3>
+        <div class="debug-panel">
+            <h3>1. Test API Connection</h3>
             <button onclick="testHealth()">Test Health</button>
-            <pre id="healthResult"></pre>
-        </div>
-
-        <div class="card">
-            <h3>Test Products</h3>
             <button onclick="testProducts()">Get Products</button>
-            <pre id="productsResult"></pre>
+            <div id="apiTestResult"></div>
         </div>
 
-        <div class="card">
-            <h3>Test Orders</h3>
-            <button onclick="testOrders()">Get Orders</button>
-            <pre id="ordersResult"></pre>
+        <div class="debug-panel">
+            <h3>2. Manual Order Test</h3>
+            <button onclick="testDirectOrder()">Send Test Order to MoveDrop</button>
+            <div id="directOrderResult"></div>
         </div>
 
-        <div class="card">
-            <h3>Test Create Order</h3>
-            <button onclick="testCreateOrder()">Create Test Order</button>
-            <pre id="createOrderResult"></pre>
+        <div class="debug-panel">
+            <h3>3. Current Cart Data</h3>
+            <button onclick="showCart()">Show Cart</button>
+            <pre id="cartData"></pre>
+        </div>
+
+        <div class="debug-panel">
+            <h3>4. Manual Order Form</h3>
+            <input type="text" id="testName" placeholder="Customer Name" value="Test Customer">
+            <input type="text" id="testPhone" placeholder="Phone" value="01712345678">
+            <textarea id="testAddress" placeholder="Address">Test Address, Dhaka</textarea>
+            <button onclick="sendManualOrder()">Send Manual Order</button>
+            <pre id="manualOrderResult"></pre>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://mavro.xo.je/api';
+        const API_URL = 'https://mavro.xo.je/api/index.php';
         const API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
 
         async function apiCall(endpoint, method = 'GET', data = null) {
+            const url = `${API_URL}?path=${endpoint}`;
+            console.log(`Calling: ${method} ${url}`);
+            
             const options = {
                 method: method,
                 headers: {
                     'X-API-KEY': API_KEY,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
             };
             
             if (data) {
                 options.body = JSON.stringify(data);
+                console.log('Request body:', data);
             }
 
             try {
-                const response = await fetch(`${API_URL}?path=${endpoint}`, options);
+                const response = await fetch(url, options);
                 const text = await response.text();
+                console.log(`Response status: ${response.status}`);
+                console.log('Response text:', text);
+                
                 let json;
                 try {
                     json = JSON.parse(text);
                 } catch {
-                    json = text;
+                    json = { raw: text };
                 }
-                return { status: response.status, data: json };
+                
+                return { 
+                    status: response.status, 
+                    ok: response.ok,
+                    data: json,
+                    raw: text
+                };
             } catch (error) {
+                console.error('Fetch error:', error);
                 return { error: error.message };
             }
         }
 
         async function testHealth() {
             const result = await apiCall('health');
-            document.getElementById('healthResult').innerHTML = 
-                `<span class="${result.status === 200 ? 'success' : 'error'}">Status: ${result.status || 'Error'}</span>\n` +
-                JSON.stringify(result.data || result.error, null, 2);
+            displayResult('apiTestResult', result);
         }
 
         async function testProducts() {
             const result = await apiCall('products');
-            document.getElementById('productsResult').innerHTML = 
-                `<span class="${result.status === 200 ? 'success' : 'error'}">Status: ${result.status || 'Error'}</span>\n` +
-                JSON.stringify(result.data || result.error, null, 2);
+            displayResult('apiTestResult', result);
         }
 
-        async function testOrders() {
-            const result = await apiCall('orders');
-            document.getElementById('ordersResult').innerHTML = 
-                `<span class="${result.status === 200 ? 'success' : 'error'}">Status: ${result.status || 'Error'}</span>\n` +
-                JSON.stringify(result.data || result.error, null, 2);
-        }
-
-        async function testCreateOrder() {
+        async function testDirectOrder() {
             const testOrder = {
                 order_number: 'TEST-' + Date.now(),
                 status: 'pending',
@@ -102,28 +112,28 @@
                 total: '1000.00',
                 payment_method: 'cod',
                 shipping_address: {
-                    first_name: 'Test',
+                    first_name: 'Debug',
                     last_name: 'User',
-                    email: 'test@example.com',
+                    email: 'debug@test.com',
                     phone: '01712345678',
-                    address_1: 'Test Address',
+                    address_1: 'Debug Address',
                     address_2: '',
                     city: 'Dhaka',
                     state: 'Dhaka',
                     postcode: '1200',
                     country: 'Bangladesh'
                 },
-                customer_notes: 'Test order',
+                customer_notes: 'Debug order',
                 line_items: [{
                     id: 1,
                     product_id: 1,
-                    name: 'Test Product',
+                    name: 'Debug Product',
                     quantity: 1,
                     total: '1000.00',
                     variations: [{
                         id: 1,
                         variation_id: 1,
-                        sku: 'TEST-SKU',
+                        sku: 'DEBUG-SKU',
                         quantity: 1,
                         price: '1000.00',
                         created_at: new Date().toISOString()
@@ -132,10 +142,94 @@
             };
 
             const result = await apiCall('orders', 'POST', testOrder);
-            document.getElementById('createOrderResult').innerHTML = 
-                `<span class="${result.status === 201 ? 'success' : 'error'}">Status: ${result.status || 'Error'}</span>\n` +
-                JSON.stringify(result.data || result.error, null, 2);
+            displayResult('directOrderResult', result);
         }
+
+        function showCart() {
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || '[]');
+            document.getElementById('cartData').innerHTML = JSON.stringify(cart, null, 2);
+        }
+
+        async function sendManualOrder() {
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || '[]');
+            
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+
+            const name = document.getElementById('testName').value;
+            const phone = document.getElementById('testPhone').value;
+            const address = document.getElementById('testAddress').value;
+
+            const nameParts = name.split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.slice(1).join(' ') || '';
+
+            // Calculate totals
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += (parseFloat(item.price) || 0) * (item.quantity || 1);
+            });
+            const deliveryCharge = 130 * cart.length;
+            const total = subtotal + deliveryCharge;
+
+            const orderData = {
+                order_number: 'ORD-' + Date.now(),
+                status: 'pending',
+                currency: 'BDT',
+                total: total.toFixed(2),
+                payment_method: 'cod',
+                shipping_address: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: 'customer@example.com',
+                    phone: phone,
+                    address_1: address,
+                    address_2: '',
+                    city: 'Dhaka',
+                    state: 'Dhaka',
+                    postcode: '1200',
+                    country: 'Bangladesh'
+                },
+                customer_notes: '',
+                line_items: cart.map((item, index) => ({
+                    id: index + 1,
+                    product_id: parseInt(item.id) || 0,
+                    name: item.name || 'Product',
+                    quantity: item.quantity || 1,
+                    total: ((parseFloat(item.price) || 0) * (item.quantity || 1)).toFixed(2),
+                    variations: [{
+                        id: index + 1,
+                        variation_id: 0,
+                        sku: item.sku || `SKU-${item.id || index}`,
+                        quantity: item.quantity || 1,
+                        price: (parseFloat(item.price) || 0).toFixed(2),
+                        created_at: new Date().toISOString()
+                    }]
+                }))
+            };
+
+            const result = await apiCall('orders', 'POST', orderData);
+            displayResult('manualOrderResult', result);
+        }
+
+        function displayResult(elementId, result) {
+            const el = document.getElementById(elementId);
+            if (result.error) {
+                el.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            } else {
+                el.innerHTML = `
+                    <div class="${result.ok ? 'success' : 'error'}">
+                        ${result.ok ? '✅' : '❌'} Status: ${result.status}
+                    </div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            }
+        }
+
+        // Auto-show cart on load
+        showCart();
     </script>
 </body>
 </html>
