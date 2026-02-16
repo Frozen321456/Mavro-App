@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Product Details | Mavro Essence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        :root { --primary: #000000; --accent: #ff385c; --bg: #ffffff; --gray-light: #f8f8f8; --gray: #f0f0f0; --text-light: #666666; --border: #eaeaea; --shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+        body { background-color: var(--bg); color: var(--primary); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { position: fixed; top: 0; left: 0; width: 100%; height: 70px; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000; border-bottom: 1px solid var(--border); }
+        .nav-icon { font-size: 20px; color: var(--primary); text-decoration: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .logo { font-weight: 800; font-size: 20px; text-decoration: none; color: var(--primary); letter-spacing: 1.5px; }
+        .cart-count { position: absolute; top: 15px; right: calc(5% + 5px); background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+        .main-container { max-width: 1400px; margin: 70px auto 0; width: 100%; }
+        .product-layout { display: flex; flex-direction: column; }
+        .gallery-section { width: 100%; background: var(--gray-light); position: relative; overflow: hidden; }
+        .slider-container { width: 100%; height: 400px; overflow: hidden; position: relative; touch-action: pan-y; }
+        .slider-wrapper { display: flex; height: 100%; transition: transform 0.3s ease-out; }
+        .slider-wrapper img { min-width: 100%; width: 100%; height: 100%; object-fit: contain; background: var(--gray-light); }
+        .info-section { padding: 24px 5%; background: #fff; }
+        .product-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
+        .price-box { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .sale-price { font-size: 32px; font-weight: 800; color: var(--accent); }
+        .regular-price-old { font-size: 20px; color: #999; text-decoration: line-through; }
+        .variation-section { margin-bottom: 24px; }
+        .variation-label { 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: #666; 
+            margin-bottom: 12px; 
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .variation-count {
+            background: var(--gray);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        .variation-options-container {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 5px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) var(--gray-light);
+        }
+        .variation-options-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .variation-options-container::-webkit-scrollbar-track {
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+        .variation-options-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        .variation-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .variation-option { 
+            border: 2px solid var(--border); 
+            padding: 14px 16px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .variation-option:hover {
+            border-color: var(--primary);
+            background: var(--gray-light);
+        }
+        .variation-option.active { 
+            background: var(--primary); 
+            color: #fff; 
+            border-color: var(--primary); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .variation-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--primary);
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .variation-option.active .variation-name {
+            color: #fff;
+            opacity: 0.9;
+        }
+        .variation-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .variation-price-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            align-self: flex-start;
+        }
+        .variation-option.active .variation-price-badge {
+            background: white;
+            color: var(--primary);
+        }
+        .add-to-cart-btn { background: var(--primary); color: #fff; border: none; padding: 18px; border-radius: 50px; font-weight: 700; width: 100%; cursor: pointer; margin-bottom: 30px; font-size: 16px; transition: all 0.3s; }
+        .add-to-cart-btn:hover { background: #333; }
+        .description-content { font-size: 15px; color: #444; line-height: 1.7; }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .variation-options {
+                grid-template-columns: 1fr;
+            }
+            .variation-option {
+                padding: 16px;
+            }
+        }
+        
+        @media (min-width: 1024px) { 
+            .product-layout { flex-direction: row; } 
+            .gallery-section { width: 55%; position: sticky; top: 70px; height: calc(100vh - 70px); } 
+            .info-section { width: 45%; } 
+            .slider-container { height: 100%; } 
+            .variation-options-container {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left"><a href="shop.html" class="nav-icon"><i class="fas fa-arrow-left"></i></a></div>
+        <a href="index.html" class="logo">MAVRO</a>
+        <div class="header-right" style="position: relative;"><a href="cart.html" class="nav-icon"><i class="fas fa-shopping-bag"></i></a><span class="cart-count" id="cartCount">0</span></div>
+    </header>
+
+    <div class="main-container">
+        <div id="loadingState" style="text-align:center; padding: 100px;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading Product...</p></div>
+        <div class="product-layout" id="productLayout" style="display: none;">
+            <div class="gallery-section">
+                <div class="slider-container" id="sliderContainer">
+                    <div class="slider-wrapper" id="sliderWrapper"></div>
+                </div>
+            </div>
+            <div class="info-section">
+                <h1 class="product-title" id="productName"></h1>
+                <div class="price-box" id="priceBox"></div>
+                <div id="variationsContainer"></div>
+                <button class="add-to-cart-btn" id="addToCartBtn">ADD TO CART</button>
+                <div class="description-section">
+                    <h3 style="margin-bottom:10px; font-size:14px; color:#666;">PRODUCT DETAILS</h3>
+                    <div class="description-content" id="productDescription"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            messagingSenderId: "137893255543",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Get product ID from URL
+        const productId = new URLSearchParams(window.location.search).get('id');
+        let productData = null;
+        let selectedVariationId = null;
+        let currentSlide = 0;
+        let variations = [];
+
+        // Load product data
+        function loadProduct() {
+            if (!productId) { 
+                window.location.href = 'shop.html'; 
+                return;
+            }
+            
+            database.ref('products/' + productId).on('value', (snapshot) => {
+                productData = snapshot.val();
+                if (!productData) {
+                    alert('Product not found!');
+                    window.location.href = 'shop.html';
+                    return;
+                }
+
+                // Convert variations object to array (keeping original IDs)
+                if (productData.variations) {
+                    variations = Object.entries(productData.variations).map(([id, data]) => {
+                        return {
+                            id: id,
+                            ...data
+                        };
+                    });
+                    
+                    // Sort variations by price (optional)
+                    variations.sort((a, b) => {
+                        let priceA = parseFloat(a.sale_price || a.regular_price || 0);
+                        let priceB = parseFloat(b.sale_price || b.regular_price || 0);
+                        return priceA - priceB;
+                    });
+                    
+                    console.log('Variations loaded:', variations.length);
+                }
+
+                // Hide loading, show product
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('productLayout').style.display = 'flex';
+                
+                // Set basic info
+                document.getElementById('productName').innerText = productData.title || productData.name || 'Product';
+                document.getElementById('productDescription').innerHTML = productData.description || 'No description available.';
+
+                // Render sections
+                renderGallery();
+                renderVariations();
+                
+                // Show default price if no variations
+                if (variations.length === 0) {
+                    updatePriceUI(productData.regular_price, productData.sale_price);
+                }
+                
+                updateCartCount();
+            });
+        }
+
+        // Render product images gallery
+        function renderGallery() {
+            const wrapper = document.getElementById('sliderWrapper');
+            let images = [];
+            
+            if (productData.images) {
+                images = Array.isArray(productData.images) ? productData.images : Object.values(productData.images);
+            } else if (productData.image) {
+                images = [productData.image];
+            }
+            
+            if (images.length === 0) {
+                images = ['https://via.placeholder.com/800x800?text=No+Image'];
+            }
+            
+            wrapper.innerHTML = images.map(img => {
+                const imgSrc = img.src || img;
+                return `<img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/800x800?text=Image+Error'">`;
+            }).join('');
+            
+            setupSlider();
+        }
+
+        // প্রফেশনাল নাম জেনারেট করার ফাংশন
+        function getProfessionalVariationName(variation) {
+            if (!variation.properties) return 'Standard';
+            
+            let propertyValues = [];
+            let propertyNames = [];
+            
+            // আপনার ডাটাবেস স্ট্রাকচার অনুযায়ী properties প্রসেস করুন
+            if (typeof variation.properties === 'object') {
+                // যদি একাধিক প্রপার্টি থাকে
+                Object.entries(variation.properties).forEach(([key, value]) => {
+                    if (value && typeof value === 'object' && value.name && value.value) {
+                        // প্রপার্টির নাম ফরম্যাট করুন
+                        let propName = value.name;
+                        if (propName.toLowerCase().includes('color')) propName = 'Color';
+                        else if (propName.toLowerCase().includes('model')) propName = 'Model';
+                        else if (propName.toLowerCase().includes('size')) propName = 'Size';
+                        else if (propName.toLowerCase().includes('spec')) propName = 'Spec';
+                        
+                        propertyNames.push(propName);
+                        
+                        // ভ্যালু শর্ট করুন
+                        let propValue = value.value;
+                        if (propValue.length > 30) {
+                            propValue = propValue.substring(0, 30) + '…';
+                        }
+                        propertyValues.push(propValue);
+                    } else if (value && typeof value === 'string') {
+                        propertyValues.push(value);
+                    }
+                });
+            }
+            
+            // যদি কিছু না পাওয়া যায়
+            if (propertyValues.length === 0) {
+                return 'Option ' + (variation.id ? variation.id.slice(-4) : '');
+            }
+            
+            // প্রফেশনাল নাম তৈরি করুন
+            if (propertyValues.length === 1) {
+                return propertyValues[0];
+            } else if (propertyValues.length === 2) {
+                return `${propertyValues[0]} / ${propertyValues[1]}`;
+            } else {
+                return propertyValues.join(' • ');
+            }
+        }
+
+        // Render variations as professional cards
+        function renderVariations() {
+            const container = document.getElementById('variationsContainer');
+            container.innerHTML = '';
+            
+            if (!variations.length) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+
+            // Create variation selection UI
+            const group = document.createElement('div');
+            group.className = 'variation-section';
+            
+            // Label with count
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'variation-label';
+            labelDiv.innerHTML = `SELECT OPTION <span class="variation-count">${variations.length} options</span>`;
+            group.appendChild(labelDiv);
+            
+            // Scrollable container
+            const scrollContainer = document.createElement('div');
+            scrollContainer.className = 'variation-options-container';
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'variation-options';
+            
+            // Create buttons for each variation
+            variations.forEach((variation, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'variation-option';
+                
+                // প্রফেশনাল নাম জেনারেট করুন
+                const displayName = getProfessionalVariationName(variation);
+                
+                // প্রাইস
+                const price = variation.sale_price || variation.regular_price;
+                
+                // ডিটেইলস এড করুন
+                if (variation.properties) {
+                    // প্রথম প্রপার্টির নাম দেখান (যদি পাওয়া যায়)
+                    const firstProp = Object.values(variation.properties)[0];
+                    if (firstProp && firstProp.name) {
+                        const nameSpan = document.createElement('span');
+                        nameSpan.className = 'variation-name';
+                        
+                        let propName = firstProp.name;
+                        if (propName.toLowerCase().includes('color')) propName = 'COLOR';
+                        else if (propName.toLowerCase().includes('model')) propName = 'MODEL';
+                        else if (propName.toLowerCase().includes('size')) propName = 'SIZE';
+                        else propName = propName.toUpperCase();
+                        
+                        nameSpan.innerText = propName;
+                        btn.appendChild(nameSpan);
+                    }
+                }
+                
+                // ভ্যালু দেখান
+                const valueSpan = document.createElement('span');
+                valueSpan.className = 'variation-value';
+                valueSpan.innerText = displayName;
+                btn.appendChild(valueSpan);
+                
+                // প্রাইস ব্যাজ দেখান (যদি চান)
+                if (price) {
+                    const priceBadge = document.createElement('span');
+                    priceBadge.className = 'variation-price-badge';
+                    priceBadge.innerText = `৳${price}`;
+                    btn.appendChild(priceBadge);
+                }
+                
+                btn.onclick = () => {
+                    // Remove active class from all buttons
+                    Array.from(optionsDiv.children).forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Set selected variation
+                    selectedVariationId = variation.id;
+                    
+                    // Update price with Taka symbol
+                    updatePriceUI(variation.regular_price, variation.sale_price);
+                    
+                    // Update image if available
+                    if (variation.image) {
+                        document.getElementById('sliderWrapper').innerHTML = `<img src="${variation.image}" onerror="this.src='https://via.placeholder.com/800x800?text=Image+Error'">`;
+                        currentSlide = 0;
+                    }
+                };
+                
+                optionsDiv.appendChild(btn);
+            });
+            
+            scrollContainer.appendChild(optionsDiv);
+            group.appendChild(scrollContainer);
+            container.appendChild(group);
+        }
+
+        // Update price display with Taka symbol
+        function updatePriceUI(reg, sale) {
+            const box = document.getElementById('priceBox');
+            let r = parseFloat(reg) || 0;
+            let s = parseFloat(sale) || 0;
+
+            if (s > 0 && s < r) {
+                box.innerHTML = `<span class="sale-price">৳${s.toFixed(0)}</span><span class="regular-price-old">৳${r.toFixed(0)}</span>`;
+            } else if (r > 0) {
+                box.innerHTML = `<span class="sale-price">৳${r.toFixed(0)}</span>`;
+            } else {
+                box.innerHTML = `<span class="sale-price">Price on request</span>`;
+            }
+        }
+
+        // Setup image slider touch events
+        function setupSlider() {
+            const container = document.getElementById('sliderContainer');
+            const wrapper = document.getElementById('sliderWrapper');
+            let startX = 0;
+            let isDragging = false;
+
+            container.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isDragging = true;
+            }, { passive: true });
+
+            container.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                
+                let endX = e.changedTouches[0].clientX;
+                let images = wrapper.querySelectorAll('img');
+                let diff = startX - endX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0 && currentSlide < images.length - 1) {
+                        currentSlide++;
+                    } else if (diff < 0 && currentSlide > 0) {
+                        currentSlide--;
+                    }
+                }
+                
+                wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+                isDragging = false;
+            }, { passive: true });
+
+            // Mouse events for desktop
+            container.addEventListener('mousedown', (e) => {
+                startX = e.clientX;
+                isDragging = true;
+                e.preventDefault();
+            });
+
+            container.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                
+                let endX = e.clientX;
+                let images = wrapper.querySelectorAll('img');
+                let diff = startX - endX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0 && currentSlide < images.length - 1) {
+                        currentSlide++;
+                    } else if (diff < 0 && currentSlide > 0) {
+                        currentSlide--;
+                    }
+                }
+                
+                wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+                isDragging = false;
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (isDragging) e.preventDefault();
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+        }
+
+        // Add to cart functionality
+        document.getElementById('addToCartBtn').onclick = () => {
+            // Check if variation is selected
+            if (variations.length > 0 && !selectedVariationId) {
+                alert('Please select an option first!');
+                return;
+            }
+
+            let selectedVariation = null;
+            if (selectedVariationId) {
+                selectedVariation = variations.find(v => v.id === selectedVariationId);
+            }
+
+            // Get price
+            let finalPrice = 0;
+            if (selectedVariation) {
+                finalPrice = parseFloat(selectedVariation.sale_price) || parseFloat(selectedVariation.regular_price) || 0;
+            } else {
+                finalPrice = parseFloat(productData.sale_price) || parseFloat(productData.regular_price) || 0;
+            }
+
+            // Get image
+            let productImage = '';
+            if (selectedVariation && selectedVariation.image) {
+                productImage = selectedVariation.image;
+            } else if (productData.images) {
+                const images = Array.isArray(productData.images) ? productData.images : Object.values(productData.images);
+                productImage = images[0]?.src || images[0] || '';
+            } else if (productData.image) {
+                productImage = productData.image;
+            }
+
+            // Get variation details for display
+            let variationDetails = {};
+            if (selectedVariation && selectedVariation.properties) {
+                variationDetails = selectedVariation.properties;
+            }
+
+            // Create cart item
+            const cartItem = {
+                id: selectedVariationId || (productId + '_' + Date.now()),
+                productId: productId,
+                variationId: selectedVariationId,
+                name: productData.title || productData.name || 'Product',
+                price: finalPrice,
+                image: productImage,
+                variation: variationDetails,
+                quantity: 1
+            };
+
+            // Get existing cart
+            let cart = JSON.parse(localStorage.getItem('essence_cart') || '[]');
+            cart.push(cartItem);
+            
+            // Save to localStorage
+            localStorage.setItem('essence_cart', JSON.stringify(cart));
+            
+            // Update cart count
+            updateCartCount();
+            
+            // Show success message
+            const btn = document.getElementById('addToCartBtn');
+            const originalText = btn.innerText;
+            const originalBg = btn.style.background;
+            
+            btn.innerText = '✓ ADDED TO CART!';
+            btn.style.background = '#4CAF50';
+            
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = originalBg; 
+            }, 2000);
+        };
+
+        // Update cart count in header
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('essence_cart') || '[]');
+            const countElement = document.getElementById('cartCount');
+            countElement.innerText = cart.length;
+            
+            // Hide if zero
+            if (cart.length === 0) {
+                countElement.style.display = 'none';
+            } else {
+                countElement.style.display = 'flex';
+            }
+        }
+
+        // Initialize
+        loadProduct();
+    </script>
+</body>
+</html>
