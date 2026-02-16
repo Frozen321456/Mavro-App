@@ -2,7 +2,7 @@
 /**
  * MAVRO ESSENCE - MOVE-DROP OFFICIAL API
  * Version: 3.1.0
- * Fixed Categories endpoints for MoveDrop
+ * Fully fixed for MoveDrop integration
  */
 
 // Headers
@@ -93,21 +93,18 @@ if ($path === 'webhooks' && $method === 'POST') {
 }
 
 // ============================================
-// CATEGORIES ENDPOINTS - FIXED VERSION
+// CATEGORIES ENDPOINTS
 // ============================================
 
 // GET /categories - List categories with pagination
 if ($path === 'categories' && $method === 'GET') {
-    // Get all categories from Firebase
     $categories_data = firebase_get('/categories.json');
     
     $formatted_categories = [];
     
     if ($categories_data && is_array($categories_data)) {
         foreach ($categories_data as $key => $category) {
-            // Handle both indexed and key-value formats
             if (is_array($category)) {
-                // Generate slug from name if not present
                 $name = $category['name'] ?? 'Unnamed Category';
                 $slug = $category['slug'] ?? generate_slug($name);
                 
@@ -121,16 +118,12 @@ if ($path === 'categories' && $method === 'GET') {
         }
     }
     
-    // Sort by ID
     usort($formatted_categories, function($a, $b) {
         return $a['id'] - $b['id'];
     });
     
-    // Pagination
     $total = count($formatted_categories);
     $paginated = array_slice($formatted_categories, $offset, $per_page);
-    
-    // Calculate meta
     $last_page = ceil($total / $per_page);
     $from = $offset + 1;
     $to = min($offset + $per_page, $total);
@@ -150,37 +143,29 @@ if ($path === 'categories' && $method === 'GET') {
     exit();
 }
 
-// POST /categories - Create new category (FIXED)
+// POST /categories - Create new category
 if ($path === 'categories' && $method === 'POST') {
-    // Get category name from request
     $name = $input['name'] ?? '';
     
     if (empty($name)) {
         http_response_code(422);
         echo json_encode([
             'message' => 'The name field is required.',
-            'errors' => [
-                'name' => ['The name field is required.']
-            ]
+            'errors' => ['name' => ['The name field is required.']]
         ]);
         exit();
     }
     
-    // Get all existing categories
     $existing_categories = firebase_get('/categories.json') ?? [];
     
-    // Check for duplicate name
     foreach ($existing_categories as $cat) {
         if (is_array($cat) && isset($cat['name']) && strtolower($cat['name']) === strtolower($name)) {
             http_response_code(400);
-            echo json_encode([
-                'message' => 'Category with this name already exists'
-            ]);
+            echo json_encode(['message' => 'Category with this name already exists']);
             exit();
         }
     }
     
-    // Generate new ID
     $max_id = 0;
     foreach ($existing_categories as $cat) {
         if (is_array($cat) && isset($cat['id']) && $cat['id'] > $max_id) {
@@ -189,11 +174,9 @@ if ($path === 'categories' && $method === 'POST') {
     }
     $new_id = $max_id + 1;
     
-    // Generate slug
     $slug = generate_slug($name);
     $timestamp = date('c');
     
-    // Create category data in MoveDrop format
     $category_data = [
         'id' => $new_id,
         'name' => $name,
@@ -201,19 +184,14 @@ if ($path === 'categories' && $method === 'POST') {
         'created_at' => $timestamp
     ];
     
-    // Save to Firebase using the ID as key
     $save_result = firebase_put("/categories/{$new_id}.json", $category_data);
     
     if ($save_result) {
         http_response_code(201);
-        echo json_encode([
-            'data' => $category_data
-        ]);
+        echo json_encode(['data' => $category_data]);
     } else {
         http_response_code(500);
-        echo json_encode([
-            'message' => 'Failed to create category'
-        ]);
+        echo json_encode(['message' => 'Failed to create category']);
     }
     exit();
 }
@@ -222,23 +200,48 @@ if ($path === 'categories' && $method === 'POST') {
 // PRODUCTS ENDPOINTS
 // ============================================
 
-// GET /products - List products (for sync)
+// GET /products - List all products (for MoveDrop sync)
 if ($path === 'products' && $method === 'GET') {
     $products = firebase_get('/products.json') ?? [];
     
-    $formatted = [];
+    $formatted_products = [];
     foreach ($products as $key => $product) {
-        $formatted[] = format_product_for_movedrop($key, $product);
+        // Process images
+        $images = [];
+        if (!empty($product['images'])) {
+            foreach ($product['images'] as $img) {
+                if (is_string($img)) {
+                    $images[] = [
+                        'is_default' => count($images) === 0,
+                        'src' => $img
+                    ];
+                } else {
+                    $images[] = $img;
+                }
+            }
+        }
+        
+        $formatted_products[] = [
+            'id' => (int)($product['id'] ?? (is_numeric($key) ? $key : crc32($key))),
+            'title' => $product['title'] ?? $product['name'] ?? 'Untitled',
+            'sku' => $product['sku'] ?? '',
+            'description' => $product['description'] ?? '',
+            'images' => $images,
+            'category_ids' => $product['category_ids'] ?? [],
+            'tags' => $product['tags'] ?? [],
+            'properties' => $product['properties'] ?? [],
+            'created_at' => $product['created_at'] ?? date('c'),
+            'updated_at' => $product['updated_at'] ?? date('c')
+        ];
     }
     
     http_response_code(200);
-    echo json_encode($formatted);
+    echo json_encode($formatted_products);
     exit();
 }
 
 // POST /products - Create new product
 if ($path === 'products' && $method === 'POST') {
-    // Validate required fields
     $errors = [];
     
     if (empty($input['title'])) {
@@ -284,27 +287,16 @@ if ($path === 'products' && $method === 'POST') {
         }
     }
     
-    // Generate product ID
     $product_id = time();
     $timestamp = date('c');
     
-    // Process images
-    $images = [];
-    foreach ($input['images'] as $img) {
-        $images[] = [
-            'is_default' => $img['is_default'] ?? false,
-            'src' => $img['src']
-        ];
-    }
-    
-    // Prepare product data
     $product_data = [
         'id' => $product_id,
         'title' => $input['title'],
         'name' => $input['title'],
         'sku' => $input['sku'],
         'description' => $input['description'] ?? '',
-        'images' => $images,
+        'images' => $input['images'],
         'category_ids' => $input['category_ids'] ?? [],
         'tags' => $input['tags'] ?? [],
         'properties' => $input['properties'] ?? [],
@@ -312,7 +304,6 @@ if ($path === 'products' && $method === 'POST') {
         'updated_at' => $timestamp
     ];
     
-    // Save to Firebase
     $result = firebase_put("/products/{$product_id}.json", $product_data);
     
     if ($result) {
@@ -330,9 +321,7 @@ if ($path === 'products' && $method === 'POST') {
         ]);
     } else {
         http_response_code(500);
-        echo json_encode([
-            'message' => 'Failed to create product'
-        ]);
+        echo json_encode(['message' => 'Failed to create product']);
     }
     exit();
 }
@@ -344,26 +333,20 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
     
     if (empty($variations)) {
         http_response_code(400);
-        echo json_encode([
-            'message' => 'No variations provided'
-        ]);
+        echo json_encode(['message' => 'No variations provided']);
         exit();
     }
     
-    // Get existing product
     $product = firebase_get("/products/{$product_id}.json");
     if (!$product) {
         http_response_code(404);
-        echo json_encode([
-            'message' => 'Product not found'
-        ]);
+        echo json_encode(['message' => 'Product not found']);
         exit();
     }
     
     $saved_variations = [];
     $existing_skus = [];
     
-    // Check existing SKUs
     foreach ($product['variations'] ?? [] as $var) {
         if (!empty($var['sku'])) {
             $existing_skus[$var['sku']] = true;
@@ -373,7 +356,6 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
     foreach ($variations as $index => $var) {
         $variation_id = (int)($product_id . sprintf("%02d", $index));
         
-        // Check for duplicate SKU
         if (isset($existing_skus[$var['sku']])) {
             $saved_variations[] = [
                 'error' => [
@@ -400,7 +382,6 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
             'properties' => $var['properties'] ?? []
         ];
         
-        // Save variation
         firebase_put("/products/{$product_id}/variations/{$index}.json", $variation_data);
         
         $saved_variations[] = [
@@ -423,29 +404,21 @@ if (preg_match('/^products\/(.+)\/variations$/', $path, $matches) && $method ===
 if (preg_match('/^products\/(.+)$/', $path, $matches) && $method === 'DELETE') {
     $product_id = $matches[1];
     
-    // Check if product exists
     $product = firebase_get("/products/{$product_id}.json");
     if (!$product) {
         http_response_code(404);
-        echo json_encode([
-            'message' => 'Product not found'
-        ]);
+        echo json_encode(['message' => 'Product not found']);
         exit();
     }
     
-    // Delete product
     $result = firebase_delete("/products/{$product_id}.json");
     
     if ($result) {
         http_response_code(200);
-        echo json_encode([
-            'message' => 'Product Deleted Successfully'
-        ]);
+        echo json_encode(['message' => 'Product Deleted Successfully']);
     } else {
         http_response_code(500);
-        echo json_encode([
-            'message' => 'Failed to delete product'
-        ]);
+        echo json_encode(['message' => 'Failed to delete product']);
     }
     exit();
 }
@@ -460,7 +433,6 @@ if ($path === 'orders' && $method === 'GET') {
     
     $formatted = [];
     foreach ($orders as $key => $order) {
-        // Apply filters
         if (isset($_GET['order_number']) && ($order['order_number'] ?? '') !== $_GET['order_number']) {
             continue;
         }
@@ -468,7 +440,11 @@ if ($path === 'orders' && $method === 'GET') {
         $formatted[] = format_order_for_movedrop($key, $order);
     }
     
-    // Paginate
+    // Sort by created_at desc
+    usort($formatted, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
+    
     $total = count($formatted);
     $paginated = array_slice($formatted, $offset, $per_page);
     
@@ -484,6 +460,51 @@ if ($path === 'orders' && $method === 'GET') {
             'total' => $total
         ]
     ]);
+    exit();
+}
+
+// POST /orders - Create new order (MoveDrop webhook)
+if ($path === 'orders' && $method === 'POST') {
+    $order_data = $input;
+    
+    // Validate required fields
+    if (empty($order_data['order_number']) || empty($order_data['line_items'])) {
+        http_response_code(422);
+        echo json_encode(['message' => 'Invalid order data']);
+        exit();
+    }
+    
+    $order_id = 'ORD-' . time() . '-' . rand(100, 999);
+    $timestamp = date('c');
+    
+    // Store in Firebase
+    $firebase_order = [
+        'order_id' => $order_id,
+        'order_number' => $order_data['order_number'],
+        'status' => $order_data['status'] ?? 'pending',
+        'currency' => $order_data['currency'] ?? 'BDT',
+        'total' => $order_data['total'] ?? '0',
+        'payment_method' => $order_data['payment_method'] ?? 'cod',
+        'shipping_address' => $order_data['shipping_address'] ?? [],
+        'customer_notes' => $order_data['customer_notes'] ?? '',
+        'line_items' => $order_data['line_items'] ?? [],
+        'created_at' => $timestamp,
+        'updated_at' => $timestamp,
+        'source' => 'movedrop'
+    ];
+    
+    $result = firebase_put("/orders/{$order_id}.json", $firebase_order);
+    
+    if ($result) {
+        http_response_code(201);
+        echo json_encode([
+            'message' => 'Order created successfully',
+            'data' => $firebase_order
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['message' => 'Failed to create order']);
+    }
     exit();
 }
 
@@ -503,17 +524,13 @@ if (preg_match('/^orders\/(.+)$/', $path, $matches) && $method === 'PUT') {
         exit();
     }
     
-    // Check if order exists
     $order = firebase_get("/orders/{$order_id}.json");
     if (!$order) {
         http_response_code(404);
-        echo json_encode([
-            'message' => 'Order not found'
-        ]);
+        echo json_encode(['message' => 'Order not found']);
         exit();
     }
     
-    // Update order
     $update_data = [
         'status' => $status,
         'updated_at' => date('c')
@@ -522,18 +539,14 @@ if (preg_match('/^orders\/(.+)$/', $path, $matches) && $method === 'PUT') {
     $result = firebase_patch("/orders/{$order_id}.json", $update_data);
     
     if ($result) {
-        // Get updated order
         $updated_order = firebase_get("/orders/{$order_id}.json");
-        
         http_response_code(200);
         echo json_encode([
             'data' => format_order_for_movedrop($order_id, $updated_order)
         ]);
     } else {
         http_response_code(500);
-        echo json_encode([
-            'message' => 'Failed to update order'
-        ]);
+        echo json_encode(['message' => 'Failed to update order']);
     }
     exit();
 }
@@ -545,23 +558,17 @@ if (preg_match('/^orders\/(.+)\/timelines$/', $path, $matches) && $method === 'P
     
     if (empty($message)) {
         http_response_code(422);
-        echo json_encode([
-            'message' => 'Message is required'
-        ]);
+        echo json_encode(['message' => 'Message is required']);
         exit();
     }
     
-    // Check if order exists
     $order = firebase_get("/orders/{$order_id}.json");
     if (!$order) {
         http_response_code(404);
-        echo json_encode([
-            'message' => 'Order not found'
-        ]);
+        echo json_encode(['message' => 'Order not found']);
         exit();
     }
     
-    // Add timeline
     $timeline_id = time();
     $timeline_data = [
         'id' => $timeline_id,
@@ -572,18 +579,14 @@ if (preg_match('/^orders\/(.+)\/timelines$/', $path, $matches) && $method === 'P
     $result = firebase_put("/orders/{$order_id}/timelines/{$timeline_id}.json", $timeline_data);
     
     if ($result) {
-        // Get updated order
         $updated_order = firebase_get("/orders/{$order_id}.json");
-        
         http_response_code(200);
         echo json_encode([
             'data' => format_order_for_movedrop($order_id, $updated_order)
         ]);
     } else {
         http_response_code(500);
-        echo json_encode([
-            'message' => 'Failed to add timeline'
-        ]);
+        echo json_encode(['message' => 'Failed to add timeline']);
     }
     exit();
 }
@@ -601,62 +604,13 @@ echo json_encode([
 // HELPER FUNCTIONS
 // ============================================
 
-/**
- * Generate URL slug from string
- */
 function generate_slug($string) {
-    // Convert to lowercase
     $slug = strtolower($string);
-    
-    // Replace non-alphanumeric characters with hyphens
     $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
-    
-    // Remove leading/trailing hyphens
     $slug = trim($slug, '-');
-    
     return $slug;
 }
 
-/**
- * Format product for MoveDrop API
- */
-function format_product_for_movedrop($id, $product) {
-    $images = [];
-    if (!empty($product['images'])) {
-        foreach ($product['images'] as $img) {
-            if (is_string($img)) {
-                $images[] = [
-                    'is_default' => false,
-                    'src' => $img
-                ];
-            } else {
-                $images[] = $img;
-            }
-        }
-    }
-    
-    // Ensure at least one default image
-    if (!empty($images) && !in_array(true, array_column($images, 'is_default'))) {
-        $images[0]['is_default'] = true;
-    }
-    
-    return [
-        'id' => (int)($product['id'] ?? (is_numeric($id) ? $id : crc32($id))),
-        'title' => $product['title'] ?? $product['name'] ?? 'Untitled',
-        'sku' => $product['sku'] ?? '',
-        'description' => $product['description'] ?? '',
-        'images' => $images,
-        'category_ids' => $product['category_ids'] ?? [],
-        'tags' => $product['tags'] ?? [],
-        'properties' => $product['properties'] ?? [],
-        'created_at' => $product['created_at'] ?? date('c'),
-        'updated_at' => $product['updated_at'] ?? date('c')
-    ];
-}
-
-/**
- * Format order for MoveDrop API
- */
 function format_order_for_movedrop($id, $order) {
     return [
         'id' => (int)(is_numeric($id) ? $id : crc32($id)),
@@ -702,9 +656,6 @@ function format_order_for_movedrop($id, $order) {
     ];
 }
 
-/**
- * Firebase GET request
- */
 function firebase_get($endpoint) {
     $url = FIREBASE_URL . $endpoint;
     $ch = curl_init($url);
@@ -723,9 +674,6 @@ function firebase_get($endpoint) {
     return null;
 }
 
-/**
- * Firebase PUT request
- */
 function firebase_put($endpoint, $data) {
     $url = FIREBASE_URL . $endpoint;
     $ch = curl_init($url);
@@ -743,9 +691,6 @@ function firebase_put($endpoint, $data) {
     return $http_code === 200;
 }
 
-/**
- * Firebase PATCH request
- */
 function firebase_patch($endpoint, $data) {
     $url = FIREBASE_URL . $endpoint;
     $ch = curl_init($url);
@@ -763,9 +708,6 @@ function firebase_patch($endpoint, $data) {
     return $http_code === 200;
 }
 
-/**
- * Firebase DELETE request
- */
 function firebase_delete($endpoint) {
     $url = FIREBASE_URL . $endpoint;
     $ch = curl_init($url);
