@@ -32,7 +32,6 @@
             padding: 20px 0;
         }
 
-        /* Header */
         .header {
             background: var(--white);
             padding: 15px 5%;
@@ -71,7 +70,6 @@
             transition: 0.2s;
         }
 
-        /* Checkout Container */
         .checkout-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -87,14 +85,12 @@
             gap: 10px;
         }
 
-        /* Two Column Layout */
         .checkout-layout {
             display: grid;
             grid-template-columns: 1fr 0.8fr;
             gap: 30px;
         }
 
-        /* Form Sections */
         .form-section {
             background: var(--white);
             border-radius: 20px;
@@ -116,7 +112,6 @@
             color: var(--accent);
         }
 
-        /* Form Fields */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -159,7 +154,6 @@
             resize: vertical;
         }
 
-        /* Payment Methods */
         .payment-methods {
             display: flex;
             flex-direction: column;
@@ -227,7 +221,6 @@
             color: var(--primary);
         }
 
-        /* Order Summary */
         .order-summary {
             background: var(--white);
             border-radius: 20px;
@@ -311,7 +304,6 @@
             font-weight: 500;
         }
 
-        /* Place Order Button */
         .place-order-btn {
             background: var(--primary);
             color: var(--white);
@@ -341,7 +333,6 @@
             pointer-events: none;
         }
 
-        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -371,7 +362,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Success Popup */
         .success-popup {
             display: none;
             position: fixed;
@@ -423,7 +413,16 @@
             margin-top: 20px;
         }
 
-        /* Responsive */
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            border-left: 4px solid #c62828;
+        }
+
         @media (max-width: 992px) {
             .checkout-layout {
                 grid-template-columns: 1fr;
@@ -467,9 +466,7 @@
         </h1>
 
         <div class="checkout-layout">
-            <!-- Left Column - Forms -->
             <div class="checkout-forms">
-                <!-- Shipping Information -->
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-truck"></i>
@@ -509,7 +506,6 @@
                     </div>
                 </div>
 
-                <!-- Payment Method -->
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-credit-card"></i>
@@ -564,7 +560,6 @@
                 </div>
             </div>
 
-            <!-- Right Column - Order Summary -->
             <div class="order-summary">
                 <h3 style="margin-bottom: 20px;">Order Summary</h3>
                 
@@ -585,6 +580,8 @@
                     <span id="summaryTotal">৳ 0</span>
                 </div>
 
+                <div id="apiError" class="error-message" style="display: none;"></div>
+
                 <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
                     PLACE ORDER
                 </button>
@@ -596,13 +593,12 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <p>Processing your order...</p>
+        <p style="font-size: 14px; color: #666; margin-top: 10px;" id="loadingStatus"></p>
     </div>
 
-    <!-- Success Popup -->
     <div class="success-popup" id="successPopup">
         <div class="success-content">
             <div class="success-icon">
@@ -611,7 +607,7 @@
             <h2>Order Successful!</h2>
             <p>Your order has been placed successfully.</p>
             <p class="order-id" id="orderId"></p>
-            <p class="track-link">Track your order with this ID</p>
+            <p class="track-link" id="moveDropStatus"></p>
             <button class="continue-btn" onclick="continueShopping()">Continue Shopping</button>
         </div>
     </div>
@@ -629,6 +625,8 @@
             storageBucket: "espera-mavro-6ddc5.appspot.com",
             appId: "1:137893255543:web:a660bd412eb26ee322a972"
         };
+        
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -644,29 +642,31 @@
         let cart = [];
         let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, isFreeDelivery: false };
         let selectedPayment = 'cod';
-        let webhooks = [];
 
         // Load cart from localStorage
         function loadCart() {
-            cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
-            
-            if (cart.length === 0) {
-                window.location.href = 'shop.html';
-                return;
+            try {
+                cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
+                
+                if (cart.length === 0) {
+                    window.location.href = 'shop.html';
+                    return;
+                }
+
+                cart = cart.map(item => ({
+                    ...item,
+                    quantity: item.quantity || 1,
+                    price: parseFloat(item.price) || 0
+                }));
+
+                calculateTotals();
+                renderSummary();
+            } catch (e) {
+                console.error('Error loading cart:', e);
             }
-
-            // Ensure all items have quantity
-            cart = cart.map(item => ({
-                ...item,
-                quantity: item.quantity || 1,
-                price: parseFloat(item.price) || 0
-            }));
-
-            calculateTotals();
-            renderSummary();
         }
 
-        // Calculate totals with delivery charge
+        // Calculate totals
         function calculateTotals() {
             let subtotal = 0;
             let itemCount = 0;
@@ -731,7 +731,6 @@
         window.selectPayment = (method) => {
             selectedPayment = method;
             
-            // Update UI
             document.querySelectorAll('.payment-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -742,20 +741,6 @@
             document.getElementById(`payment-${method}`).classList.add('selected');
             document.getElementById(`radio-${method}`).classList.add('selected');
         };
-
-        // Load webhooks from Firebase
-        async function loadWebhooks() {
-            try {
-                const snapshot = await database.ref('webhooks').once('value');
-                const webhooksData = snapshot.val();
-                
-                if (webhooksData) {
-                    webhooks = Object.values(webhooksData);
-                }
-            } catch (error) {
-                console.error('Error loading webhooks:', error);
-            }
-        }
 
         // Validate Bangladesh phone number
         function validateBDPhone(phone) {
@@ -773,10 +758,31 @@
             return result;
         }
 
-        // Send to MoveDrop API
+        // Show error message
+        function showError(message) {
+            const errorEl = document.getElementById('apiError');
+            errorEl.style.display = 'block';
+            errorEl.innerHTML = message;
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Update loading status
+        function updateLoadingStatus(message) {
+            document.getElementById('loadingStatus').innerHTML = message;
+        }
+
+        // Send order to MoveDrop
         async function sendToMoveDrop(orderData) {
+            console.log('📤 Sending to MoveDrop:', orderData);
+            updateLoadingStatus('Sending to MoveDrop...');
+            
             try {
-                const response = await fetch(`${MOVEDROP_API_URL}?path=orders`, {
+                // Create form data or URL encoded data - sometimes this works better
+                const url = `${MOVEDROP_API_URL}?path=orders`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -786,36 +792,32 @@
                     body: JSON.stringify(orderData)
                 });
 
-                const responseData = await response.json();
+                const responseText = await response.text();
+                console.log('📥 Raw response:', responseText);
                 
-                if (!response.ok) {
-                    console.error('MoveDrop API error:', responseData);
-                    return { success: false, error: responseData };
-                }
-
-                return { success: true, data: responseData };
-            } catch (error) {
-                console.error('MoveDrop API call failed:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
-        // Trigger webhooks
-        async function triggerWebhooks(event, payload) {
-            const orderWebhooks = webhooks.filter(w => w.event === event);
-            
-            for (const webhook of orderWebhooks) {
+                let responseData;
                 try {
-                    await fetch(webhook.delivery_url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                } catch (error) {
-                    console.error(`Webhook failed for ${webhook.delivery_url}:`, error);
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = { raw: responseText };
                 }
+                
+                console.log('📦 Parsed response:', responseData);
+                console.log('📊 Status:', response.status);
+                
+                return {
+                    success: response.ok,
+                    status: response.status,
+                    data: responseData,
+                    raw: responseText
+                };
+                
+            } catch (error) {
+                console.error('❌ Network error:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
             }
         }
 
@@ -831,52 +833,35 @@
 
             // Validation
             if (!name) {
-                alert('Please enter your full name');
+                showError('Please enter your full name');
                 return;
             }
 
             if (!phone) {
-                alert('Please enter your phone number');
+                showError('Please enter your phone number');
                 return;
             }
 
             if (!validateBDPhone(phone)) {
-                alert('Please enter a valid Bangladesh phone number (01XXXXXXXXX)');
+                showError('Please enter a valid Bangladesh phone number (01XXXXXXXXX)');
                 return;
             }
 
             if (!address) {
-                alert('Please enter your address');
+                showError('Please enter your address');
                 return;
             }
 
-            // Split name into first and last
+            // Split name
             const nameParts = name.split(' ');
             const firstName = nameParts[0];
             const lastName = nameParts.slice(1).join(' ') || '';
 
-            // Generate order number
+            // Generate IDs
             const orderNumber = generateOrderNumber();
             const orderId = 'ORD-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
-            // Prepare line items for MoveDrop
-            const lineItems = cart.map((item, index) => ({
-                id: index + 1,
-                product_id: parseInt(item.id) || 0,
-                name: item.name || 'Product',
-                quantity: item.quantity || 1,
-                total: (item.price * (item.quantity || 1)).toFixed(2),
-                variations: [{
-                    id: index + 1,
-                    variation_id: 0,
-                    sku: item.sku || `SKU-${item.id || index}`,
-                    quantity: item.quantity || 1,
-                    price: item.price.toFixed(2),
-                    created_at: new Date().toISOString()
-                }]
-            }));
-
-            // Prepare order data for MoveDrop
+            // Prepare MoveDrop order format
             const moveDropOrder = {
                 order_number: orderNumber,
                 status: 'pending',
@@ -896,10 +881,24 @@
                     country: 'Bangladesh'
                 },
                 customer_notes: '',
-                line_items: lineItems
+                line_items: cart.map((item, index) => ({
+                    id: index + 1,
+                    product_id: parseInt(item.id) || 0,
+                    name: item.name || 'Product',
+                    quantity: item.quantity || 1,
+                    total: (item.price * (item.quantity || 1)).toFixed(2),
+                    variations: [{
+                        id: index + 1,
+                        variation_id: parseInt(item.variation_id) || 0,
+                        sku: item.sku || `SKU-${item.id || index}`,
+                        quantity: item.quantity || 1,
+                        price: item.price.toFixed(2),
+                        created_at: new Date().toISOString()
+                    }]
+                }))
             };
 
-            // Prepare order data for Firebase
+            // Prepare Firebase order
             const firebaseOrder = {
                 order_id: orderId,
                 order_number: orderNumber,
@@ -926,82 +925,56 @@
             // Show loading
             document.getElementById('loadingOverlay').style.display = 'flex';
             document.getElementById('placeOrderBtn').disabled = true;
+            updateLoadingStatus('Saving to database...');
 
             try {
-                // Step 1: Save to Firebase first
+                // 1. Save to Firebase
+                console.log('💾 Saving to Firebase...');
                 await database.ref('orders/' + orderId).set(firebaseOrder);
+                console.log('✅ Saved to Firebase');
+                
+                updateLoadingStatus('Syncing with MoveDrop...');
 
-                // Step 2: Try to send to MoveDrop API
+                // 2. Send to MoveDrop
                 const moveDropResult = await sendToMoveDrop(moveDropOrder);
                 
-                // Update Firebase with sync status
+                // 3. Update Firebase with result
                 if (moveDropResult.success) {
                     await database.ref('orders/' + orderId).update({
                         move_drop_sync: true,
                         move_drop_response: moveDropResult.data,
+                        move_drop_status: moveDropResult.status,
                         updated_at: new Date().toISOString()
                     });
+                    
+                    document.getElementById('moveDropStatus').innerHTML = '✅ Synced with MoveDrop';
+                    console.log('✅ MoveDrop sync successful');
+                    
                 } else {
                     await database.ref('orders/' + orderId).update({
-                        move_drop_error: moveDropResult.error,
+                        move_drop_sync: false,
+                        move_drop_error: moveDropResult.error || moveDropResult.raw,
                         updated_at: new Date().toISOString()
                     });
-                }
-
-                // Step 3: Trigger order.created webhook
-                await triggerWebhooks('order.created', {
-                    id: orderId,
-                    order_number: orderNumber,
-                    status: 'pending',
-                    currency: 'BDT',
-                    total: totals.total.toFixed(2),
-                    payment_method: selectedPayment,
-                    shipping_address: moveDropOrder.shipping_address,
-                    customer_notes: '',
-                    line_items: lineItems,
-                    created_at: new Date().toISOString()
-                });
-
-                // Step 4: Simulate payment processing for non-COD methods
-                if (selectedPayment !== 'cod') {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
                     
-                    // Update payment status
-                    await database.ref('orders/' + orderId).update({
-                        payment_status: 'paid',
-                        paid_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    });
-
-                    // Trigger order.updated webhook for payment
-                    await triggerWebhooks('order.updated', {
-                        id: orderId,
-                        order_number: orderNumber,
-                        status: 'pending',
-                        payment_status: 'paid',
-                        currency: 'BDT',
-                        total: totals.total.toFixed(2),
-                        payment_method: selectedPayment,
-                        shipping_address: moveDropOrder.shipping_address,
-                        line_items: lineItems,
-                        updated_at: new Date().toISOString()
-                    });
+                    document.getElementById('moveDropStatus').innerHTML = '⚠️ Order saved locally only';
+                    console.warn('⚠️ MoveDrop sync failed:', moveDropResult);
                 }
 
-                // Clear cart
+                // 4. Clear cart
                 localStorage.removeItem('essence_cart');
                 localStorage.removeItem('cart_totals');
 
-                // Show success
+                // 5. Show success
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('orderId').innerText = orderId;
                 document.getElementById('successPopup').style.display = 'flex';
 
             } catch (error) {
-                console.error('Order failed:', error);
+                console.error('❌ Order failed:', error);
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('placeOrderBtn').disabled = false;
-                alert('Order failed! Please try again. Error: ' + error.message);
+                showError('Order failed! Please try again. Error: ' + error.message);
             }
         };
 
@@ -1011,12 +984,9 @@
         };
 
         // Initialize
-        async function init() {
-            await loadWebhooks();
+        document.addEventListener('DOMContentLoaded', function() {
             loadCart();
-        }
-
-        init();
+        });
     </script>
 </body>
 </html>
