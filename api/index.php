@@ -1,8 +1,8 @@
 <?php
 /**
  * MAVRO ESSENCE - MOVE-DROP OFFICIAL API
- * Version: 3.1.0
- * Fixed Categories endpoints for MoveDrop
+ * Version: 3.1.1
+ * Fixed Orders endpoint only
  */
 
 // Headers
@@ -93,21 +93,18 @@ if ($path === 'webhooks' && $method === 'POST') {
 }
 
 // ============================================
-// CATEGORIES ENDPOINTS - FIXED VERSION
+// CATEGORIES ENDPOINTS
 // ============================================
 
 // GET /categories - List categories with pagination
 if ($path === 'categories' && $method === 'GET') {
-    // Get all categories from Firebase
-    $categories_data = firebase_get('/categories.json');
+    $categories_data = firebase_get('/categories.json') ?? [];
     
     $formatted_categories = [];
     
     if ($categories_data && is_array($categories_data)) {
         foreach ($categories_data as $key => $category) {
-            // Handle both indexed and key-value formats
             if (is_array($category)) {
-                // Generate slug from name if not present
                 $name = $category['name'] ?? 'Unnamed Category';
                 $slug = $category['slug'] ?? generate_slug($name);
                 
@@ -121,16 +118,13 @@ if ($path === 'categories' && $method === 'GET') {
         }
     }
     
-    // Sort by ID
     usort($formatted_categories, function($a, $b) {
         return $a['id'] - $b['id'];
     });
     
-    // Pagination
     $total = count($formatted_categories);
     $paginated = array_slice($formatted_categories, $offset, $per_page);
     
-    // Calculate meta
     $last_page = ceil($total / $per_page);
     $from = $offset + 1;
     $to = min($offset + $per_page, $total);
@@ -150,9 +144,8 @@ if ($path === 'categories' && $method === 'GET') {
     exit();
 }
 
-// POST /categories - Create new category (FIXED)
+// POST /categories - Create new category
 if ($path === 'categories' && $method === 'POST') {
-    // Get category name from request
     $name = $input['name'] ?? '';
     
     if (empty($name)) {
@@ -166,10 +159,8 @@ if ($path === 'categories' && $method === 'POST') {
         exit();
     }
     
-    // Get all existing categories
     $existing_categories = firebase_get('/categories.json') ?? [];
     
-    // Check for duplicate name
     foreach ($existing_categories as $cat) {
         if (is_array($cat) && isset($cat['name']) && strtolower($cat['name']) === strtolower($name)) {
             http_response_code(400);
@@ -180,7 +171,6 @@ if ($path === 'categories' && $method === 'POST') {
         }
     }
     
-    // Generate new ID
     $max_id = 0;
     foreach ($existing_categories as $cat) {
         if (is_array($cat) && isset($cat['id']) && $cat['id'] > $max_id) {
@@ -189,11 +179,9 @@ if ($path === 'categories' && $method === 'POST') {
     }
     $new_id = $max_id + 1;
     
-    // Generate slug
     $slug = generate_slug($name);
     $timestamp = date('c');
     
-    // Create category data in MoveDrop format
     $category_data = [
         'id' => $new_id,
         'name' => $name,
@@ -201,7 +189,6 @@ if ($path === 'categories' && $method === 'POST') {
         'created_at' => $timestamp
     ];
     
-    // Save to Firebase using the ID as key
     $save_result = firebase_put("/categories/{$new_id}.json", $category_data);
     
     if ($save_result) {
@@ -221,20 +208,6 @@ if ($path === 'categories' && $method === 'POST') {
 // ============================================
 // PRODUCTS ENDPOINTS
 // ============================================
-
-// GET /products - List products (for sync)
-if ($path === 'products' && $method === 'GET') {
-    $products = firebase_get('/products.json') ?? [];
-    
-    $formatted = [];
-    foreach ($products as $key => $product) {
-        $formatted[] = format_product_for_movedrop($key, $product);
-    }
-    
-    http_response_code(200);
-    echo json_encode($formatted);
-    exit();
-}
 
 // POST /products - Create new product
 if ($path === 'products' && $method === 'POST') {
@@ -451,8 +424,65 @@ if (preg_match('/^products\/(.+)$/', $path, $matches) && $method === 'DELETE') {
 }
 
 // ============================================
-// ORDERS ENDPOINTS
+// FIXED: ORDERS ENDPOINTS
 // ============================================
+
+// POST /orders - Create new order (FIXED)
+if ($path === 'orders' && $method === 'POST') {
+    // Log received data
+    error_log("Order received: " . json_encode($input));
+    
+    // Validate required fields
+    if (empty($input['order_number'])) {
+        http_response_code(422);
+        echo json_encode([
+            'message' => 'Validation failed',
+            'errors' => ['order_number' => ['The order number field is required.']]
+        ]);
+        exit();
+    }
+    
+    // Generate order ID
+    $order_id = 'ord_' . time() . '_' . rand(1000, 9999);
+    $timestamp = date('c');
+    
+    // Prepare order data for storage
+    $order_data = [
+        'id' => $order_id,
+        'order_number' => $input['order_number'],
+        'status' => $input['status'] ?? 'pending',
+        'currency' => $input['currency'] ?? 'BDT',
+        'total' => $input['total'] ?? '0',
+        'payment_method' => $input['payment_method'] ?? 'cod',
+        'shipping_address' => $input['shipping_address'] ?? [],
+        'customer_notes' => $input['customer_notes'] ?? '',
+        'line_items' => $input['line_items'] ?? [],
+        'created_at' => $timestamp,
+        'updated_at' => $timestamp
+    ];
+    
+    // Save to Firebase
+    $result = firebase_put("/orders/{$order_id}.json", $order_data);
+    
+    if ($result) {
+        http_response_code(201);
+        echo json_encode([
+            'message' => 'Order Created Successfully',
+            'data' => [
+                'id' => $order_id,
+                'order_number' => $order_data['order_number'],
+                'status' => $order_data['status'],
+                'created_at' => $timestamp
+            ]
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            'message' => 'Failed to create order'
+        ]);
+    }
+    exit();
+}
 
 // GET /orders - List orders with filters
 if ($path === 'orders' && $method === 'GET') {
@@ -605,15 +635,9 @@ echo json_encode([
  * Generate URL slug from string
  */
 function generate_slug($string) {
-    // Convert to lowercase
     $slug = strtolower($string);
-    
-    // Replace non-alphanumeric characters with hyphens
     $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
-    
-    // Remove leading/trailing hyphens
     $slug = trim($slug, '-');
-    
     return $slug;
 }
 
@@ -635,7 +659,6 @@ function format_product_for_movedrop($id, $product) {
         }
     }
     
-    // Ensure at least one default image
     if (!empty($images) && !in_array(true, array_column($images, 'is_default'))) {
         $images[0]['is_default'] = true;
     }
@@ -666,15 +689,15 @@ function format_order_for_movedrop($id, $order) {
         'total' => (string)($order['total'] ?? '0'),
         'payment_method' => $order['payment_method'] ?? 'cod',
         'shipping_address' => $order['shipping_address'] ?? [
-            'first_name' => 'Customer',
+            'first_name' => $order['customer']['name'] ?? 'Customer',
             'last_name' => '',
-            'email' => '',
-            'phone' => '',
-            'address_1' => '',
+            'email' => $order['customer']['email'] ?? '',
+            'phone' => $order['customer']['phone'] ?? '',
+            'address_1' => $order['customer']['address'] ?? '',
             'address_2' => '',
-            'city' => '',
-            'state' => '',
-            'postcode' => '',
+            'city' => $order['customer']['city'] ?? 'Dhaka',
+            'state' => 'Dhaka',
+            'postcode' => $order['customer']['postcode'] ?? '1200',
             'country' => 'Bangladesh'
         ],
         'customer_notes' => $order['customer_notes'] ?? '',
