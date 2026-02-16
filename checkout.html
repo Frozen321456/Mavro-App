@@ -663,11 +663,9 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // MoveDrop Configuration
-        const MOVEDROP_API_URL = 'https://mavro.xo.je/api/index.php';
-        const MOVEDROP_API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
-
         // Constants
+        const API_BASE_URL = 'https://mavro.xo.je/api';
+        const API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
         const DELIVERY_CHARGE = 130;
         const FREE_DELIVERY_THRESHOLD = 2000;
 
@@ -675,29 +673,24 @@
         let cart = [];
         let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, isFreeDelivery: false };
         let selectedPayment = 'cod';
-        let webhooks = [];
 
-        // ফাংশন যা ভ্যারিয়েশন থেকে প্রপার্টি ভ্যালুগুলো বের করে
+        // Format variation for display
         function formatVariationForDisplay(variation) {
             if (!variation) return null;
             
             let chips = [];
             
-            // variation যদি অবজেক্ট হয়
             if (typeof variation === 'object') {
                 Object.entries(variation).forEach(([key, value]) => {
-                    // কী ফরম্যাট করুন
                     let propName = key;
                     if (key.toLowerCase().includes('color')) propName = 'Color';
                     else if (key.toLowerCase().includes('model')) propName = 'Model';
                     else if (key.toLowerCase().includes('size')) propName = 'Size';
                     else if (key.toLowerCase().includes('spec')) propName = 'Spec';
                     else {
-                        // Capitalize first letter
                         propName = key.charAt(0).toUpperCase() + key.slice(1);
                     }
                     
-                    // ভ্যালু ফরম্যাট করুন
                     let propValue = value;
                     if (value && typeof value === 'object') {
                         if (value.name && value.value) {
@@ -723,7 +716,6 @@
                 return;
             }
 
-            // Ensure all items have quantity
             cart = cart.map(item => ({
                 ...item,
                 quantity: item.quantity || 1,
@@ -759,7 +751,7 @@
             };
         }
 
-        // Render order summary with variation details
+        // Render order summary
         function renderSummary() {
             const summaryItems = document.getElementById('summaryItems');
             
@@ -811,7 +803,6 @@
         window.selectPayment = (method) => {
             selectedPayment = method;
             
-            // Update UI
             document.querySelectorAll('.payment-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -822,20 +813,6 @@
             document.getElementById(`payment-${method}`).classList.add('selected');
             document.getElementById(`radio-${method}`).classList.add('selected');
         };
-
-        // Load webhooks from Firebase
-        async function loadWebhooks() {
-            try {
-                const snapshot = await database.ref('webhooks').once('value');
-                const webhooksData = snapshot.val();
-                
-                if (webhooksData) {
-                    webhooks = Object.values(webhooksData);
-                }
-            } catch (error) {
-                console.error('Error loading webhooks:', error);
-            }
-        }
 
         // Validate Bangladesh phone number
         function validateBDPhone(phone) {
@@ -853,97 +830,100 @@
             return result;
         }
 
-        // Prepare line items with variations for MoveDrop
-        function prepareLineItems() {
-            return cart.map((item, index) => {
-                // Format variations for MoveDrop
-                const variations = [];
-                
-                if (item.variation) {
-                    if (typeof item.variation === 'object') {
-                        Object.entries(item.variation).forEach(([key, value]) => {
-                            let propValue = value;
-                            if (value && typeof value === 'object') {
-                                if (value.value) {
-                                    propValue = value.value;
-                                } else if (value.name) {
-                                    propValue = value.name;
-                                }
-                            }
-                            
-                            variations.push({
-                                name: key,
-                                value: propValue
-                            });
-                        });
-                    } else {
-                        variations.push({
-                            name: 'option',
-                            value: item.variation
-                        });
-                    }
-                }
-
-                return {
-                    id: index + 1,
-                    product_id: parseInt(item.productId) || parseInt(item.id) || 0,
-                    name: item.name || 'Product',
-                    quantity: item.quantity || 1,
-                    price: parseFloat(item.price) || 0,
-                    total: (item.price * (item.quantity || 1)).toFixed(2),
-                    variations: variations.length > 0 ? variations : undefined,
-                    sku: item.sku || `SKU-${item.id || index}`
-                };
-            });
-        }
-
-        // Send to MoveDrop API
-        async function sendToMoveDrop(orderData) {
+        // ============================================
+        // FIXED: Send order to API
+        // ============================================
+        async function sendOrderToAPI(orderData) {
             try {
-                const response = await fetch(`${MOVEDROP_API_URL}?path=orders`, {
+                const url = `${API_BASE_URL}/index.php?path=orders`;
+                
+                console.log('Sending to API:', url);
+                console.log('Order data:', orderData);
+
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-API-KEY': MOVEDROP_API_KEY,
+                        'X-API-KEY': API_KEY,
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify(orderData)
                 });
 
-                const responseData = await response.json();
-                
-                if (!response.ok) {
-                    console.error('MoveDrop API error:', responseData);
-                    return { success: false, error: responseData };
+                const responseText = await response.text();
+                console.log('API Response Status:', response.status);
+                console.log('API Response:', responseText);
+
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = { raw: responseText };
                 }
 
-                return { success: true, data: responseData };
+                return { 
+                    success: response.ok, 
+                    status: response.status,
+                    data: responseData 
+                };
             } catch (error) {
-                console.error('MoveDrop API call failed:', error);
+                console.error('API call failed:', error);
                 return { success: false, error: error.message };
             }
         }
 
-        // Trigger webhooks
-        async function triggerWebhooks(event, payload) {
-            const orderWebhooks = webhooks.filter(w => w.event === event);
-            
-            for (const webhook of orderWebhooks) {
-                try {
-                    await fetch(webhook.delivery_url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                } catch (error) {
-                    console.error(`Webhook failed for ${webhook.delivery_url}:`, error);
-                }
-            }
+        // ============================================
+        // FIXED: Prepare order for API
+        // ============================================
+        function prepareOrderForAPI(orderData) {
+            const nameParts = orderData.customer_name.split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.slice(1).join(' ') || '';
+
+            // Prepare line items
+            const lineItems = cart.map((item, index) => ({
+                id: index + 1,
+                product_id: parseInt(item.productId) || parseInt(item.id) || 0,
+                name: item.name || 'Product',
+                quantity: item.quantity || 1,
+                total: (item.price * (item.quantity || 1)).toFixed(2),
+                variations: [{
+                    id: index + 1,
+                    variation_id: parseInt(item.variationId) || 0,
+                    sku: item.sku || `SKU-${item.id || index}`,
+                    quantity: item.quantity || 1,
+                    price: item.price.toFixed(2),
+                    created_at: new Date().toISOString()
+                }]
+            }));
+
+            // API expects this exact format
+            return {
+                order_number: orderData.order_number,
+                status: 'pending',
+                currency: 'BDT',
+                total: totals.total.toFixed(2),
+                payment_method: selectedPayment === 'cod' ? 'cod' : selectedPayment,
+                shipping_address: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: orderData.email || 'customer@example.com',
+                    phone: orderData.phone,
+                    address_1: orderData.address,
+                    address_2: '',
+                    city: orderData.city || 'Dhaka',
+                    state: 'Dhaka',
+                    postcode: orderData.postcode || '1200',
+                    country: 'Bangladesh'
+                },
+                customer_notes: '',
+                line_items: lineItems
+            };
         }
 
-        // Place order
+        // ============================================
+        // FIXED: Main place order function
+        // ============================================
         window.placeOrder = async () => {
             // Get form values
             const name = document.getElementById('fullName').value.trim();
@@ -974,132 +954,70 @@
                 return;
             }
 
-            // Split name into first and last
-            const nameParts = name.split(' ');
-            const firstName = nameParts[0];
-            const lastName = nameParts.slice(1).join(' ') || '';
-
-            // Generate order number
+            // Generate IDs
+            const orderId = 'order_' + Date.now();
             const orderNumber = generateOrderNumber();
-            const orderId = 'ORD-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
-            // Prepare line items
-            const lineItems = prepareLineItems();
-
-            // Prepare order data for MoveDrop
-            const moveDropOrder = {
-                order_number: orderNumber,
-                status: 'pending',
-                currency: 'BDT',
-                subtotal: totals.subtotal.toFixed(2),
-                delivery_charge: totals.deliveryTotal.toFixed(2),
-                total: totals.total.toFixed(2),
-                payment_method: selectedPayment === 'cod' ? 'cod' : selectedPayment,
-                shipping_address: {
-                    first_name: firstName,
-                    last_name: lastName,
-                    email: email || 'no-email@store.com',
-                    phone: phone,
-                    address_1: address,
-                    address_2: '',
-                    city: city,
-                    state: 'Dhaka',
-                    postcode: postcode,
-                    country: 'Bangladesh'
-                },
-                customer_notes: '',
-                line_items: lineItems
+            // Prepare order data
+            const orderData = {
+                customer_name: name,
+                phone: phone,
+                email: email || 'no-email@store.com',
+                address: address,
+                city: city,
+                postcode: postcode,
+                order_number: orderNumber
             };
 
-            // Prepare order data for Firebase
-            const firebaseOrder = {
-                order_id: orderId,
-                order_number: orderNumber,
-                customer: {
-                    name: name,
-                    phone: phone,
-                    email: email || '',
-                    address: address,
-                    city: city,
-                    postcode: postcode
-                },
-                payment_method: selectedPayment,
-                payment_status: selectedPayment === 'cod' ? 'pending' : 'paid',
-                subtotal: totals.subtotal,
-                delivery_charge: totals.deliveryTotal,
-                total: totals.total,
-                items: cart,
-                status: 'pending',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                move_drop_sync: false
-            };
+            // Prepare API payload
+            const apiPayload = prepareOrderForAPI(orderData);
 
             // Show loading
             document.getElementById('loadingOverlay').style.display = 'flex';
             document.getElementById('placeOrderBtn').disabled = true;
 
             try {
-                // Step 1: Save to Firebase first
-                await database.ref('orders/' + orderId).set(firebaseOrder);
+                // Step 1: Save to Firebase
+                const firebaseOrder = {
+                    order_id: orderId,
+                    order_number: orderNumber,
+                    customer: {
+                        name: name,
+                        phone: phone,
+                        email: email || '',
+                        address: address,
+                        city: city,
+                        postcode: postcode
+                    },
+                    payment_method: selectedPayment,
+                    payment_status: selectedPayment === 'cod' ? 'pending' : 'paid',
+                    subtotal: totals.subtotal,
+                    delivery_charge: totals.deliveryTotal,
+                    total: totals.total,
+                    items: cart,
+                    status: 'pending',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
 
-                // Step 2: Try to send to MoveDrop API
-                const moveDropResult = await sendToMoveDrop(moveDropOrder);
+                await database.ref('orders/' + orderId).set(firebaseOrder);
+                console.log('Order saved to Firebase');
+
+                // Step 2: Send to MoveDrop API
+                const apiResult = await sendOrderToAPI(apiPayload);
                 
-                // Update Firebase with sync status
-                if (moveDropResult.success) {
+                if (apiResult.success) {
+                    console.log('Order sent to MoveDrop API successfully');
                     await database.ref('orders/' + orderId).update({
                         move_drop_sync: true,
-                        move_drop_response: moveDropResult.data,
+                        move_drop_response: apiResult.data,
                         updated_at: new Date().toISOString()
                     });
                 } else {
+                    console.warn('MoveDrop API failed but order saved locally:', apiResult);
                     await database.ref('orders/' + orderId).update({
-                        move_drop_error: moveDropResult.error,
-                        updated_at: new Date().toISOString()
-                    });
-                }
-
-                // Step 3: Trigger order.created webhook
-                await triggerWebhooks('order.created', {
-                    id: orderId,
-                    order_number: orderNumber,
-                    status: 'pending',
-                    currency: 'BDT',
-                    subtotal: totals.subtotal.toFixed(2),
-                    delivery_charge: totals.deliveryTotal.toFixed(2),
-                    total: totals.total.toFixed(2),
-                    payment_method: selectedPayment,
-                    shipping_address: moveDropOrder.shipping_address,
-                    customer_notes: '',
-                    line_items: lineItems,
-                    created_at: new Date().toISOString()
-                });
-
-                // Step 4: Simulate payment processing for non-COD methods
-                if (selectedPayment !== 'cod') {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    // Update payment status
-                    await database.ref('orders/' + orderId).update({
-                        payment_status: 'paid',
-                        paid_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    });
-
-                    // Trigger order.updated webhook for payment
-                    await triggerWebhooks('order.updated', {
-                        id: orderId,
-                        order_number: orderNumber,
-                        status: 'pending',
-                        payment_status: 'paid',
-                        currency: 'BDT',
-                        subtotal: totals.subtotal.toFixed(2),
-                        delivery_charge: totals.deliveryTotal.toFixed(2),
-                        total: totals.total.toFixed(2),
-                        payment_method: selectedPayment,
-                        shipping_address: moveDropOrder.shipping_address,
-                        line_items: lineItems,
+                        move_drop_sync: false,
+                        move_drop_error: apiResult.error || 'API Error',
                         updated_at: new Date().toISOString()
                     });
                 }
@@ -1110,7 +1028,7 @@
 
                 // Show success
                 document.getElementById('loadingOverlay').style.display = 'none';
-                document.getElementById('orderId').innerText = orderId;
+                document.getElementById('orderId').innerText = orderNumber;
                 document.getElementById('successPopup').style.display = 'flex';
 
             } catch (error) {
@@ -1127,12 +1045,7 @@
         };
 
         // Initialize
-        async function init() {
-            await loadWebhooks();
-            loadCart();
-        }
-
-        init();
+        loadCart();
     </script>
 </body>
 </html>
