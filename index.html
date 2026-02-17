@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="google-site-verification" content="ZY8i-2dFP5QQCwVn3y580J0U2PlfBKEPykmq1JNBA7I" />
     <title>ESPERA MAVRO | Premium Global Sourcing</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
@@ -1057,7 +1056,7 @@
             });
         }
 
-        // LOAD FEATURED PRODUCTS
+        // FIXED: LOAD FEATURED PRODUCTS WITH PRICE DISPLAY
         function loadProducts() {
             database.ref('products').limitToFirst(8).once('value', (snapshot) => {
                 const grid = document.getElementById('productGrid');
@@ -1069,19 +1068,48 @@
                 snapshot.forEach((child) => {
                     const product = child.val();
                     const productId = child.key;
+                    
+                    // Get image
                     let imgUrl = product.image;
                     if (!imgUrl && product.images) {
-                        if (Array.isArray(product.images)) imgUrl = product.images[0]?.src || product.images[0];
-                        else if (typeof product.images === 'object') {
+                        if (Array.isArray(product.images)) {
+                            imgUrl = product.images[0]?.src || product.images[0];
+                        } else if (typeof product.images === 'object') {
                             const firstImg = Object.values(product.images)[0];
                             imgUrl = firstImg?.src || firstImg;
                         }
                     }
                     imgUrl = imgUrl || 'https://via.placeholder.com/300x300?text=MAVRO';
-                    let price = product.sale_price || product.price || product.regular_price || 0;
-                    if (price === "undefined" || price === "") price = 0;
-                    price = parseFloat(price) || 0;
-                    let priceDisplay = `৳${price}`;
+                    
+                    // FIXED: Get price correctly
+                    let price = 0;
+                    
+                    // Check for variations first
+                    if (product.variations) {
+                        const variations = Object.values(product.variations);
+                        if (variations.length > 0) {
+                            // Get the lowest price from variations
+                            const prices = variations.map(v => {
+                                const vPrice = parseFloat(v.sale_price || v.regular_price || v.price || 0);
+                                return isNaN(vPrice) ? 0 : vPrice;
+                            }).filter(p => p > 0);
+                            
+                            if (prices.length > 0) {
+                                price = Math.min(...prices);
+                            }
+                        }
+                    }
+                    
+                    // If no variations or no price found, use product price
+                    if (price === 0) {
+                        price = parseFloat(product.sale_price || product.price || product.regular_price || 0);
+                    }
+                    
+                    // Ensure price is a number
+                    price = isNaN(price) ? 0 : price;
+                    
+                    // Format price display
+                    let priceDisplay = price > 0 ? `৳ ${price.toFixed(0)}` : 'Price on request';
                     
                     productsHtml += `
                         <a href="single-product-details.html?id=${productId}" class="p-card">
@@ -1244,11 +1272,19 @@
             });
         }
 
-        // search handlers
-        function handleSearch(e) { if(e.key === 'Enter') doSearch(); }
+        // FIXED: search handlers - now properly passes search query to shop.html
+        function handleSearch(e) { 
+            if(e.key === 'Enter') doSearch(); 
+        }
+        
         function doSearch() {
             const q = document.getElementById('searchInput').value.trim();
-            if(q) window.location.href = `shop.html?search=${encodeURIComponent(q)}`;
+            if(q) {
+                // Properly encode the search query and redirect to shop.html with search parameter
+                window.location.href = `shop.html?search=${encodeURIComponent(q)}`;
+            } else {
+                alert('Please enter a search term');
+            }
         }
 
         // cart count
@@ -1283,4 +1319,4 @@
         window.addEventListener('storage', updateCartCount);
     </script>
 </body>
-</html>
+    </html>
