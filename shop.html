@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mavro Essence | Shop</title>
+    <title>ESPERA MAVRO | Shop</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #111; --accent: #ff5a5f; --bg: #fcfcfc; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        :root {
+            --primary: #000000;
+            --accent: #ff385c;
+            --bg: #ffffff;
+            --secondary-bg: #f8f8f8;
+            --text-muted: #666;
+            --border: #e2e2e2;
+            --gold: #c5a059;
+            --soft-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--primary); padding-top: 130px; overflow-x: hidden; }
 
         /* Header & Navigation */
@@ -17,13 +27,14 @@
             top: 0; 
             width: 100%; 
             height: 70px; 
-            background: #fff; 
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
             padding: 0 5%; 
             z-index: 1100; 
-            border-bottom: 1px solid #eee; 
+            border-bottom: 1px solid var(--border); 
         }
         .logo { 
             font-weight: 800; 
@@ -32,17 +43,13 @@
             color: #000; 
             text-decoration: none; 
         }
-        .cart-icon { 
-            position: relative; 
-            font-size: 20px; 
-            cursor: pointer; 
-            color: #000; 
-            text-decoration: none; 
-        }
+        .logo span { color: var(--accent); }
+        .nav-icon { font-size: 20px; color: #000; cursor: pointer; text-decoration: none; }
+        .nav-actions { display: flex; align-items: center; gap: 15px; }
         .cart-count { 
             position: absolute; 
-            top: -10px; 
-            right: -10px; 
+            top: 15px; 
+            right: calc(5% + 5px); 
             background: var(--accent); 
             color: #fff; 
             font-size: 11px; 
@@ -55,6 +62,18 @@
             font-weight: 800; 
         }
 
+        /* Sidebar */
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1999; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: all; }
+        .sidebar { position: fixed; top: 0; left: -100%; width: 260px; height: 100%; background: #fff; z-index: 2000; transition: 0.3s; padding: 35px 20px; overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar-close { position: absolute; right: 12px; top: 12px; font-size: 18px; cursor: pointer; }
+        .side-links { margin-top: 35px; }
+        .side-links a { display: block; font-size: 16px; font-weight: 700; color: #000; text-decoration: none; margin-bottom: 15px; }
+        .side-cats-title { margin-top: 25px; font-size: 10px; font-weight: 700; color: #888; letter-spacing: 1px; margin-bottom: 12px; }
+        .side-cat-list a { display: block; font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #444; text-decoration: none; }
+        .side-cat-list a i { width: 18px; margin-right: 6px; color: var(--accent); font-size: 12px; }
+
         /* Filter Bar */
         .filter-bar { 
             position: fixed; 
@@ -62,7 +81,7 @@
             width: 100%; 
             background: #fff; 
             z-index: 1000; 
-            border-bottom: 1px solid #eee; 
+            border-bottom: 1px solid var(--border); 
             padding: 12px 5%;
         }
         
@@ -84,7 +103,7 @@
         .categories-header h3 {
             font-size: 14px;
             font-weight: 600;
-            color: #666;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -98,8 +117,8 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background: #f5f5f5;
-            border: none;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -138,7 +157,7 @@
         .cat-btn { 
             padding: 8px 20px; 
             border-radius: 30px; 
-            border: 1.5px solid #eee; 
+            border: 1.5px solid var(--border); 
             background: #fff; 
             font-size: 14px; 
             font-weight: 600; 
@@ -146,11 +165,11 @@
             transition: all 0.2s ease; 
             flex-shrink: 0;
             white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: var(--soft-shadow);
         }
         
         .cat-btn:hover {
-            background: #f9f9f9;
+            background: var(--secondary-bg);
             transform: translateY(-1px);
         }
         
@@ -175,8 +194,8 @@
             width: 100%; 
             padding: 12px 45px; 
             border-radius: 30px; 
-            border: 1.5px solid #eee; 
-            background: #f9f9f9; 
+            border: 1.5px solid var(--border); 
+            background: var(--secondary-bg); 
             outline: none; 
             font-size: 15px; 
             transition: 0.2s;
@@ -215,8 +234,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid #f5f5f5;
+            box-shadow: var(--soft-shadow);
+            border: 1px solid var(--border);
         }
         
         .p-card:hover { 
@@ -228,7 +247,7 @@
             width: 100%; 
             aspect-ratio: 4/5; 
             object-fit: cover; 
-            background: #f5f5f5;
+            background: var(--secondary-bg);
             display: block;
             transition: 0.3s;
         }
@@ -280,6 +299,322 @@
             color: #888;
         }
 
+        /* ========== PROFESSIONAL FOOTER STYLES ========== */
+        .footer {
+            background: #0a0a0a;
+            color: #fff;
+            margin-top: 60px;
+            position: relative;
+            border-top: 1px solid #222;
+        }
+
+        .footer-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 5% 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer-col h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #ff385c;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .footer-logo span {
+            color: #ff385c;
+        }
+
+        .footer-about {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-social a {
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .footer-social a:hover {
+            background: #ff385c;
+            transform: translateY(-3px);
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a i {
+            font-size: 10px;
+            color: #ff385c;
+        }
+
+        .footer-links a:hover {
+            color: #ff385c;
+            transform: translateX(5px);
+        }
+
+        .footer-contact {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .footer-contact li i {
+            color: #ff385c;
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .footer-contact a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-contact a:hover {
+            color: #ff385c;
+        }
+
+        .footer-payment {
+            margin-top: 20px;
+        }
+
+        .footer-payment h5 {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .payment-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .payment-icons i {
+            font-size: 28px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .payment-icons i:hover {
+            color: #ff385c;
+        }
+
+        /* Newsletter Section */
+        .footer-newsletter {
+            background: #111;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .newsletter-content h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .newsletter-content p {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: #ff385c;
+        }
+
+        .newsletter-form button {
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: none;
+            background: #ff385c;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .newsletter-form button:hover {
+            background: #e62e4e;
+            transform: translateY(-2px);
+        }
+
+        /* Bottom Footer */
+        .footer-bottom {
+            border-top: 1px solid #222;
+            padding: 20px 5%;
+            background: #050505;
+        }
+
+        .footer-bottom-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .footer-copyright {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .footer-legal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-legal a {
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+
+        .footer-legal a:hover {
+            color: #ff385c;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: #ff385c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(255, 56, 92, 0.3);
+            transition: all 0.3s;
+            z-index: 99;
+        }
+
+        .scroll-top:hover {
+            background: #e62e4e;
+            transform: translateY(-3px);
+        }
+
+        .scroll-top.show {
+            display: flex;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             body { padding-top: 150px; }
@@ -321,6 +656,32 @@
                 padding: 7px 16px; 
                 font-size: 13px; 
             }
+
+            .footer-newsletter {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .newsletter-form {
+                max-width: 100%;
+            }
+            
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-legal {
+                justify-content: center;
+            }
+            
+            .scroll-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
         }
 
         /* Small phones */
@@ -345,13 +706,32 @@
 </head>
 <body>
 
+    <!-- Header with Hamburger -->
     <header class="header">
-        <a href="index.html" class="logo">MAVRO</a>
-        <a href="cart.html" class="cart-icon">
-            <i class="fas fa-shopping-bag"></i>
-            <span class="cart-count" id="cartCount">0</span>
-        </a>
+        <div class="nav-icon" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></div>
+        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
+        <div class="nav-actions">
+            <i class="fa-solid fa-magnifying-glass nav-icon" onclick="document.getElementById('searchInput').focus()"></i>
+            <a href="cart.html" class="nav-icon" style="position: relative;">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+        </div>
     </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-close" onclick="toggleMenu()"><i class="fa-solid fa-xmark"></i></div>
+        <div class="side-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="track-order.html">Track Order</a>
+            <a href="cart.html">Cart</a>
+        </div>
+        <div class="side-cats-title">CATEGORIES</div>
+        <div class="side-cat-list" id="sideCats"></div>
+    </div>
 
     <div class="filter-bar">
         <div class="categories-container">
@@ -383,10 +763,110 @@
         <div class="loading">Loading products...</div>
     </div>
 
+    <!-- ========== PROFESSIONAL FOOTER ========== -->
+    <footer class="footer">
+        <!-- Main Footer -->
+        <div class="footer-main">
+            <div class="footer-grid">
+                <!-- Column 1: Brand & About -->
+                <div class="footer-col">
+                    <div class="footer-logo">ESPERA <span>MAVRO.</span></div>
+                    <p class="footer-about">Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="shop.html"><i class="fas fa-chevron-right"></i> Shop</a></li>
+                        <li><a href="track-order.html"><i class="fas fa-chevron-right"></i> Track Order</a></li>
+                        <li><a href="cart.html"><i class="fas fa-chevron-right"></i> Cart</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Wholesale</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Categories -->
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul class="footer-links" id="footerCategories">
+                        <!-- Categories will be loaded dynamically -->
+                        <li><i class="fas fa-spinner fa-spin"></i> Loading...</li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Contact Info -->
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> Dhaka, Bangladesh</li>
+                        <li><i class="fas fa-phone-alt"></i> <a href="tel:+8801721383418">+880 1721-383418</a></li>
+                        <li><i class="fas fa-envelope"></i> <a href="mailto:esperamavro@gmail.com">esperamavro@gmail.com</a></li>
+                        <li><i class="fas fa-clock"></i> Support: 24/7</li>
+                    </ul>
+                    
+                    <!-- Payment Methods -->
+                    <div class="footer-payment">
+                        <h5>We Accept</h5>
+                        <div class="payment-icons">
+                            <i class="fab fa-cc-visa" title="Visa"></i>
+                            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                            <i class="fab fa-cc-amex" title="American Express"></i>
+                            <i class="fab fa-cc-paypal" title="PayPal"></i>
+                            <i class="fab fa-bkash" title="bKash"></i>
+                            <i class="fas fa-credit-card" title="Nagad"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newsletter Section -->
+            <div class="footer-newsletter">
+                <div class="newsletter-content">
+                    <h4>Subscribe to Our Newsletter</h4>
+                    <p>Get updates on new collections, exclusive deals, and wholesale offers</p>
+                </div>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); subscribeNewsletter()">
+                    <input type="email" id="newsletterEmail" placeholder="Your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <div class="footer-copyright">
+                    © 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform
+                </div>
+                <div class="footer-legal">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="refund.html">Refund Policy</a>
+                    <a href="#">Shipping Info</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="scrollToTop()" id="scrollTopBtn" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
+        // FIREBASE INIT
         const firebaseConfig = {
             apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
             authDomain: "espera-mavro-6ddc5.firebaseapp.com",
@@ -397,6 +877,107 @@
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+
+        // icons helper
+        const categoryIcons = {
+            'fashion': 'fa-solid fa-shirt',
+            'womens fashion': 'fa-solid fa-person-dress',
+            'bag': 'fa-solid fa-bag-shopping',
+            'household': 'fa-solid fa-couch',
+            'cosmetics': 'fa-solid fa-spray-can-sparkles',
+            'beauty': 'fa-solid fa-star',
+            'default': 'fa-solid fa-cube'
+        };
+        
+        function getCategoryIcon(catName) {
+            if (!catName) return categoryIcons.default;
+            const key = catName.toLowerCase();
+            if (key.includes('fashion')) return 'fa-solid fa-shirt';
+            if (key.includes('womens')) return 'fa-solid fa-person-dress';
+            if (key.includes('bag')) return 'fa-solid fa-bag-shopping';
+            if (key.includes('house')) return 'fa-solid fa-couch';
+            if (key.includes('cosmetic')) return 'fa-solid fa-spray-can-sparkles';
+            return categoryIcons.default;
+        }
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // LOAD CATEGORIES FOR SIDEBAR
+        function loadSideCategories() {
+            database.ref('categories').once('value', (snapshot) => {
+                const sideCats = document.getElementById('sideCats');
+                let sideHtml = '';
+                
+                snapshot.forEach((child) => {
+                    const catId = child.key;
+                    const catData = child.val();
+                    const catName = catData.name || catData;
+                    
+                    if (catName && catName !== 'All') {
+                        const icon = getCategoryIcon(catName);
+                        sideHtml += `<a href="shop.html?category=${catId}"><i class="${icon}"></i> ${catName}</a>`;
+                    }
+                });
+                sideCats.innerHTML = sideHtml || '<a href="#">No categories</a>';
+            });
+        }
+
+        // LOAD CATEGORIES FOR FOOTER
+        function loadFooterCategories() {
+            database.ref('categories').limitToFirst(6).once('value', (snapshot) => {
+                const footerCats = document.getElementById('footerCategories');
+                let html = '';
+                
+                snapshot.forEach((child) => {
+                    const catData = child.val();
+                    const catName = catData.name || catData;
+                    if (catName && catName !== 'All') {
+                        html += `<li><a href="shop.html?category=${child.key}"><i class="fas fa-chevron-right"></i> ${catName}</a></li>`;
+                    }
+                });
+                
+                footerCats.innerHTML = html || '<li><a href="shop.html"><i class="fas fa-chevron-right"></i> All Categories</a></li>';
+            });
+        }
+
+        // Newsletter subscription
+        function subscribeNewsletter() {
+            const email = document.getElementById('newsletterEmail').value.trim();
+            if (!email) return;
+            
+            database.ref('newsletter').push({
+                email: email,
+                subscribed_at: new Date().toISOString()
+            }).then(() => {
+                alert('Thank you for subscribing!');
+                document.getElementById('newsletterEmail').value = '';
+            }).catch(err => {
+                console.error('Newsletter subscription failed:', err);
+                alert('Subscription failed. Please try again.');
+            });
+        }
+
+        // Scroll to top button
+        window.onscroll = function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // ========== SHOP PAGE FUNCTIONS ==========
         
         let allProducts = [];
         let filteredProducts = [];
@@ -520,22 +1101,20 @@
         function productInCategory(product, catId) {
             if (catId === 'All') return true;
             
-            // Check category_ids field (from your Firebase screenshot)
+            // Check category_ids field
             if (product.category_ids) {
-                // If category_ids is an object with keys
                 if (typeof product.category_ids === 'object') {
                     return Object.keys(product.category_ids).some(key => 
                         product.category_ids[key] == catId || key == catId
                     );
                 }
-                // If category_ids is an array
                 if (Array.isArray(product.category_ids)) {
                     return product.category_ids.includes(catId) || 
                            product.category_ids.includes(parseInt(catId));
                 }
             }
             
-            // Check category field (direct string)
+            // Check category field
             if (product.category) {
                 return product.category == catId || product.category === categories[catId];
             }
@@ -672,11 +1251,23 @@
             categories.style.transform = `translateX(-${currentScrollPosition}px)`;
         });
 
+        // Get URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const catParam = params.get('category');
+            if (catParam && catParam !== 'All') {
+                selectedCatId = catParam;
+            }
+        }
+
         // Initialize
         window.onload = function() {
+            loadSideCategories();
+            loadFooterCategories();
             loadCategories();
             loadProducts();
             updateCartCount();
+            getUrlParams();
         };
 
         // Listen for cart updates
