@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Track Order | Espera Mavro</title>
+    <title>Track Order | ESPERA MAVRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -366,6 +366,47 @@
             color: var(--text-primary);
         }
 
+        /* Order Note Section */
+        .note-section {
+            padding: 0 36px 36px;
+        }
+
+        .note-card {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent);
+            padding: 20px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .note-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .note-title i {
+            color: var(--accent);
+        }
+
+        .note-content {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .note-empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
         /* Products Table */
         .products-section {
             padding: 36px;
@@ -674,6 +715,10 @@
                 padding: 24px;
             }
 
+            .note-section {
+                padding: 0 24px 24px;
+            }
+
             .products-section,
             .timeline-section,
             .price-summary,
@@ -734,7 +779,7 @@
             <p class="search-subtitle">Enter your Order ID to view real-time updates</p>
             
             <div class="search-box">
-                <input type="text" id="orderIdInput" placeholder="Order ID (e.g., ORD-1234-ABCD)" value="">
+                <input type="text" id="orderIdInput" placeholder="Order ID (e.g., ORD-12345678-ABCD)" value="">
                 <button onclick="trackOrder()">
                     <i class="fas fa-search"></i> Track
                 </button>
@@ -907,6 +952,9 @@
             // Get status history
             const statusHistory = order.status_history || [];
 
+            // Get order note
+            const orderNote = order.note || '';
+
             // Build order details HTML
             orderDetails.innerHTML = `
                 <!-- Order Header -->
@@ -961,6 +1009,21 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Order Note Section (NEW) -->
+                ${orderNote ? `
+                <div class="note-section">
+                    <div class="note-card">
+                        <div class="note-title">
+                            <i class="fas fa-pen"></i>
+                            Order Note
+                        </div>
+                        <div class="note-content">
+                            "${orderNote}"
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
 
                 <!-- Products Section -->
                 <div class="products-section">
@@ -1153,6 +1216,7 @@
             const deliveryCharge = order.delivery_charge || 0;
             const total = order.total || 0;
             const payment = order.payment || {};
+            const orderNote = order.note || '';
             const createdDate = order.created_at ? new Date(order.created_at) : new Date();
             
             const formattedDate = createdDate.toLocaleDateString('en-US', {
@@ -1179,6 +1243,10 @@
                         .info-box { width: 45%; background: #f8fafc; padding: 24px; border-radius: 16px; }
                         .info-box h3 { font-size: 14px; color: #64748b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
                         .info-box p { margin: 6px 0; color: #1e293b; }
+                        
+                        .note-box { background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #ff385c; }
+                        .note-box h3 { font-size: 14px; color: #64748b; margin-bottom: 8px; }
+                        .note-box p { font-style: italic; color: #1e293b; }
                         
                         table { width: 100%; border-collapse: collapse; margin: 40px 0; }
                         th { background: #f8fafc; padding: 16px; text-align: left; font-size: 13px; color: #64748b; text-transform: uppercase; }
@@ -1222,6 +1290,13 @@
                             <p><strong>Status:</strong> ${order.status || 'pending'}</p>
                         </div>
                     </div>
+
+                    ${orderNote ? `
+                    <div class="note-box">
+                        <h3>Order Note</h3>
+                        <p>${orderNote}</p>
+                    </div>
+                    ` : ''}
 
                     <table>
                         <thead>
