@@ -558,7 +558,7 @@
         </div>
     </div>
 
-    <!-- Orders Section -->
+    <!-- Orders Section with MoveDrop Sync -->
     <div id="orders" class="section" style="display: none;">
         <h3 class="mb-4">Order Management</h3>
         
@@ -582,8 +582,9 @@
                             <th>Amount</th>
                             <th>Payment</th>
                             <th>Status</th>
+                            <th>MoveDrop</th>
                             <th>Date</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="orderList"></tbody>
@@ -661,7 +662,7 @@
         `).join('');
     }
 
-    // ========== VARIATIONS (FIXED) ==========
+    // ========== VARIATIONS ==========
     window.addVariation = () => {
         variations.push({ 
             name: '', 
@@ -748,7 +749,7 @@
         }
     };
 
-    // ========== PRODUCTS (FIXED) ==========
+    // ========== PRODUCTS ==========
     document.getElementById('savePBtn').onclick = async () => {
         const btn = document.getElementById('savePBtn');
         const name = document.getElementById('pName').value.trim();
@@ -806,6 +807,7 @@
         database.ref('products').on('value', snapshot => {
             const list = document.getElementById('pList');
             const totalElement = document.getElementById('totalProducts');
+            const analyticsProducts = document.getElementById('analyticsProducts');
             list.innerHTML = "";
             let count = 0;
             
@@ -836,7 +838,7 @@
             });
             
             totalElement.innerText = count;
-            document.getElementById('analyticsProducts').innerText = count;
+            if (analyticsProducts) analyticsProducts.innerText = count;
         });
     }
 
@@ -1037,6 +1039,11 @@
                                   payment.status === 'awaiting_verification' ? '<span class="badge bg-warning ms-1">Awaiting</span>' : ''}
                             </td>
                             <td>${getStatusBadge(order.status || 'pending')}</td>
+                            <td>
+                                ${order.movedrop_sync ? 
+                                    '<span class="badge bg-success">✓ Synced</span>' : 
+                                    '<span class="badge bg-warning">⟳ Pending</span>'}
+                            </td>
                             <td>${new Date(order.created_at).toLocaleDateString()}</td>
                             <td>
                                 <select class="form-select form-select-sm mb-1" onchange="updateOrderStatus('${child.key}', this.value)">
@@ -1161,6 +1168,7 @@
 
             document.getElementById('analyticsRevenue').innerHTML = `৳${totalRevenue.toFixed(0)}`;
             document.getElementById('analyticsOrders').innerText = totalOrders;
+            document.getElementById('analyticsProducts').innerText = document.getElementById('totalProducts').innerText;
             document.getElementById('conversionRate').innerText = totalOrders > 0 ? '75%' : '0%';
 
             // Payment Methods Stats
@@ -1224,10 +1232,10 @@
             ordersChart = new Chart(document.getElementById('ordersChart'), {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: Object.keys(monthlyData).length ? Object.keys(monthlyData) : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Orders',
-                        data: [12, 19, 15, 25, 22, 30],
+                        data: Object.values(monthlyData).length ? Object.values(monthlyData) : [12, 19, 15, 25, 22, 30],
                         borderColor: '#ff385c',
                         tension: 0.4
                     }]
@@ -1238,10 +1246,10 @@
             revenueChart = new Chart(document.getElementById('revenueChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: Object.keys(monthlyData).length ? Object.keys(monthlyData) : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Revenue (৳)',
-                        data: [15000, 22000, 18000, 28000, 25000, 35000],
+                        data: Object.values(monthlyData).length ? Object.values(monthlyData).map(v => v * 1000) : [15000, 22000, 18000, 28000, 25000, 35000],
                         backgroundColor: '#ff385c'
                     }]
                 },
@@ -1294,4 +1302,4 @@
     init();
 </script>
 </body>
-    </html>
+</html>
