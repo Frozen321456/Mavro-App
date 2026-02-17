@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Track Order | Espera Mavro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        :root {
+            --primary: #000000;
+            --accent: #ff385c;
+            --bg: #f5f7fa;
+            --white: #ffffff;
+            --border: #eef2f6;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --hover-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 100px;
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid var(--border);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 22px;
+            text-decoration: none;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--bg);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: 0.2s;
+            border: 1px solid var(--border);
+        }
+
+        .back-btn:hover {
+            background: var(--white);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Main Container */
+        .track-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--white);
+            border-radius: 32px;
+            padding: 48px 40px;
+            text-align: center;
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+        }
+
+        .search-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .search-title span {
+            color: var(--accent);
+            background: linear-gradient(135deg, #ff385c 0%, #ff6b4a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .search-box {
+            max-width: 520px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 18px 24px;
+            padding-right: 140px;
+            border: 2px solid var(--border);
+            border-radius: 60px;
+            font-size: 16px;
+            transition: 0.3s;
+            background: var(--white);
+            color: var(--text-primary);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0,0,0,0.02);
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 6px;
+            top: 6px;
+            bottom: 6px;
+            padding: 0 28px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box button:hover {
+            background: #1a1a1a;
+            transform: scale(1.02);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 80px;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Order Details */
+        .order-details {
+            background: var(--white);
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-top: 32px;
+            display: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Order Header */
+        .order-header {
+            padding: 32px 36px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            background: linear-gradient(135deg, #fafcff 0%, #ffffff 100%);
+        }
+
+        .order-id-section h2 {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .order-id {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .order-id span {
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .status-pending { 
+            background: #fffbeb; 
+            color: #b45309; 
+            border-left: 4px solid #f59e0b;
+        }
+        .status-placed { 
+            background: #ecfdf5; 
+            color: #047857; 
+            border-left: 4px solid #10b981;
+        }
+        .status-processing { 
+            background: #eff6ff; 
+            color: #1d4ed8; 
+            border-left: 4px solid #3b82f6;
+        }
+        .status-shipping { 
+            background: #f0f9ff; 
+            color: #0369a1; 
+            border-left: 4px solid #0284c7;
+        }
+        .status-completed { 
+            background: #ecfdf5; 
+            color: #047857; 
+            border-left: 4px solid #10b981;
+        }
+        .status-cancelled { 
+            background: #fef2f2; 
+            color: #b91c1c; 
+            border-left: 4px solid #ef4444;
+        }
+
+        /* Payment Badge */
+        .payment-badge {
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .payment-paid { 
+            background: #ecfdf5; 
+            color: #047857; 
+            border: 1px solid #a7f3d0;
+        }
+        .payment-pending { 
+            background: #fffbeb; 
+            color: #b45309; 
+            border: 1px solid #fcd34d;
+        }
+        .payment-cod { 
+            background: #eff6ff; 
+            color: #1d4ed8; 
+            border: 1px solid #bfdbfe;
+        }
+        .payment-awaiting { 
+            background: #fff7ed; 
+            color: #c2410c; 
+            border: 1px solid #fed7aa;
+        }
+
+        /* Order Info Grid */
+        .order-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 36px;
+            background: #ffffff;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .info-card:hover {
+            box-shadow: var(--hover-shadow);
+            border-color: var(--accent);
+        }
+
+        .info-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .info-value i {
+            width: 22px;
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+        .info-highlight {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 8px;
+            color: var(--text-primary);
+        }
+
+        /* Products Table */
+        .products-section {
+            padding: 36px;
+            border-top: 1px solid var(--border);
+            background: #ffffff;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .section-title i {
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table th {
+            text-align: left;
+            padding: 16px;
+            background: #f8fafc;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .products-table td {
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .product-image {
+            width: 70px;
+            height: 90px;
+            border-radius: 16px;
+            object-fit: cover;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+
+        .product-name {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .product-variant {
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: #f8fafc;
+            padding: 4px 10px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Price Summary */
+        .price-summary {
+            padding: 32px 36px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .summary-row.total {
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border);
+            color: var(--accent);
+        }
+
+        .summary-row.total span:last-child {
+            font-size: 28px;
+        }
+
+        /* Timeline Section */
+        .timeline-section {
+            padding: 36px;
+            background: #ffffff;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 36px;
+            margin-top: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent) 0%, #ffb3c6 100%);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 32px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--accent);
+            z-index: 2;
+        }
+
+        .timeline-item.completed::before {
+            background: var(--success);
+            box-shadow: 0 0 0 2px var(--success);
+        }
+
+        .timeline-item.processing::before {
+            background: var(--info);
+            box-shadow: 0 0 0 2px var(--info);
+        }
+
+        .timeline-item.cancelled::before {
+            background: var(--danger);
+            box-shadow: 0 0 0 2px var(--danger);
+        }
+
+        .timeline-date {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .timeline-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .timeline-note {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            margin-top: 12px;
+            border-left: 3px solid var(--accent);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            padding: 32px 36px;
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border);
+            background: #f8fafc;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: white;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: var(--danger);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-top: 32px;
+            display: none;
+            border: 1px solid #fee2e2;
+        }
+
+        .error-message i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--danger);
+        }
+
+        .error-message h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .order-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .search-section {
+                padding: 32px 24px;
+            }
+
+            .search-title {
+                font-size: 28px;
+            }
+
+            .order-header {
+                padding: 24px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-info-grid {
+                grid-template-columns: 1fr;
+                padding: 24px;
+            }
+
+            .products-section,
+            .timeline-section,
+            .price-summary,
+            .action-buttons {
+                padding: 24px;
+            }
+
+            .products-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .timeline {
+                padding-left: 24px;
+            }
+
+            .timeline-item::before {
+                left: -24px;
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .order-id {
+                font-size: 20px;
+            }
+
+            .status-badge {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
+        <div style="width: 44px;"></div>
+    </div>
+
+    <div class="track-container">
+        <!-- Search Section -->
+        <div class="search-section">
+            <h1 class="search-title">Track <span>Order</span></h1>
+            <p class="search-subtitle">Enter your Order ID to view real-time updates</p>
+            
+            <div class="search-box">
+                <input type="text" id="orderIdInput" placeholder="Order ID (e.g., ORD-1234-ABCD)" value="">
+                <button onclick="trackOrder()">
+                    <i class="fas fa-search"></i> Track
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching your order details...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Order Not Found</h3>
+            <p>Please check your Order ID and try again</p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="order-details" id="orderDetails"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Status mapping
+        const statusMap = {
+            'pending': { 
+                label: 'Pending', 
+                icon: 'fa-clock', 
+                class: 'status-pending',
+                description: 'Awaiting payment verification'
+            },
+            'placed': { 
+                label: 'Order Placed', 
+                icon: 'fa-check-circle', 
+                class: 'status-placed',
+                description: 'Payment verified, order confirmed'
+            },
+            'processing': { 
+                label: 'Processing', 
+                icon: 'fa-cog', 
+                class: 'status-processing',
+                description: 'Preparing your order'
+            },
+            'shipping': { 
+                label: 'Shipping', 
+                icon: 'fa-truck', 
+                class: 'status-shipping',
+                description: 'On the way to you'
+            },
+            'completed': { 
+                label: 'Completed', 
+                icon: 'fa-check-circle', 
+                class: 'status-completed',
+                description: 'Order delivered successfully'
+            },
+            'cancelled': { 
+                label: 'Cancelled', 
+                icon: 'fa-times-circle', 
+                class: 'status-cancelled',
+                description: 'Order cancelled'
+            }
+        };
+
+        // Check URL for order ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlOrderId = urlParams.get('id');
+        if (urlOrderId) {
+            document.getElementById('orderIdInput').value = urlOrderId;
+            trackOrder();
+        }
+
+        // Track Order
+        window.trackOrder = async function() {
+            const orderId = document.getElementById('orderIdInput').value.trim();
+            
+            if (!orderId) {
+                alert('Please enter an Order ID');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('orderDetails').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            try {
+                // Try direct key lookup
+                let snapshot = await database.ref('orders/' + orderId).once('value');
+                let order = snapshot.val();
+                let foundKey = orderId;
+
+                if (!order) {
+                    // Try searching by order_number
+                    const ordersSnapshot = await database.ref('orders').orderByChild('order_number').equalTo(orderId).once('value');
+                    
+                    ordersSnapshot.forEach(child => {
+                        order = child.val();
+                        foundKey = child.key;
+                    });
+                }
+
+                if (!order) {
+                    throw new Error('Order not found');
+                }
+
+                // Display the order
+                displayOrder(order, foundKey);
+
+            } catch (error) {
+                console.error('Error fetching order:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        };
+
+        // Display Order Details
+        function displayOrder(order, orderId) {
+            const orderDetails = document.getElementById('orderDetails');
+            
+            // Format dates
+            const createdDate = order.created_at ? new Date(order.created_at) : new Date();
+            const formattedDate = createdDate.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Get customer info
+            const customer = order.customer || {};
+            const payment = order.payment || {};
+            
+            // Get items
+            const items = order.items || [];
+            
+            // Calculate totals
+            const subtotal = order.subtotal || 0;
+            const deliveryCharge = order.delivery_charge || 0;
+            const total = order.total || 0;
+
+            // Status
+            const statusInfo = statusMap[order.status] || statusMap.pending;
+            
+            // Payment status class
+            const paymentStatusClass = payment.status === 'paid' ? 'payment-paid' : 
+                                      payment.method === 'cod' ? 'payment-cod' : 
+                                      payment.status === 'awaiting_verification' ? 'payment-awaiting' : 'payment-pending';
+
+            const paymentStatusText = payment.status === 'paid' ? 'Paid' : 
+                                     payment.method === 'cod' ? 'COD' : 
+                                     payment.status === 'awaiting_verification' ? 'Awaiting Verification' : 'Pending';
+
+            // Get status history
+            const statusHistory = order.status_history || [];
+
+            // Build order details HTML
+            orderDetails.innerHTML = `
+                <!-- Order Header -->
+                <div class="order-header">
+                    <div class="order-id-section">
+                        <h2>Order ID</h2>
+                        <div class="order-id"><span>#</span>${orderId}</div>
+                    </div>
+                    <div>
+                        <span class="status-badge ${statusInfo.class}">
+                            <i class="fas ${statusInfo.icon}"></i>
+                            ${statusInfo.label}
+                        </span>
+                        <span class="payment-badge ${paymentStatusClass}">
+                            ${payment.method === 'bkash' ? '<i class="fab fa-bkash"></i>' : 
+                              payment.method === 'nagad' ? '<i class="fas fa-coins"></i>' : 
+                              '<i class="fas fa-money-bill-wave"></i>'}
+                            ${payment.method === 'bkash' ? 'bKash' : 
+                              payment.method === 'nagad' ? 'Nagad' : 'COD'} 
+                            • ${paymentStatusText}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Order Info Grid -->
+                <div class="order-info-grid">
+                    <div class="info-card">
+                        <div class="info-title">Customer</div>
+                        <div class="info-value">
+                            <i class="fas fa-user"></i> ${customer.name || 'N/A'}<br>
+                            <i class="fas fa-phone"></i> ${customer.phone || 'N/A'}<br>
+                            <i class="fas fa-envelope"></i> ${customer.email || 'N/A'}
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-title">Shipping Address</div>
+                        <div class="info-value">
+                            <i class="fas fa-location-dot"></i> ${customer.address || 'N/A'}<br>
+                            ${customer.city || 'Dhaka'}, ${customer.postcode || '1200'}<br>
+                            <span class="info-highlight">Bangladesh</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-title">Payment Details</div>
+                        <div class="info-value">
+                            <i class="fas fa-credit-card"></i> 
+                            ${payment.method === 'bkash' ? 'bKash' : 
+                              payment.method === 'nagad' ? 'Nagad' : 'Cash on Delivery'}<br>
+                            ${payment.trxId ? `<small>TrxID: ${payment.trxId}</small><br>` : ''}
+                            ${payment.verified_at ? `<small>Verified: ${new Date(payment.verified_at).toLocaleDateString()}</small>` : ''}
+                            <div class="info-highlight">৳ ${total.toFixed(0)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="products-section">
+                    <div class="section-title">
+                        <i class="fas fa-box"></i>
+                        Order Items (${items.length})
+                    </div>
+                    
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => {
+                                const price = parseFloat(item.price || 0);
+                                const qty = item.quantity || 1;
+                                const total = price * qty;
+                                const variationHtml = item.variation ? 
+                                    Object.entries(item.variation).map(([key, val]) => 
+                                        `<span class="product-variant">${key}: ${val}</span>`
+                                    ).join(' ') : '';
+                                
+                                return `
+                                    <tr>
+                                        <td>
+                                            <div class="product-info">
+                                                <img src="${item.image || 'https://via.placeholder.com/200x250?text=Product'}" 
+                                                     class="product-image"
+                                                     onerror="this.src='https://via.placeholder.com/200x250?text=No+Image'">
+                                                <div>
+                                                    <div class="product-name">${item.name || 'Product'}</div>
+                                                    <div>${variationHtml}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="product-price">৳ ${price.toFixed(0)}</td>
+                                        <td>${qty}</td>
+                                        <td class="product-price">৳ ${total.toFixed(0)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="price-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>৳ ${subtotal.toFixed(0)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Charge</span>
+                        <span>${deliveryCharge > 0 ? '৳ ' + deliveryCharge.toFixed(0) : 'FREE'}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>৳ ${total.toFixed(0)}</span>
+                    </div>
+                </div>
+
+                <!-- Timeline Section -->
+                <div class="timeline-section">
+                    <div class="section-title">
+                        <i class="fas fa-clock"></i>
+                        Order Timeline
+                    </div>
+                    
+                    <div class="timeline">
+                        ${statusHistory.length > 0 ? statusHistory.map(event => {
+                            const eventStatus = statusMap[event.status] || statusMap.pending;
+                            return `
+                                <div class="timeline-item ${event.status}">
+                                    <div class="timeline-date">
+                                        ${new Date(event.timestamp).toLocaleString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </div>
+                                    <div class="timeline-title">
+                                        <i class="fas ${eventStatus.icon}"></i>
+                                        ${eventStatus.label}
+                                    </div>
+                                    <div class="timeline-text">${event.note || eventStatus.description}</div>
+                                </div>
+                            `;
+                        }).join('') : `
+                            <div class="timeline-item pending">
+                                <div class="timeline-date">${formattedDate}</div>
+                                <div class="timeline-title">
+                                    <i class="fas fa-check-circle"></i>
+                                    Order Placed
+                                </div>
+                                <div class="timeline-text">Your order has been placed successfully</div>
+                            </div>
+                            
+                            ${payment.status === 'paid' ? `
+                                <div class="timeline-item completed">
+                                    <div class="timeline-date">${new Date(payment.verified_at || order.updated_at).toLocaleString()}</div>
+                                    <div class="timeline-title">
+                                        <i class="fas fa-check-circle"></i>
+                                        Payment Verified
+                                    </div>
+                                    <div class="timeline-text">Payment confirmed via ${payment.method}</div>
+                                </div>
+                            ` : ''}
+                            
+                            ${order.status !== 'pending' && order.status !== 'placed' ? `
+                            <div class="timeline-item ${order.status}">
+                                <div class="timeline-date">${new Date(order.updated_at).toLocaleString()}</div>
+                                <div class="timeline-title">
+                                    <i class="fas ${statusMap[order.status]?.icon}"></i>
+                                    ${statusMap[order.status]?.label}
+                                </div>
+                                <div class="timeline-text">${statusMap[order.status]?.description}</div>
+                            </div>
+                            ` : ''}
+                        `}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="downloadInvoice('${orderId}')">
+                        <i class="fas fa-file-pdf"></i>
+                        Download Invoice
+                    </button>
+                    <a href="shop.html" class="btn btn-outline">
+                        <i class="fas fa-shopping-bag"></i>
+                        Continue Shopping
+                    </a>
+                </div>
+            `;
+
+            // Hide loading and show order details
+            document.getElementById('loading').style.display = 'none';
+            orderDetails.style.display = 'block';
+        }
+
+        // Download Invoice
+        window.downloadInvoice = async function(orderId) {
+            try {
+                const snapshot = await database.ref('orders/' + orderId).once('value');
+                const order = snapshot.val();
+
+                if (!order) {
+                    alert('Order not found');
+                    return;
+                }
+
+                const invoiceHTML = generateInvoiceHTML(order, orderId);
+                
+                const element = document.createElement('div');
+                element.innerHTML = invoiceHTML;
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                document.body.appendChild(element);
+
+                const opt = {
+                    margin: [0.5, 0.5, 0.5, 0.5],
+                    filename: `invoice-${orderId}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                await html2pdf().from(element).set(opt).save();
+                
+                document.body.removeChild(element);
+
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                alert('Error generating invoice. Please try again.');
+            }
+        };
+
+        // Generate Invoice HTML
+        function generateInvoiceHTML(order, orderId) {
+            const customer = order.customer || {};
+            const items = order.items || [];
+            const subtotal = order.subtotal || 0;
+            const deliveryCharge = order.delivery_charge || 0;
+            const total = order.total || 0;
+            const payment = order.payment || {};
+            const createdDate = order.created_at ? new Date(order.created_at) : new Date();
+            
+            const formattedDate = createdDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice ${orderId}</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; margin: 40px; color: #1e293b; }
+                        .invoice-header { text-align: center; margin-bottom: 40px; }
+                        .invoice-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; color: #000; }
+                        .invoice-title span { color: #ff385c; }
+                        .order-id { font-size: 16px; color: #64748b; }
+                        .company-details { margin: 30px 0; text-align: center; }
+                        .company-name { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+                        
+                        .info-section { display: flex; justify-content: space-between; margin: 40px 0; }
+                        .info-box { width: 45%; background: #f8fafc; padding: 24px; border-radius: 16px; }
+                        .info-box h3 { font-size: 14px; color: #64748b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+                        .info-box p { margin: 6px 0; color: #1e293b; }
+                        
+                        table { width: 100%; border-collapse: collapse; margin: 40px 0; }
+                        th { background: #f8fafc; padding: 16px; text-align: left; font-size: 13px; color: #64748b; text-transform: uppercase; }
+                        td { padding: 16px; border-bottom: 1px solid #eef2f6; }
+                        
+                        .totals { width: 350px; margin-left: auto; margin-top: 30px; }
+                        .total-row { display: flex; justify-content: space-between; padding: 12px 0; color: #64748b; }
+                        .grand-total { font-weight: 700; font-size: 20px; color: #ff385c; border-top: 2px dashed #eef2f6; padding-top: 16px; margin-top: 8px; }
+                        
+                        .footer { margin-top: 50px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #eef2f6; padding-top: 30px; }
+                        .payment-status { margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-header">
+                        <div class="invoice-title">ESPERA <span>MAVRO</span></div>
+                        <div class="order-id">Invoice #${orderId}</div>
+                    </div>
+
+                    <div class="company-details">
+                        <div class="company-name">ESPERA MAVRO</div>
+                        <div>Dhaka, Bangladesh</div>
+                        <div>support@esperamavro.com | +880 1721-383418</div>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="info-box">
+                            <h3>Bill To</h3>
+                            <p><strong>${customer.name || 'Valued Customer'}</strong></p>
+                            <p>${customer.phone || 'N/A'}</p>
+                            <p>${customer.email || 'N/A'}</p>
+                            <p>${customer.address || 'N/A'}</p>
+                            <p>${customer.city || 'Dhaka'}, ${customer.postcode || '1200'}</p>
+                        </div>
+                        <div class="info-box">
+                            <h3>Invoice Details</h3>
+                            <p><strong>Date:</strong> ${formattedDate}</p>
+                            <p><strong>Payment:</strong> ${payment.method === 'bkash' ? 'bKash' : 
+                                                               payment.method === 'nagad' ? 'Nagad' : 'Cash on Delivery'}</p>
+                            <p><strong>Transaction ID:</strong> ${payment.trxId || 'N/A'}</p>
+                            <p><strong>Status:</strong> ${order.status || 'pending'}</p>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => {
+                                const price = parseFloat(item.price || 0);
+                                const qty = item.quantity || 1;
+                                const total = price * qty;
+                                return `
+                                    <tr>
+                                        <td>
+                                            <strong>${item.name || 'Product'}</strong>
+                                            ${item.variation ? `<br><small style="color: #64748b;">${Object.entries(item.variation).map(([k,v]) => `${k}: ${v}`).join(', ')}</small>` : ''}
+                                        </td>
+                                        <td>৳ ${price.toFixed(0)}</td>
+                                        <td>${qty}</td>
+                                        <td><strong>৳ ${total.toFixed(0)}</strong></td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span>৳ ${subtotal.toFixed(0)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Delivery Charge</span>
+                            <span>${deliveryCharge > 0 ? '৳ ' + deliveryCharge.toFixed(0) : 'FREE'}</span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>Total</span>
+                            <span>৳ ${total.toFixed(0)}</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-status">
+                        <strong>Payment Status:</strong> 
+                        ${payment.status === 'paid' ? '✓ PAID' : 
+                          payment.status === 'awaiting_verification' ? '⏳ Awaiting Verification' : 
+                          '⏳ PENDING'}
+                    </div>
+
+                    <div class="footer">
+                        <p>Thank you for shopping with Espera Mavro!</p>
+                        <p>This is a system generated invoice.</p>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+    </script>
+</body>
+</html>

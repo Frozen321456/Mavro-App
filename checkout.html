@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Checkout | Espera Mavro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ... (keep all existing styles) ... */
+        :root {
+            --primary: #000000;
+            --accent: #ff385c;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --border: #eaeaea;
+            --text-light: #666666;
+            --success: #2e7d32;
+            --warning: #ed6c02;
+            --bkash: #E2136E;
+            --nagad: #F15A24;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .header {
+            background: var(--white);
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            margin-bottom: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 20px;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 20px;
+            text-decoration: none;
+            color: var(--primary);
+            letter-spacing: 1.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--bg);
+            color: var(--primary);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        .checkout-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 0.8fr;
+            gap: 30px;
+        }
+
+        .form-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: 0.2s;
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-option {
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-option:hover {
+            border-color: #999;
+        }
+
+        .payment-option.selected {
+            border-color: var(--primary);
+            background: #fafafa;
+        }
+
+        .payment-radio {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-radio.selected {
+            border-color: var(--primary);
+        }
+
+        .payment-radio.selected::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .payment-info {
+            flex: 1;
+        }
+
+        .payment-name {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .payment-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .payment-icon {
+            font-size: 24px;
+        }
+
+        .payment-icon.bkash { color: var(--bkash); }
+        .payment-icon.nagad { color: var(--nagad); }
+
+        .payment-instructions {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        .payment-instructions.active {
+            display: block;
+        }
+
+        .instruction-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instruction-steps {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instruction-steps li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .instruction-steps li:before {
+            content: '•';
+            position: absolute;
+            left: 10px;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .instruction-highlight {
+            background: var(--white);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px dashed var(--primary);
+            margin: 10px 0;
+        }
+
+        .send-money-details {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .send-money-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .send-money-type {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .trx-input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .trx-input-group input {
+            flex: 1;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .copy-btn {
+            padding: 14px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .warning-note {
+            background: #fff3e0;
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+            margin-top: 15px;
+        }
+
+        .order-summary {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            position: sticky;
+            top: 90px;
+            border: 1px solid var(--border);
+        }
+
+        .summary-items {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .summary-item {
+            display: flex;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-item-img {
+            width: 70px;
+            height: 90px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+
+        .summary-item-details {
+            flex: 1;
+        }
+
+        .summary-item-name {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .summary-item-variant {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            background: var(--bg);
+            padding: 4px 10px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .variant-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .variant-chip i {
+            color: var(--accent);
+            font-size: 10px;
+        }
+
+        .summary-item-price {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        .summary-item-qty {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .summary-row.total {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 20px 0;
+            padding-top: 15px;
+            border-top: 2px dashed var(--border);
+            color: var(--accent);
+        }
+
+        .delivery-badge {
+            background: #e8f5e9;
+            color: var(--success);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .place-order-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .place-order-btn:hover {
+            background: #222;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .place-order-btn:active {
+            transform: translateY(0);
+        }
+
+        .place-order-btn:disabled {
+            background: #ccc;
+            pointer-events: none;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .success-content {
+            max-width: 400px;
+            padding: 40px;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            color: #4BB543;
+            margin-bottom: 20px;
+        }
+
+        .order-id {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 18px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        .track-link {
+            color: #999;
+            font-size: 14px;
+            margin: 20px 0;
+        }
+
+        .continue-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 992px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .order-summary {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .checkout-title {
+                font-size: 24px;
+            }
+
+            .send-money-number {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="cart.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
+        <div style="width: 40px;"></div>
+    </div>
+
+    <div class="checkout-container">
+        <h1 class="checkout-title">
+            <i class="fas fa-lock"></i>
+            Secure Checkout
+        </h1>
+
+        <div class="checkout-layout">
+            <!-- Left Column - Forms -->
+            <div class="checkout-forms">
+                <!-- Shipping Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-truck"></i>
+                        Shipping Information
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="017XXXXXXXX" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email (Optional)</label>
+                            <input type="email" id="email" class="form-control" placeholder="email@example.com">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">Address *</label>
+                            <textarea id="address" class="form-control" placeholder="House, Road, Area, City" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" id="city" class="form-control" value="Dhaka" placeholder="City">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Postcode</label>
+                            <input type="text" id="postcode" class="form-control" value="1200" placeholder="Postcode">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-credit-card"></i>
+                        Payment Method
+                    </div>
+
+                    <div class="payment-methods">
+                        <!-- Cash on Delivery -->
+                        <div class="payment-option" onclick="selectPayment('cod')" id="payment-cod">
+                            <div class="payment-radio" id="radio-cod"></div>
+                            <div class="payment-info">
+                                <div class="payment-name">Cash on Delivery (COD)</div>
+                                <div class="payment-desc">Pay when you receive your order</div>
+                            </div>
+                            <div class="payment-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                        </div>
+
+                        <!-- bKash -->
+                        <div class="payment-option" onclick="selectPayment('bkash')" id="payment-bkash">
+                            <div class="payment-radio" id="radio-bkash"></div>
+                            <div class="payment-info">
+                                <div class="payment-name">bKash</div>
+                                <div class="payment-desc">Send money to 01765871443</div>
+                            </div>
+                            <div class="payment-icon bkash">
+                                <i class="fab fa-bkash"></i>
+                            </div>
+                        </div>
+
+                        <!-- Nagad -->
+                        <div class="payment-option" onclick="selectPayment('nagad')" id="payment-nagad">
+                            <div class="payment-radio" id="radio-nagad"></div>
+                            <div class="payment-info">
+                                <div class="payment-name">Nagad</div>
+                                <div class="payment-desc">Send money to 01918597807</div>
+                            </div>
+                            <div class="payment-icon nagad">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Instructions - bKash -->
+                    <div class="payment-instructions" id="bkash-instructions">
+                        <div class="instruction-title">
+                            <i class="fab fa-bkash" style="color: #E2136E;"></i>
+                            bKash Payment Instructions
+                        </div>
+                        
+                        <div class="send-money-details">
+                            <div class="send-money-number">01765871443</div>
+                            <div class="send-money-type">bKash Merchant (Send Money)</div>
+                        </div>
+
+                        <ul class="instruction-steps">
+                            <li>Open your bKash app or dial *247#</li>
+                            <li>Select "Send Money" option</li>
+                            <li>Enter the bKash number: <strong>01765871443</strong></li>
+                            <li>Enter the amount: <strong id="bkashAmount">৳ 0</strong></li>
+                            <li>Add your Order ID as reference: <span id="orderRef"></span></li>
+                            <li>Complete the transaction and copy the Transaction ID (TrxID)</li>
+                        </ul>
+
+                        <div class="instruction-highlight">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Transaction ID Format:</strong> 8 digits (e.g., 8G7H5K9L)
+                        </div>
+
+                        <div class="trx-input-group">
+                            <input type="text" id="bkashTrxId" placeholder="Enter bKash Transaction ID" autocomplete="off">
+                            <button class="copy-btn" onclick="simulatePaste('bkash')">
+                                <i class="fas fa-paste"></i>
+                            </button>
+                        </div>
+
+                        <div class="warning-note">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Important:</strong> Your order will be placed in "Pending" status until admin verifies your payment. You'll receive confirmation via email/SMS after verification.
+                        </div>
+                    </div>
+
+                    <!-- Payment Instructions - Nagad -->
+                    <div class="payment-instructions" id="nagad-instructions">
+                        <div class="instruction-title">
+                            <i class="fas fa-coins" style="color: #F15A24;"></i>
+                            Nagad Payment Instructions
+                        </div>
+                        
+                        <div class="send-money-details">
+                            <div class="send-money-number">01918597807</div>
+                            <div class="send-money-type">Nagad Merchant (Send Money)</div>
+                        </div>
+
+                        <ul class="instruction-steps">
+                            <li>Open your Nagad app or dial *167#</li>
+                            <li>Select "Send Money" option</li>
+                            <li>Enter the Nagad number: <strong>01918597807</strong></li>
+                            <li>Enter the amount: <strong id="nagadAmount">৳ 0</strong></li>
+                            <li>Add your Order ID as reference: <span id="orderRefNagad"></span></li>
+                            <li>Complete the transaction and copy the Transaction ID (TrxID)</li>
+                        </ul>
+
+                        <div class="instruction-highlight">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Transaction ID Format:</strong> 15 digits (e.g., N240217123456789)
+                        </div>
+
+                        <div class="trx-input-group">
+                            <input type="text" id="nagadTrxId" placeholder="Enter Nagad Transaction ID" autocomplete="off">
+                            <button class="copy-btn" onclick="simulatePaste('nagad')">
+                                <i class="fas fa-paste"></i>
+                            </button>
+                        </div>
+
+                        <div class="warning-note">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Important:</strong> Your order will be placed in "Pending" status until admin verifies your payment. You'll receive confirmation via email/SMS after verification.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="order-summary">
+                <h3 style="margin-bottom: 20px;">Order Summary</h3>
+                
+                <div class="summary-items" id="summaryItems"></div>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="summarySubtotal">৳ 0</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Delivery Charge <span class="delivery-badge" id="deliveryBadge">Per item: ৳130</span></span>
+                    <span id="summaryDelivery">৳ 0</span>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Total Payable</span>
+                    <span id="summaryTotal">৳ 0</span>
+                </div>
+
+                <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
+                    PLACE ORDER
+                </button>
+
+                <p style="font-size: 12px; color: #888; text-align: center; margin-top: 15px;">
+                    <i class="fas fa-shield-alt"></i> Your information is secure
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Processing your order...</p>
+    </div>
+
+    <!-- Success Popup -->
+    <div class="success-popup" id="successPopup">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Order Successful!</h2>
+            <p>Your order has been placed successfully.</p>
+            <p class="order-id" id="orderId"></p>
+            <p class="track-link">Track your order with this ID</p>
+            <button class="continue-btn" onclick="continueShopping()">Continue Shopping</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            messagingSenderId: "137893255543",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Constants
+        const DELIVERY_CHARGE = 130;
+        const FREE_DELIVERY_THRESHOLD = 2000;
+
+        // State
+        let cart = [];
+        let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, isFreeDelivery: false };
+        let selectedPayment = 'cod';
+        let currentOrderId = '';
+
+        // Format variation for display and storage (FIXED: Remove undefined values)
+        function formatVariationForStorage(variation) {
+            if (!variation) return null;
+            
+            // If variation is already an object with properties
+            if (typeof variation === 'object') {
+                // Filter out any undefined or null values
+                const cleanVariation = {};
+                Object.entries(variation).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
+                        // If value is an object with name/value, extract just the value
+                        if (typeof value === 'object' && value !== null) {
+                            if (value.value) {
+                                cleanVariation[key] = value.value;
+                            } else if (value.name) {
+                                cleanVariation[key] = value.name;
+                            } else {
+                                cleanVariation[key] = String(value);
+                            }
+                        } else {
+                            cleanVariation[key] = String(value);
+                        }
+                    }
+                });
+                return Object.keys(cleanVariation).length > 0 ? cleanVariation : null;
+            }
+            
+            // If variation is a string, return as is
+            if (typeof variation === 'string') {
+                return { option: variation };
+            }
+            
+            return null;
+        }
+
+        // Format variation for display
+        function formatVariationForDisplay(variation) {
+            if (!variation) return null;
+            
+            let chips = [];
+            
+            if (typeof variation === 'object') {
+                Object.entries(variation).forEach(([key, value]) => {
+                    let propName = key;
+                    if (key.toLowerCase().includes('color')) propName = 'Color';
+                    else if (key.toLowerCase().includes('model')) propName = 'Model';
+                    else if (key.toLowerCase().includes('size')) propName = 'Size';
+                    else if (key.toLowerCase().includes('spec')) propName = 'Spec';
+                    else {
+                        propName = key.charAt(0).toUpperCase() + key.slice(1);
+                    }
+                    
+                    let propValue = value;
+                    if (value && typeof value === 'object') {
+                        if (value.name && value.value) {
+                            propValue = value.value;
+                        } else if (value.value) {
+                            propValue = value.value;
+                        } else {
+                            propValue = String(value);
+                        }
+                    }
+                    
+                    if (propValue !== undefined && propValue !== null) {
+                        chips.push({ name: propName, value: propValue });
+                    }
+                });
+            }
+            
+            return chips;
+        }
+
+        // Load cart from localStorage
+        function loadCart() {
+            cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
+            
+            if (cart.length === 0) {
+                window.location.href = 'shop.html';
+                return;
+            }
+
+            cart = cart.map(item => ({
+                ...item,
+                quantity: item.quantity || 1,
+                price: parseFloat(item.price) || 0
+            }));
+
+            calculateTotals();
+            renderSummary();
+            generateOrderId();
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            let subtotal = 0;
+            let itemCount = 0;
+
+            cart.forEach(item => {
+                const qty = item.quantity || 1;
+                const price = item.price || 0;
+                subtotal += price * qty;
+                itemCount += qty;
+            });
+
+            const isFreeDelivery = subtotal > FREE_DELIVERY_THRESHOLD;
+            const deliveryTotal = isFreeDelivery ? 0 : (DELIVERY_CHARGE * itemCount);
+            const total = subtotal + deliveryTotal;
+
+            totals = {
+                subtotal,
+                deliveryTotal,
+                total,
+                itemCount,
+                isFreeDelivery
+            };
+        }
+
+        // Generate Order ID
+        function generateOrderId() {
+            const timestamp = Date.now().toString().slice(-8);
+            const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+            currentOrderId = `ORD-${timestamp}-${random}`;
+            
+            document.getElementById('orderRef').innerText = currentOrderId;
+            document.getElementById('orderRefNagad').innerText = currentOrderId;
+        }
+
+        // Render summary
+        function renderSummary() {
+            const summaryItems = document.getElementById('summaryItems');
+            
+            summaryItems.innerHTML = cart.map(item => {
+                const qty = item.quantity || 1;
+                const price = item.price || 0;
+                const variationChips = formatVariationForDisplay(item.variation);
+                
+                return `
+                    <div class="summary-item">
+                        <img src="${item.image || 'https://via.placeholder.com/200x250?text=Product'}" 
+                             class="summary-item-img"
+                             onerror="this.src='https://via.placeholder.com/200x250?text=No+Image'">
+                        <div class="summary-item-details">
+                            <div class="summary-item-name">${item.name || 'Product'}</div>
+                            
+                            ${variationChips && variationChips.length > 0 ? `
+                                <div style="margin: 6px 0;">
+                                    ${variationChips.map(v => `
+                                        <span class="variant-chip">
+                                            <i class="fas fa-tag"></i>
+                                            ${v.name}: ${v.value}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="summary-item-price">৳ ${price.toFixed(0)}</div>
+                            <div class="summary-item-qty">Quantity: ${qty}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('summarySubtotal').innerHTML = `৳ ${totals.subtotal.toFixed(0)}`;
+            
+            if (totals.isFreeDelivery) {
+                document.getElementById('summaryDelivery').innerHTML = '<span style="color: #2e7d32;">FREE</span>';
+                document.getElementById('deliveryBadge').innerHTML = 'Free Delivery';
+            } else {
+                document.getElementById('summaryDelivery').innerHTML = `৳ ${totals.deliveryTotal.toFixed(0)}`;
+                document.getElementById('deliveryBadge').innerHTML = 'Per item: ৳130';
+            }
+            
+            document.getElementById('summaryTotal').innerHTML = `৳ ${totals.total.toFixed(0)}`;
+            document.getElementById('bkashAmount').innerText = `৳ ${totals.total.toFixed(0)}`;
+            document.getElementById('nagadAmount').innerText = `৳ ${totals.total.toFixed(0)}`;
+        }
+
+        // Select payment method
+        window.selectPayment = (method) => {
+            selectedPayment = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelectorAll('.payment-radio').forEach(radio => {
+                radio.classList.remove('selected');
+            });
+            document.querySelectorAll('.payment-instructions').forEach(inst => {
+                inst.classList.remove('active');
+            });
+
+            document.getElementById(`payment-${method}`).classList.add('selected');
+            document.getElementById(`radio-${method}`).classList.add('selected');
+            
+            if (method === 'bkash' || method === 'nagad') {
+                document.getElementById(`${method}-instructions`).classList.add('active');
+            }
+        };
+
+        // Simulate paste (for demo)
+        window.simulatePaste = (method) => {
+            let sampleTrx = method === 'bkash' ? '8G7H5K9L' : 'N240217123456789';
+            document.getElementById(`${method}TrxId`).value = sampleTrx;
+        };
+
+        // Validate Bangladesh phone number
+        function validateBDPhone(phone) {
+            const cleaned = phone.replace(/[^0-9]/g, '');
+            return /^(01[3-9]\d{8})$/.test(cleaned);
+        }
+
+        // Validate Transaction ID
+        function validateTrxId(method, trxId) {
+            if (!trxId) return false;
+            
+            if (method === 'bkash') {
+                // bKash TrxID is typically 8-10 alphanumeric
+                return /^[A-Z0-9]{8,10}$/.test(trxId.trim());
+            } else if (method === 'nagad') {
+                // Nagad TrxID is typically 15 digits starting with N
+                return /^N\d{14}$/.test(trxId.trim());
+            }
+            
+            return true;
+        }
+
+        // Place order (FIXED: Clean variation data before saving)
+        window.placeOrder = async () => {
+            // Get form values
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const city = document.getElementById('city').value.trim() || 'Dhaka';
+            const postcode = document.getElementById('postcode').value.trim() || '1200';
+
+            // Validation
+            if (!name) {
+                alert('Please enter your full name');
+                return;
+            }
+
+            if (!phone) {
+                alert('Please enter your phone number');
+                return;
+            }
+
+            if (!validateBDPhone(phone)) {
+                alert('Please enter a valid Bangladesh phone number (01XXXXXXXXX)');
+                return;
+            }
+
+            if (!address) {
+                alert('Please enter your address');
+                return;
+            }
+
+            // Payment validation
+            let paymentDetails = {};
+            
+            if (selectedPayment === 'bkash') {
+                const trxId = document.getElementById('bkashTrxId').value.trim();
+                if (!trxId) {
+                    alert('Please enter your bKash Transaction ID');
+                    return;
+                }
+                if (!validateTrxId('bkash', trxId)) {
+                    alert('Invalid bKash Transaction ID format. It should be 8-10 alphanumeric characters.');
+                    return;
+                }
+                paymentDetails = {
+                    method: 'bkash',
+                    trxId: trxId,
+                    amount: totals.total,
+                    number: '01765871443',
+                    status: 'awaiting_verification'
+                };
+            } else if (selectedPayment === 'nagad') {
+                const trxId = document.getElementById('nagadTrxId').value.trim();
+                if (!trxId) {
+                    alert('Please enter your Nagad Transaction ID');
+                    return;
+                }
+                if (!validateTrxId('nagad', trxId)) {
+                    alert('Invalid Nagad Transaction ID format. It should start with N followed by 14 digits.');
+                    return;
+                }
+                paymentDetails = {
+                    method: 'nagad',
+                    trxId: trxId,
+                    amount: totals.total,
+                    number: '01918597807',
+                    status: 'awaiting_verification'
+                };
+            } else {
+                paymentDetails = {
+                    method: 'cod',
+                    status: 'pending'
+                };
+            }
+
+            // Prepare order items (FIXED: Clean variation data)
+            const cleanItems = cart.map(item => {
+                // Create a clean copy without any undefined values
+                const cleanItem = {
+                    id: item.id || `item-${Date.now()}`,
+                    name: item.name || 'Product',
+                    price: parseFloat(item.price) || 0,
+                    quantity: parseInt(item.quantity) || 1,
+                    image: item.image || 'https://via.placeholder.com/200x250?text=Product'
+                };
+                
+                // Only add variation if it exists and has valid data
+                if (item.variation) {
+                    const cleanVariation = formatVariationForStorage(item.variation);
+                    if (cleanVariation) {
+                        cleanItem.variation = cleanVariation;
+                    }
+                }
+                
+                return cleanItem;
+            });
+
+            // Prepare order data (FIXED: No undefined values)
+            const orderData = {
+                order_id: currentOrderId,
+                order_number: currentOrderId,
+                customer: {
+                    name: name,
+                    phone: phone,
+                    email: email || '',
+                    address: address,
+                    city: city,
+                    postcode: postcode
+                },
+                payment: paymentDetails,
+                subtotal: parseFloat(totals.subtotal) || 0,
+                delivery_charge: parseFloat(totals.deliveryTotal) || 0,
+                total: parseFloat(totals.total) || 0,
+                items: cleanItems,
+                status: 'pending',
+                status_history: [
+                    {
+                        status: 'pending',
+                        timestamp: new Date().toISOString(),
+                        note: `Order placed via ${selectedPayment}`
+                    }
+                ],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            // Show loading
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('placeOrderBtn').disabled = true;
+
+            try {
+                // Save to Firebase
+                await database.ref('orders/' + currentOrderId).set(orderData);
+
+                // Clear cart
+                localStorage.removeItem('essence_cart');
+
+                // Show success
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('orderId').innerText = currentOrderId;
+                document.getElementById('successPopup').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Order failed:', error);
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('placeOrderBtn').disabled = false;
+                alert('Order failed! Please try again. Error: ' + error.message);
+            }
+        };
+
+        // Continue shopping
+        window.continueShopping = () => {
+            window.location.href = 'shop.html';
+        };
+
+        // Initialize
+        function init() {
+            selectPayment('cod');
+            loadCart();
+        }
+
+        init();
+    </script>
+</body>
+</html>
