@@ -298,29 +298,6 @@
             font-size: 15px;
         }
 
-        .copy-btn {
-            padding: 14px 20px;
-            background: #f0f0f0;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .warning-note {
-            background: #fff3e0;
-            border-left: 4px solid var(--warning);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #666;
-            margin-top: 15px;
-        }
-
         .order-summary {
             background: var(--white);
             border-radius: 20px;
@@ -491,12 +468,6 @@
             word-break: break-all;
         }
 
-        .track-link {
-            color: #999;
-            font-size: 14px;
-            margin: 20px 0;
-        }
-
         .continue-btn {
             background: white;
             color: black;
@@ -591,10 +562,7 @@
                                 <i class="fas fa-pen" style="color: var(--accent); margin-right: 5px;"></i>
                                 Order Note (Optional)
                             </label>
-                            <textarea id="orderNote" class="form-control" placeholder="Add any special instructions, delivery preferences, or notes for your order..."></textarea>
-                            <small style="color: var(--text-light); font-size: 12px; margin-top: 5px; display: block;">
-                                Example: "Please call before delivery", "Leave at the gate", etc.
-                            </small>
+                            <textarea id="orderNote" class="form-control" placeholder="Add any special instructions..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -645,23 +613,16 @@
                             <i class="fab fa-bkash" style="color: #E2136E;"></i>
                             bKash Payment Instructions
                         </div>
-                        
                         <div class="send-money-details">
                             <div class="send-money-number">01765871443</div>
-                            <div class="payment-desc">bKash Merchant Number</div>
                         </div>
-
                         <ul style="margin: 15px 0; padding-left: 20px;">
-                            <li style="margin-bottom: 10px;">Open your bKash app or dial *247#</li>
-                            <li style="margin-bottom: 10px;">Select "Send Money" option</li>
-                            <li style="margin-bottom: 10px;">Enter number: <strong>01765871443</strong></li>
-                            <li style="margin-bottom: 10px;">Enter amount: <strong id="bkashAmount">৳0</strong></li>
-                            <li style="margin-bottom: 10px;">Reference: <strong id="orderRef"></strong></li>
-                            <li style="margin-bottom: 10px;">Complete the transaction and copy the Transaction ID (TrxID)</li>
+                            <li>Send money to <strong>01765871443</strong></li>
+                            <li>Amount: <strong id="bkashAmount">৳0</strong></li>
+                            <li>Reference: <strong id="orderRef"></strong></li>
                         </ul>
-
                         <div class="trx-input-group">
-                            <input type="text" id="bkashTrxId" placeholder="Enter bKash Transaction ID" required>
+                            <input type="text" id="bkashTrxId" placeholder="Enter bKash Transaction ID">
                         </div>
                     </div>
 
@@ -670,23 +631,16 @@
                             <i class="fas fa-coins" style="color: #F15A24;"></i>
                             Nagad Payment Instructions
                         </div>
-                        
                         <div class="send-money-details">
                             <div class="send-money-number">01918597807</div>
-                            <div class="payment-desc">Nagad Merchant Number</div>
                         </div>
-
                         <ul style="margin: 15px 0; padding-left: 20px;">
-                            <li style="margin-bottom: 10px;">Open your Nagad app or dial *167#</li>
-                            <li style="margin-bottom: 10px;">Select "Send Money" option</li>
-                            <li style="margin-bottom: 10px;">Enter number: <strong>01918597807</strong></li>
-                            <li style="margin-bottom: 10px;">Enter amount: <strong id="nagadAmount">৳0</strong></li>
-                            <li style="margin-bottom: 10px;">Reference: <strong id="orderRefNagad"></strong></li>
-                            <li style="margin-bottom: 10px;">Complete the transaction and copy the Transaction ID (TrxID)</li>
+                            <li>Send money to <strong>01918597807</strong></li>
+                            <li>Amount: <strong id="nagadAmount">৳0</strong></li>
+                            <li>Reference: <strong id="orderRefNagad"></strong></li>
                         </ul>
-
                         <div class="trx-input-group">
-                            <input type="text" id="nagadTrxId" placeholder="Enter Nagad Transaction ID" required>
+                            <input type="text" id="nagadTrxId" placeholder="Enter Nagad Transaction ID">
                         </div>
                     </div>
                 </div>
@@ -715,10 +669,6 @@
                 <button class="place-order-btn" onclick="placeOrder()" id="placeOrderBtn">
                     PLACE ORDER
                 </button>
-
-                <p style="font-size: 12px; color: #888; text-align: center; margin-top: 15px;">
-                    <i class="fas fa-shield-alt"></i> Your information is secure
-                </p>
             </div>
         </div>
     </div>
@@ -736,7 +686,6 @@
             <h2>Order Placed Successfully!</h2>
             <p>Thank you for your purchase</p>
             <p class="order-id" id="orderId"></p>
-            <p class="track-link">Track your order with this ID</p>
             <button class="continue-btn" onclick="continueShopping()">Continue Shopping</button>
         </div>
     </div>
@@ -745,87 +694,107 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
             authDomain: "espera-mavro-6ddc5.firebaseapp.com",
             databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "espera-mavro-6ddc5",
             storageBucket: "espera-mavro-6ddc5.appspot.com",
-            messagingSenderId: "137893255543",
             appId: "1:137893255543:web:a660bd412eb26ee322a972"
         };
         
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // Constants
         const DELIVERY_CHARGE = 130;
         const FREE_DELIVERY_THRESHOLD = 2000;
 
+        // State
         let cart = [];
         let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0 };
         let selectedPayment = 'cod';
         let currentOrderId = '';
 
-        const MOVEDROP_API = {
-            baseUrl: 'https://mavro.xo.je/api/index.php',
-            apiKey: 'MAVRO-ESSENCE-SECURE-KEY-2026'
-        };
-
-        const ULTRAMSG_CONFIG = {
-            instanceId: "instance162260",
-            token: "f6yiq8o26ak03z5s",
-            adminNumber: "8801721383418"
-        };
-
-        const statusMessages = {
-            'pending': { emoji: '⏳', title: 'Pending', message: 'Your order has been placed and is awaiting payment verification.' },
-            'placed': { emoji: '✅', title: 'Confirmed', message: 'Your payment has been verified. Your order is confirmed.' },
-            'processing': { emoji: '⚙️', title: 'Processing', message: 'Your order is now being processed.' },
-            'shipping': { emoji: '🚚', title: 'Shipping', message: 'Your order is on its way to you.' },
-            'completed': { emoji: '🎉', title: 'Delivered', message: 'Your order has been delivered successfully.' },
-            'cancelled': { emoji: '❌', title: 'Cancelled', message: 'Your order has been cancelled.' }
-        };
-
+        // Load cart from localStorage
         function loadCart() {
-            cart = JSON.parse(localStorage.getItem('essence_cart')) || [];
-            if (cart.length === 0) {
+            try {
+                const savedCart = localStorage.getItem('essence_cart');
+                if (!savedCart) {
+                    window.location.href = 'shop.html';
+                    return;
+                }
+                
+                cart = JSON.parse(savedCart);
+                
+                if (!cart || cart.length === 0) {
+                    window.location.href = 'shop.html';
+                    return;
+                }
+
+                // Format cart items
+                cart = cart.map(item => ({
+                    ...item,
+                    quantity: item.quantity || 1,
+                    price: parseFloat(item.price) || 0
+                }));
+
+                calculateTotals();
+                renderSummary();
+                generateOrderId();
+                
+                console.log('Cart loaded:', cart);
+            } catch (e) {
+                console.error('Error loading cart:', e);
                 window.location.href = 'shop.html';
-                return;
             }
-            cart = cart.map(item => ({
-                ...item,
-                quantity: item.quantity || 1,
-                price: parseFloat(item.price) || 0
-            }));
-            calculateTotals();
-            renderSummary();
-            generateOrderId();
         }
 
+        // Calculate totals
         function calculateTotals() {
             let subtotal = 0;
             let itemCount = 0;
+
             cart.forEach(item => {
                 subtotal += (item.price || 0) * (item.quantity || 1);
                 itemCount += item.quantity || 1;
             });
+
             const deliveryTotal = subtotal > FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE * itemCount;
-            totals = { subtotal, deliveryTotal, total: subtotal + deliveryTotal, itemCount };
+            
+            totals = {
+                subtotal: subtotal,
+                deliveryTotal: deliveryTotal,
+                total: subtotal + deliveryTotal,
+                itemCount: itemCount
+            };
         }
 
+        // Generate Order ID
         function generateOrderId() {
             const timestamp = Date.now().toString().slice(-8);
             const random = Math.random().toString(36).substring(2, 6).toUpperCase();
             currentOrderId = `ORD-${timestamp}-${random}`;
-            document.getElementById('orderRef').innerText = currentOrderId;
-            document.getElementById('orderRefNagad').innerText = currentOrderId;
+            
+            // Update order ref in payment instructions
+            const orderRefElements = document.querySelectorAll('#orderRef, #orderRefNagad');
+            orderRefElements.forEach(el => {
+                if (el) el.innerText = currentOrderId;
+            });
         }
 
+        // Render summary
         function renderSummary() {
             const summaryItems = document.getElementById('summaryItems');
+            if (!summaryItems) return;
+            
             summaryItems.innerHTML = cart.map(item => `
                 <div class="summary-item">
-                    <img src="${item.image || 'https://via.placeholder.com/200x250?text=Product'}" class="summary-item-img" onerror="this.src='https://via.placeholder.com/200x250?text=No+Image'">
+                    <img src="${item.image || 'https://via.placeholder.com/200x250?text=Product'}" 
+                         class="summary-item-img"
+                         onerror="this.src='https://via.placeholder.com/200x250?text=No+Image'">
                     <div class="summary-item-details">
                         <div class="summary-item-name">${item.name || 'Product'}</div>
                         <div class="summary-item-price">৳${(item.price * item.quantity).toFixed(0)}</div>
@@ -833,299 +802,39 @@
                     </div>
                 </div>
             `).join('');
+
             document.getElementById('summarySubtotal').innerHTML = `৳${totals.subtotal.toFixed(0)}`;
-            document.getElementById('summaryDelivery').innerHTML = totals.deliveryTotal > 0 ? `৳${totals.deliveryTotal.toFixed(0)}` : '<span style="color: #2e7d32;">FREE</span>';
+            document.getElementById('summaryDelivery').innerHTML = totals.deliveryTotal > 0 ? `৳${totals.deliveryTotal.toFixed(0)}` : 'FREE';
             document.getElementById('summaryTotal').innerHTML = `৳${totals.total.toFixed(0)}`;
             document.getElementById('bkashAmount').innerText = `৳${totals.total.toFixed(0)}`;
             document.getElementById('nagadAmount').innerText = `৳${totals.total.toFixed(0)}`;
         }
 
+        // Select payment method
         window.selectPayment = function(method) {
             selectedPayment = method;
+            
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelectorAll('.payment-radio').forEach(radio => radio.classList.remove('selected'));
             document.querySelectorAll('.payment-instructions').forEach(inst => inst.classList.remove('active'));
+
             document.getElementById(`payment-${method}`).classList.add('selected');
             document.getElementById(`radio-${method}`).classList.add('selected');
+            
             if (method === 'bkash' || method === 'nagad') {
                 document.getElementById(`${method}-instructions`).classList.add('active');
             }
         };
 
+        // Validate Bangladesh phone number
         function validateBDPhone(phone) {
-            return /^(01[3-9]\d{8})$/.test(phone.replace(/[^0-9]/g, ''));
+            const cleaned = phone.replace(/[^0-9]/g, '');
+            return /^(01[3-9]\d{8})$/.test(cleaned);
         }
 
-        async function sendOrderToMoveDrop(orderData, orderId) {
-            try {
-                const nameParts = orderData.customer.name.split(' ');
-                const firstName = nameParts[0];
-                const lastName = nameParts.slice(1).join(' ') || '';
-
-                const lineItems = orderData.items.map((item, index) => {
-                    const variations = [];
-                    if (item.variations && Object.keys(item.variations).length > 0) {
-                        Object.values(item.variations).forEach((varItem, vIndex) => {
-                            variations.push({
-                                id: vIndex + 1,
-                                variation_id: parseInt(varItem.id) || (index * 100 + vIndex + 1),
-                                sku: varItem.sku || `${item.sku || 'SKU'}-${varItem.value || vIndex}`,
-                                quantity: item.quantity || 1,
-                                price: parseFloat(varItem.price || item.price).toFixed(2),
-                                created_at: new Date().toISOString()
-                            });
-                        });
-                    } else {
-                        variations.push({
-                            id: 1,
-                            variation_id: parseInt(item.id) || (index + 1),
-                            sku: item.sku || `SKU-${item.id || index}`,
-                            quantity: item.quantity || 1,
-                            price: parseFloat(item.price).toFixed(2),
-                            created_at: new Date().toISOString()
-                        });
-                    }
-                    return {
-                        id: index + 1,
-                        product_id: parseInt(item.id) || (index + 1),
-                        name: item.name || 'Product',
-                        quantity: item.quantity || 1,
-                        total: (item.price * (item.quantity || 1)).toFixed(2),
-                        variations: variations,
-                        created_at: new Date().toISOString()
-                    };
-                });
-
-                const payload = {
-                    order_number: orderId,
-                    status: orderData.status || 'pending',
-                    currency: 'BDT',
-                    total: orderData.total.toFixed(2),
-                    payment_method: orderData.payment.method === 'bkash' ? 'bkash' : 
-                                   orderData.payment.method === 'nagad' ? 'nagad' : 'cod',
-                    shipping_address: {
-                        first_name: firstName,
-                        last_name: lastName,
-                        email: orderData.customer.email,
-                        phone: orderData.customer.phone,
-                        address_1: orderData.customer.address,
-                        address_2: '',
-                        city: orderData.customer.city || 'Dhaka',
-                        state: 'Dhaka',
-                        postcode: orderData.customer.postcode || '1200',
-                        country: 'Bangladesh'
-                    },
-                    customer_notes: orderData.note || '',
-                    line_items: lineItems
-                };
-
-                const response = await fetch(`${MOVEDROP_API.baseUrl}?path=orders`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-API-KEY': MOVEDROP_API.apiKey
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    await database.ref('orders/' + orderId).update({
-                        movedrop_sync: true,
-                        movedrop_response: result,
-                        movedrop_order_id: result.data?.id
-                    });
-                } else {
-                    await database.ref('orders/' + orderId).update({
-                        movedrop_sync: false,
-                        movedrop_error: result
-                    });
-                }
-            } catch (error) {
-                console.error('MoveDrop error:', error);
-                await database.ref('orders/' + orderId).update({
-                    movedrop_sync: false,
-                    movedrop_error: error.message
-                });
-            }
-        }
-
-        async function sendAdminWhatsApp(orderData, orderId) {
-            try {
-                const itemsList = orderData.items.map(item => 
-                    `• ${item.name} (x${item.quantity}) - ৳${(item.price * item.quantity).toFixed(0)}`
-                ).join('\n');
-
-                const paymentMethod = orderData.payment.method === 'bkash' ? 'bKash' : 
-                                     orderData.payment.method === 'nagad' ? 'Nagad' : 'COD';
-
-                const message = `📦 *NEW ORDER - ${orderId}*
-
-━━━━━━━━━━━━━━━━━━━━━━━
-👤 *Customer:* ${orderData.customer.name}
-📞 *Phone:* ${orderData.customer.phone}
-💰 *Total:* ৳${orderData.total.toFixed(0)}
-💳 *Payment:* ${paymentMethod}
-🔑 *TrxID:* ${orderData.payment.trxId || 'N/A'}
-📝 *Note:* ${orderData.note || 'No notes'}
-━━━━━━━━━━━━━━━━━━━━━━━
-
-📦 *Items:*
-${itemsList}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-📍 *Address:* ${orderData.customer.address}, ${orderData.customer.city}
-📱 *Track:* https://mavro-app.vercel.app/track-order.html?id=${orderId}`;
-
-                await fetch(`https://api.ultramsg.com/${ULTRAMSG_CONFIG.instanceId}/messages/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        token: ULTRAMSG_CONFIG.token,
-                        to: ULTRAMSG_CONFIG.adminNumber,
-                        body: message,
-                        priority: 1
-                    })
-                });
-            } catch (error) {
-                console.error('Admin WhatsApp error:', error);
-            }
-        }
-
-        async function sendCustomerWhatsApp(orderData, orderId) {
-            if (!orderData.customer.phone) return;
-            try {
-                const customerPhone = orderData.customer.phone.startsWith('+') ? 
-                    orderData.customer.phone : `+88${orderData.customer.phone}`;
-
-                const itemsList = orderData.items.map(item => 
-                    `• ${item.name} (x${item.quantity}) - ৳${(item.price * item.quantity).toFixed(0)}`
-                ).join('\n');
-
-                const paymentMethod = orderData.payment.method === 'bkash' ? 'bKash' : 
-                                     orderData.payment.method === 'nagad' ? 'Nagad' : 'COD';
-
-                const message = `🛍️ *ESPERA MAVRO - Order Confirmation*
-
-━━━━━━━━━━━━━━━━━━━━━━━
-📋 *Order ID:* ${orderId}
-📅 *Date:* ${new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-━━━━━━━━━━━━━━━━━━━━━━━
-
-✅ Your order has been placed successfully!
-
-━━━━━━━━━━━━━━━━━━━━━━━
-*Order Summary:*
-
-${itemsList}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-💰 *Subtotal:* ৳${orderData.subtotal.toFixed(0)}
-🚚 *Delivery:* ${orderData.delivery_charge > 0 ? '৳' + orderData.delivery_charge.toFixed(0) : 'FREE'}
-💎 *Total:* ৳${orderData.total.toFixed(0)}
-━━━━━━━━━━━━━━━━━━━━━━━
-
-💳 *Payment:* ${paymentMethod}
-🔑 *Transaction ID:* ${orderData.payment.trxId || 'N/A'}
-
-📍 *Delivery Address:*
-${orderData.customer.address}, ${orderData.customer.city}
-
-${orderData.note ? `📝 *Your Note:* "${orderData.note}"` : ''}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-🔗 *Track your order:*
-https://mavro-app.vercel.app/track-order.html?id=${orderId}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-Thank you for choosing ESPERA MAVRO!`;
-
-                await fetch(`https://api.ultramsg.com/${ULTRAMSG_CONFIG.instanceId}/messages/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        token: ULTRAMSG_CONFIG.token,
-                        to: customerPhone,
-                        body: message,
-                        priority: 1
-                    })
-                });
-            } catch (error) {
-                console.error('Customer WhatsApp error:', error);
-            }
-        }
-
-        function sendEmailFormSubmit(orderData, orderId, status = 'pending') {
-            try {
-                const statusInfo = statusMessages[status] || statusMessages.pending;
-                
-                const itemsList = orderData.items.map(item => 
-                    `${item.name} x${item.quantity} = ৳${(item.price * item.quantity).toFixed(0)}`
-                ).join('\n');
-
-                const formData = new FormData();
-                formData.append('_subject', `Order ${statusInfo.title} - ${orderId}`);
-                formData.append('_template', 'table');
-                formData.append('_captcha', 'false');
-                
-                formData.append('Order ID', orderId);
-                formData.append('Customer Name', orderData.customer.name);
-                formData.append('Phone', orderData.customer.phone);
-                formData.append('Email', orderData.customer.email);
-                formData.append('Address', `${orderData.customer.address}, ${orderData.customer.city}`);
-                formData.append('Payment Method', orderData.payment.method);
-                formData.append('Transaction ID', orderData.payment.trxId || 'N/A');
-                formData.append('Subtotal', `৳${orderData.subtotal.toFixed(0)}`);
-                formData.append('Delivery', orderData.delivery_charge > 0 ? `৳${orderData.delivery_charge.toFixed(0)}` : 'FREE');
-                formData.append('Total', `৳${orderData.total.toFixed(0)}`);
-                formData.append('Items', itemsList);
-                formData.append('Note', orderData.note || 'No notes');
-                formData.append('Status', `${statusInfo.emoji} ${statusInfo.title}`);
-                formData.append('Tracking URL', `https://mavro-app.vercel.app/track-order.html?id=${orderId}`);
-
-                fetch('https://formsubmit.co/ajax/esperamavro@gmail.com', {
-                    method: 'POST',
-                    body: formData
-                }).catch(err => console.log('Admin email log:', err));
-
-                if (orderData.customer.email) {
-                    const customerFormData = new FormData();
-                    customerFormData.append('_subject', `Order ${statusInfo.title} - ${orderId}`);
-                    customerFormData.append('_template', 'table');
-                    customerFormData.append('_captcha', 'false');
-                    customerFormData.append('_replyto', 'esperamavro@gmail.com');
-                    
-                    customerFormData.append('Name', orderData.customer.name);
-                    customerFormData.append('Order ID', orderId);
-                    customerFormData.append('Status', `${statusInfo.emoji} ${statusInfo.title}`);
-                    customerFormData.append('Total', `৳${orderData.total.toFixed(0)}`);
-                    customerFormData.append('Message', `Thank you for your order! Your order #${orderId} has been placed successfully.`);
-
-                    fetch(`https://formsubmit.co/ajax/${orderData.customer.email}`, {
-                        method: 'POST',
-                        body: customerFormData
-                    }).catch(err => console.log('Customer email log:', err));
-                }
-            } catch (error) {
-                console.log('Email sending failed:', error);
-            }
-        }
-
-        function setupOrderStatusListener(orderId) {
-            const orderRef = database.ref('orders/' + orderId);
-            orderRef.on('child_changed', async (snapshot) => {
-                if (snapshot.key === 'status') {
-                    const newStatus = snapshot.val();
-                    const orderSnapshot = await orderRef.once('value');
-                    const orderData = orderSnapshot.val();
-                    console.log(`Order ${orderId} status updated to: ${newStatus}`);
-                    sendEmailFormSubmit(orderData, orderId, newStatus);
-                }
-            });
-        }
-
+        // Place Order - FIXED VERSION
         window.placeOrder = async function() {
+            // Get form values
             const name = document.getElementById('fullName')?.value.trim();
             const phone = document.getElementById('phone')?.value.trim();
             const email = document.getElementById('email')?.value.trim();
@@ -1134,6 +843,7 @@ Thank you for choosing ESPERA MAVRO!`;
             const postcode = document.getElementById('postcode')?.value.trim() || '1200';
             const orderNote = document.getElementById('orderNote')?.value.trim() || '';
 
+            // Validation
             if (!name || !phone || !email || !address) {
                 alert('Please fill in all required fields');
                 return;
@@ -1144,38 +854,55 @@ Thank you for choosing ESPERA MAVRO!`;
                 return;
             }
 
-            let paymentDetails = { method: selectedPayment };
+            // Payment validation
+            let paymentDetails = { 
+                method: selectedPayment,
+                status: selectedPayment === 'cod' ? 'pending' : 'awaiting_verification'
+            };
             
             if (selectedPayment === 'bkash') {
                 const trxId = document.getElementById('bkashTrxId')?.value.trim();
-                if (!trxId) { alert('Please enter bKash Transaction ID'); return; }
-                paymentDetails = { method: 'bkash', trxId, status: 'awaiting_verification' };
-            } else if (selectedPayment === 'nagad') {
+                if (!trxId) {
+                    alert('Please enter bKash Transaction ID');
+                    return;
+                }
+                paymentDetails.trxId = trxId;
+                paymentDetails.number = '01765871443';
+            } 
+            else if (selectedPayment === 'nagad') {
                 const trxId = document.getElementById('nagadTrxId')?.value.trim();
-                if (!trxId) { alert('Please enter Nagad Transaction ID'); return; }
-                paymentDetails = { method: 'nagad', trxId, status: 'awaiting_verification' };
-            } else {
-                paymentDetails = { method: 'cod', status: 'pending' };
+                if (!trxId) {
+                    alert('Please enter Nagad Transaction ID');
+                    return;
+                }
+                paymentDetails.trxId = trxId;
+                paymentDetails.number = '01918597807';
             }
 
+            // Prepare order data - Make sure no undefined values
             const orderData = {
                 order_id: currentOrderId,
                 order_number: currentOrderId,
-                customer: { name, phone, email, address, city, postcode },
+                customer: {
+                    name: name || '',
+                    phone: phone || '',
+                    email: email || '',
+                    address: address || '',
+                    city: city || '',
+                    postcode: postcode || ''
+                },
                 payment: paymentDetails,
-                subtotal: totals.subtotal,
-                delivery_charge: totals.deliveryTotal,
-                total: totals.total,
+                subtotal: totals.subtotal || 0,
+                delivery_charge: totals.deliveryTotal || 0,
+                total: totals.total || 0,
                 items: cart.map(item => ({
                     id: item.id || `item-${Date.now()}`,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    image: item.image,
-                    sku: item.sku,
-                    variations: item.variations
+                    name: item.name || 'Product',
+                    price: item.price || 0,
+                    quantity: item.quantity || 1,
+                    image: item.image || ''
                 })),
-                note: orderNote,
+                note: orderNote || '',
                 status: 'pending',
                 status_history: [{
                     status: 'pending',
@@ -1186,46 +913,115 @@ Thank you for choosing ESPERA MAVRO!`;
                 updated_at: new Date().toISOString()
             };
 
+            console.log('Placing order:', orderData);
+
+            // Show loading
             document.getElementById('loadingOverlay').style.display = 'flex';
             document.getElementById('placeOrderBtn').disabled = true;
 
             try {
-                await database.ref('orders/' + currentOrderId).set(orderData);
+                // Save to Firebase - this is the critical part
+                const orderRef = database.ref('orders/' + currentOrderId);
+                await orderRef.set(orderData);
                 
-                sendOrderToMoveDrop(orderData, currentOrderId);
-                sendAdminWhatsApp(orderData, currentOrderId);
-                sendCustomerWhatsApp(orderData, currentOrderId);
-                sendEmailFormSubmit(orderData, currentOrderId, 'pending');
+                console.log('✅ Order saved to Firebase successfully');
 
-                setupOrderStatusListener(currentOrderId);
-
+                // Clear cart
                 localStorage.removeItem('essence_cart');
                 
+                // Show success
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('orderId').innerText = currentOrderId;
                 document.getElementById('successPopup').style.display = 'flex';
 
+                // Send notifications in background (don't await)
+                sendNotifications(orderData, currentOrderId);
+
             } catch (error) {
-                console.error('Order failed:', error);
+                console.error('❌ Order failed:', error);
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('placeOrderBtn').disabled = false;
-                alert('Order failed. Please try again.');
+                
+                // Show specific error message
+                if (error.code === 'PERMISSION_DENIED') {
+                    alert('Firebase permission denied. Please check your database rules.');
+                } else if (error.message) {
+                    alert('Order failed: ' + error.message);
+                } else {
+                    alert('Order failed. Please check your connection and try again.');
+                }
             }
         };
 
-        window.continueShopping = () => window.location.href = 'shop.html';
+        // Background notifications (optional)
+        async function sendNotifications(orderData, orderId) {
+            try {
+                // WhatsApp to Admin
+                await fetch(`https://api.ultramsg.com/instance162260/messages/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: 'f6yiq8o26ak03z5s',
+                        to: '8801721383418',
+                        body: `📦 New Order: ${orderId}\nCustomer: ${orderData.customer.name}\nTotal: ৳${orderData.total}`
+                    })
+                }).catch(e => console.log('WhatsApp error:', e));
 
-        window.testFirebase = function() {
-            database.ref('test').push({ test: true, timestamp: Date.now() })
-                .then(() => alert('Firebase connected!'))
-                .catch(err => alert('Firebase error: ' + err.message));
+                // FormSubmit email
+                const formData = new FormData();
+                formData.append('_subject', `New Order - ${orderId}`);
+                formData.append('Name', orderData.customer.name);
+                formData.append('Phone', orderData.customer.phone);
+                formData.append('Email', orderData.customer.email);
+                formData.append('Total', `৳${orderData.total}`);
+                formData.append('Order ID', orderId);
+                
+                fetch('https://formsubmit.co/ajax/esperamavro@gmail.com', {
+                    method: 'POST',
+                    body: formData
+                }).catch(e => console.log('Email error:', e));
+
+            } catch (e) {
+                console.log('Notification error:', e);
+            }
+        }
+
+        // Continue shopping
+        window.continueShopping = function() {
+            window.location.href = 'shop.html';
         };
 
+        // Test Firebase connection
+        window.testFirebase = function() {
+            const testRef = database.ref('test').push();
+            testRef.set({ 
+                test: true, 
+                message: 'Firebase is working!',
+                timestamp: Date.now() 
+            })
+            .then(() => {
+                console.log('✅ Firebase is working!');
+                alert('Firebase connected successfully!');
+            })
+            .catch(error => {
+                console.error('❌ Firebase error:', error);
+                alert('Firebase error: ' + error.message);
+            });
+        };
+
+        // Initialize
         function init() {
+            console.log('Initializing checkout...');
             selectPayment('cod');
             loadCart();
+            
+            // Check Firebase connection
             database.ref('.info/connected').on('value', (snap) => {
-                if (snap.val() === true) console.log('Firebase connected');
+                if (snap.val() === true) {
+                    console.log('✅ Firebase connected');
+                } else {
+                    console.log('❌ Firebase disconnected');
+                }
             });
         }
 
