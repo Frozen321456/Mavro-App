@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful | ESPERA MAVRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+        }
+        body { 
+            background: #f8f9fa; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4BB543;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+        }
+        h1 { 
+            margin-bottom: 15px; 
+            color: #333;
+        }
+        p { 
+            color: #666; 
+            margin-bottom: 10px; 
+        }
+        .order-details {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .order-details .label {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .order-details .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff385c;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+        .invoice-details {
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+        .invoice-details .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .invoice-details .row .label {
+            color: #666;
+        }
+        .invoice-details .row .value {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .btn:hover { 
+            background: #222;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .track-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .track-link a {
+            color: #ff385c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h1>Payment Successful!</h1>
+        <p>Your payment has been processed successfully.</p>
+        
+        <div class="order-details" id="orderDetails">
+            <div class="label">Order ID</div>
+            <div class="value" id="orderId">Loading...</div>
+            
+            <div class="invoice-details">
+                <div class="row">
+                    <span class="label">Invoice ID</span>
+                    <span class="value" id="invoiceId">-</span>
+                </div>
+                <div class="row">
+                    <span class="label">Amount</span>
+                    <span class="value" id="amount">-</span>
+                </div>
+                <div class="row">
+                    <span class="label">Payment Method</span>
+                    <span class="value" id="paymentMethod">-</span>
+                </div>
+                <div class="row">
+                    <span class="label">Status</span>
+                    <span class="value" style="color: #4BB543;" id="status">COMPLETED</span>
+                </div>
+            </div>
+        </div>
+        
+        <p>You will receive a confirmation email and WhatsApp message shortly.</p>
+        
+        <div class="track-link">
+            <a href="#" id="trackLink" target="_blank">📱 Track Your Order</a>
+        </div>
+        
+        <div>
+            <a href="shop.html" class="btn">Continue Shopping</a>
+            <a href="#" class="btn btn-secondary" onclick="window.print()">Print Receipt</a>
+        </div>
+    </div>
+
+    <script>
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const invoiceId = urlParams.get('invoice_id');
+        const orderId = urlParams.get('order_id');
+        
+        console.log('Payment success page loaded');
+        console.log('Invoice ID:', invoiceId);
+        console.log('Order ID:', orderId);
+        
+        // Also check session storage for backup
+        const lastOrderId = sessionStorage.getItem('last_order_id');
+        
+        // Display order ID
+        const orderIdElement = document.getElementById('orderId');
+        const invoiceIdElement = document.getElementById('invoiceId');
+        const trackLink = document.getElementById('trackLink');
+        
+        if (orderId) {
+            orderIdElement.innerText = orderId;
+            trackLink.href = `https://mavro-app.vercel.app/track-order.html?id=${orderId}`;
+            
+            // Clear from session storage
+            sessionStorage.removeItem('last_order_id');
+        } else if (lastOrderId) {
+            orderIdElement.innerText = lastOrderId;
+            trackLink.href = `https://mavro-app.vercel.app/track-order.html?id=${lastOrderId}`;
+            sessionStorage.removeItem('last_order_id');
+        } else {
+            orderIdElement.innerText = 'Order placed successfully';
+        }
+        
+        if (invoiceId) {
+            invoiceIdElement.innerText = invoiceId;
+        }
+        
+        // Try to verify payment and get more details
+        if (invoiceId) {
+            verifyPayment(invoiceId);
+        }
+        
+        async function verifyPayment(invoiceId) {
+            try {
+                const response = await fetch('https://esperamavro.paymently.io/api/verify-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'RT-UDDOKTAPAY-API-KEY': 'oEFrtrdAuuVkBqWooix8CdhBdhCFql0kf5Xp7InJ'
+                    },
+                    body: JSON.stringify({ invoice_id: invoiceId })
+                });
+                
+                const data = await response.json();
+                console.log('Payment verification:', data);
+                
+                if (data.status === 'COMPLETED') {
+                    document.getElementById('amount').innerText = '৳' + data.amount;
+                    document.getElementById('paymentMethod').innerText = data.payment_method || 'bKash/Nagad';
+                    
+                    // Update order in Firebase if needed
+                    if (orderId) {
+                        updateOrderInFirebase(orderId, data);
+                    }
+                }
+            } catch (error) {
+                console.error('Verification failed:', error);
+            }
+        }
+        
+        async function updateOrderInFirebase(orderId, paymentData) {
+            // This would update the order with payment details
+            console.log('Would update order:', orderId, 'with data:', paymentData);
+        }
+    </script>
+</body>
+</html>
