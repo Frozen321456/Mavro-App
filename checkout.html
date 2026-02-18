@@ -23,8 +23,7 @@
             --text-light: #666666;
             --success: #2e7d32;
             --warning: #ed6c02;
-            --bkash: #E2136E;
-            --nagad: #F15A24;
+            --info: #0288d1;
         }
 
         body {
@@ -243,82 +242,13 @@
             font-size: 24px;
         }
 
-        .payment-icon.bkash { color: var(--bkash); }
-        .payment-icon.nagad { color: var(--nagad); }
-
-        .payment-instructions {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 15px;
-            border: 1px solid var(--border);
-            display: none;
-        }
-
-        .payment-instructions.active {
-            display: block;
-        }
-
-        .instruction-title {
-            font-weight: 700;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary);
-        }
-
-        .send-money-details {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 15px 0;
-            border: 1px dashed var(--primary);
-        }
-
-        .send-money-number {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 1px;
-        }
-
-        .trx-input-group {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .trx-input-group input {
-            flex: 1;
-            padding: 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 15px;
-        }
-
-        .copy-btn {
-            padding: 14px 20px;
-            background: #f0f0f0;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .warning-note {
+        .payment-note {
             background: #fff3e0;
             border-left: 4px solid var(--warning);
-            padding: 12px;
+            padding: 15px;
             border-radius: 8px;
-            font-size: 13px;
-            color: #666;
             margin-top: 15px;
+            font-size: 14px;
         }
 
         .order-summary {
@@ -426,6 +356,13 @@
             background: #222;
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .place-order-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .loading-overlay {
@@ -573,28 +510,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">District/City *</label>
-                            <select id="city" class="form-control" required onchange="calculateDeliveryCharge()">
-                                <option value="">Select District</option>
-                                <option value="Dhaka" selected>Dhaka</option>
-                                <option value="Chittagong">Chittagong</option>
-                                <option value="Rajshahi">Rajshahi</option>
-                                <option value="Khulna">Khulna</option>
-                                <option value="Barisal">Barisal</option>
-                                <option value="Sylhet">Sylhet</option>
-                                <option value="Rangpur">Rangpur</option>
-                                <option value="Mymensingh">Mymensingh</option>
-                                <option value="Comilla">Comilla</option>
-                                <option value="Narayanganj">Narayanganj</option>
-                                <option value="Gazipur">Gazipur</option>
-                                <option value="Other">Other (Outside Dhaka)</option>
-                            </select>
+                            <label class="form-label">City</label>
+                            <input type="text" id="city" class="form-control" value="Dhaka" placeholder="City">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Postcode *</label>
-                            <input type="text" id="postcode" class="form-control" placeholder="e.g., 1200, 1212" value="1200" onchange="calculateDeliveryCharge()" required>
-                            <small style="color: var(--text-light);">Dhaka postcodes: 1200-1399</small>
+                            <label class="form-label">Postcode</label>
+                            <input type="text" id="postcode" class="form-control" value="1200" placeholder="Postcode">
                         </div>
 
                         <!-- Order Note Field -->
@@ -619,6 +541,7 @@
                     </div>
 
                     <div class="payment-methods">
+                        <!-- Cash on Delivery -->
                         <div class="payment-option" onclick="selectPayment('cod')" id="payment-cod">
                             <div class="payment-radio" id="radio-cod"></div>
                             <div class="payment-info">
@@ -630,34 +553,12 @@
                             </div>
                         </div>
 
-                        <div class="payment-option" onclick="selectPayment('bkash')" id="payment-bkash">
-                            <div class="payment-radio" id="radio-bkash"></div>
+                        <!-- Full Payment -->
+                        <div class="payment-option" onclick="selectPayment('full')" id="payment-full">
+                            <div class="payment-radio" id="radio-full"></div>
                             <div class="payment-info">
-                                <div class="payment-name">bKash</div>
-                                <div class="payment-desc">Send money to 01765871443</div>
-                            </div>
-                            <div class="payment-icon bkash">
-                                <i class="fab fa-bkash"></i>
-                            </div>
-                        </div>
-
-                        <div class="payment-option" onclick="selectPayment('nagad')" id="payment-nagad">
-                            <div class="payment-radio" id="radio-nagad"></div>
-                            <div class="payment-info">
-                                <div class="payment-name">Nagad</div>
-                                <div class="payment-desc">Send money to 01918597807</div>
-                            </div>
-                            <div class="payment-icon nagad">
-                                <i class="fas fa-coins"></i>
-                            </div>
-                        </div>
-
-                        <!-- Udjokta Pay (Online Payment) - New -->
-                        <div class="payment-option" onclick="selectPayment('udjokta')" id="payment-udjokta">
-                            <div class="payment-radio" id="radio-udjokta"></div>
-                            <div class="payment-info">
-                                <div class="payment-name">Udjokta Pay (Online)</div>
-                                <div class="payment-desc">Pay with bKash, Nagad, Cards or Mobile Banking</div>
+                                <div class="payment-name">Full Payment</div>
+                                <div class="payment-desc">Pay online now via bKash, Nagad or Cards</div>
                             </div>
                             <div class="payment-icon">
                                 <i class="fas fa-credit-card"></i>
@@ -665,83 +566,10 @@
                         </div>
                     </div>
 
-                    <!-- bKash Instructions -->
-                    <div class="payment-instructions" id="bkash-instructions">
-                        <div class="instruction-title">
-                            <i class="fab fa-bkash" style="color: #E2136E;"></i>
-                            bKash Payment Instructions
-                        </div>
-                        
-                        <div class="send-money-details">
-                            <div class="send-money-number">01765871443</div>
-                            <div class="payment-desc">bKash Merchant Number</div>
-                        </div>
-
-                        <ul style="margin: 15px 0; padding-left: 20px;">
-                            <li style="margin-bottom: 10px;">Open your bKash app or dial *247#</li>
-                            <li style="margin-bottom: 10px;">Select "Send Money"</li>
-                            <li style="margin-bottom: 10px;">Enter number: <strong>01765871443</strong></li>
-                            <li style="margin-bottom: 10px;">Enter amount: <strong id="bkashAmount">৳0</strong></li>
-                            <li style="margin-bottom: 10px;">Reference: <strong id="orderRef"></strong></li>
-                            <li style="margin-bottom: 10px;">Copy Transaction ID</li>
-                        </ul>
-
-                        <div class="trx-input-group">
-                            <input type="text" id="bkashTrxId" placeholder="Enter bKash Transaction ID" required>
-                        </div>
-                    </div>
-
-                    <!-- Nagad Instructions -->
-                    <div class="payment-instructions" id="nagad-instructions">
-                        <div class="instruction-title">
-                            <i class="fas fa-coins" style="color: #F15A24;"></i>
-                            Nagad Payment Instructions
-                        </div>
-                        
-                        <div class="send-money-details">
-                            <div class="send-money-number">01918597807</div>
-                            <div class="payment-desc">Nagad Merchant Number</div>
-                        </div>
-
-                        <ul style="margin: 15px 0; padding-left: 20px;">
-                            <li style="margin-bottom: 10px;">Open your Nagad app or dial *167#</li>
-                            <li style="margin-bottom: 10px;">Select "Send Money"</li>
-                            <li style="margin-bottom: 10px;">Enter number: <strong>01918597807</strong></li>
-                            <li style="margin-bottom: 10px;">Enter amount: <strong id="nagadAmount">৳0</strong></li>
-                            <li style="margin-bottom: 10px;">Reference: <strong id="orderRefNagad"></strong></li>
-                            <li style="margin-bottom: 10px;">Copy Transaction ID</li>
-                        </ul>
-
-                        <div class="trx-input-group">
-                            <input type="text" id="nagadTrxId" placeholder="Enter Nagad Transaction ID" required>
-                        </div>
-                    </div>
-
-                    <!-- Udjokta Pay Instructions -->
-                    <div class="payment-instructions" id="udjokta-instructions">
-                        <div class="instruction-title">
-                            <i class="fas fa-credit-card"></i>
-                            Udjokta Pay - Online Payment
-                        </div>
-                        
-                        <div class="info-note" style="background: #e3f2fd; border-left: 4px solid #0288d1; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                            <i class="fas fa-info-circle"></i> You will be redirected to Udjokta Pay secure payment page to complete your payment.
-                        </div>
-
-                        <div class="send-money-details">
-                            <div class="send-money-number">৳<span id="udjoktaAmount">0</span></div>
-                            <div class="payment-desc">Total amount to be paid online</div>
-                        </div>
-
-                        <p style="margin: 15px 0; font-size: 14px;">
-                            You can pay using:
-                        </p>
-                        <ul style="margin: 15px 0; padding-left: 20px;">
-                            <li style="margin-bottom: 8px;"><i class="fab fa-bkash" style="color: #E2136E;"></i> bKash</li>
-                            <li style="margin-bottom: 8px;"><i class="fas fa-coins" style="color: #F15A24;"></i> Nagad</li>
-                            <li style="margin-bottom: 8px;"><i class="fas fa-credit-card"></i> Visa/Mastercard/Amex</li>
-                            <li style="margin-bottom: 8px;"><i class="fas fa-university"></i> Internet Banking</li>
-                        </ul>
+                    <!-- Cash on Delivery Note -->
+                    <div class="payment-note" id="cod-note" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> For Cash on Delivery orders, you will need to pay 30% advance payment (product price + delivery charge) at the time of ordering. This is required because we import products from China sellers and need to pay shipping costs in advance.
                     </div>
                 </div>
             </div>
@@ -760,6 +588,12 @@
                 <div class="summary-row">
                     <span>Delivery Fee</span>
                     <span id="summaryDelivery">৳0</span>
+                </div>
+
+                <!-- Advance Payment (only for COD) -->
+                <div class="summary-row" id="advanceRow" style="display: none; color: var(--warning); font-weight: 600;">
+                    <span>Advance Payment (30% + Delivery)</span>
+                    <span id="advanceAmount">৳0</span>
                 </div>
 
                 <div class="summary-row total">
@@ -819,10 +653,7 @@
         // ========== UDJOKTA PAY CONFIG ==========
         const UDJOKTA_CONFIG = {
             API_KEY: "oEFrtrdAuuVkBqWooix8CdhBdhCFql0kf5Xp7InJ",
-            BASE_URL: "https://esperamavro.paymently.io",
             CHECKOUT_URL: "https://esperamavro.paymently.io/api/checkout-v2",
-            VERIFY_URL: "https://esperamavro.paymently.io/api/verify-payment",
-            REFUND_URL: "https://esperamavro.paymently.io/api/refund-payment",
             REDIRECT_URL: "https://mavro-app.vercel.app",
             WEBHOOK_URL: "https://mavro-app.vercel.app/api/webhook.php"
         };
@@ -837,10 +668,11 @@
         // ========== CONSTANTS ==========
         const DELIVERY_CHARGE = 130;
         const FREE_DELIVERY_THRESHOLD = 2000;
+        const ADVANCE_PERCENTAGE = 0.3; // 30% advance for COD
 
         // ========== STATE ==========
         let cart = [];
-        let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0 };
+        let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, advanceAmount: 0 };
         let selectedPayment = 'cod';
         let currentOrderId = '';
         let paymentInProgress = false;
@@ -873,7 +705,6 @@
                 generateOrderId();
                 
                 console.log('Cart loaded:', cart);
-                console.log('Current Order ID:', currentOrderId);
             } catch (e) {
                 console.error('Error loading cart:', e);
                 window.location.href = 'shop.html';
@@ -891,12 +722,14 @@
             });
 
             const deliveryTotal = subtotal > FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE * itemCount;
+            const advanceAmount = (subtotal * ADVANCE_PERCENTAGE) + deliveryTotal;
             
             totals = {
                 subtotal: subtotal,
                 deliveryTotal: deliveryTotal,
                 total: subtotal + deliveryTotal,
-                itemCount: itemCount
+                itemCount: itemCount,
+                advanceAmount: Math.ceil(advanceAmount)
             };
             
             console.log('Totals calculated:', totals);
@@ -907,13 +740,6 @@
             const timestamp = Date.now().toString().slice(-8);
             const random = Math.random().toString(36).substring(2, 8).toUpperCase();
             currentOrderId = `ORD-${timestamp}-${random}`;
-            
-            // Update order ref in payment instructions
-            const orderRefElements = document.querySelectorAll('#orderRef, #orderRefNagad');
-            orderRefElements.forEach(el => {
-                if (el) el.innerText = currentOrderId;
-            });
-            
             console.log('Order ID generated:', currentOrderId);
         }
 
@@ -944,15 +770,24 @@
             document.getElementById('summarySubtotal').innerHTML = `৳${totals.subtotal.toFixed(0)}`;
             document.getElementById('summaryDelivery').innerHTML = totals.deliveryTotal > 0 ? `৳${totals.deliveryTotal.toFixed(0)}` : '<span style="color: #2e7d32;">FREE</span>';
             document.getElementById('summaryTotal').innerHTML = `৳${totals.total.toFixed(0)}`;
+            document.getElementById('advanceAmount').innerHTML = `৳${totals.advanceAmount.toFixed(0)}`;
             
-            // Update payment amounts
-            const bkashAmount = document.getElementById('bkashAmount');
-            const nagadAmount = document.getElementById('nagadAmount');
-            const udjoktaAmount = document.getElementById('udjoktaAmount');
+            // Update advance row visibility
+            updateAdvanceDisplay();
+        }
+
+        // ========== UPDATE ADVANCE DISPLAY ==========
+        function updateAdvanceDisplay() {
+            const advanceRow = document.getElementById('advanceRow');
+            const codNote = document.getElementById('cod-note');
             
-            if (bkashAmount) bkashAmount.innerText = `৳${totals.total.toFixed(0)}`;
-            if (nagadAmount) nagadAmount.innerText = `৳${totals.total.toFixed(0)}`;
-            if (udjoktaAmount) udjoktaAmount.innerText = totals.total.toFixed(0);
+            if (selectedPayment === 'cod') {
+                if (advanceRow) advanceRow.style.display = 'flex';
+                if (codNote) codNote.style.display = 'block';
+            } else {
+                if (advanceRow) advanceRow.style.display = 'none';
+                if (codNote) codNote.style.display = 'none';
+            }
         }
 
         // ========== PAYMENT SELECTION ==========
@@ -964,7 +799,6 @@
             // Remove selected class from all
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelectorAll('.payment-radio').forEach(radio => radio.classList.remove('selected'));
-            document.querySelectorAll('.payment-instructions').forEach(inst => inst.classList.remove('active'));
 
             // Add selected class to chosen method
             const paymentOption = document.getElementById(`payment-${method}`);
@@ -973,9 +807,8 @@
             if (paymentOption) paymentOption.classList.add('selected');
             if (paymentRadio) paymentRadio.classList.add('selected');
             
-            // Show instructions for payment methods
-            const instructions = document.getElementById(`${method}-instructions`);
-            if (instructions) instructions.classList.add('active');
+            // Update advance display
+            updateAdvanceDisplay();
             
             console.log('Payment method selected:', method);
         };
@@ -993,16 +826,21 @@
         }
 
         // ========== CREATE UDJOKTA PAY PAYMENT ==========
-        async function createUdjoktaPayment(orderData) {
+        async function createUdjoktaPayment(orderData, paymentType) {
             try {
+                // Determine amount based on payment type
+                const amount = paymentType === 'cod' ? totals.advanceAmount : totals.total;
+                
                 const payload = {
                     full_name: orderData.customer.name,
                     email: orderData.customer.email,
-                    amount: orderData.total.toFixed(0),
+                    amount: amount.toFixed(0),
                     metadata: {
                         order_id: orderData.order_id,
                         customer_phone: orderData.customer.phone,
-                        payment_type: 'full_payment'
+                        payment_type: paymentType,
+                        total_amount: totals.total,
+                        advance_amount: paymentType === 'cod' ? totals.advanceAmount : 0
                     },
                     redirect_url: `${UDJOKTA_CONFIG.REDIRECT_URL}/payment-success.html?order_id=${orderData.order_id}`,
                     cancel_url: `${UDJOKTA_CONFIG.REDIRECT_URL}/payment-cancel.html?order_id=${orderData.order_id}`,
@@ -1028,8 +866,10 @@
                 if (data.status === true && data.payment_url) {
                     // Save order to Firebase with pending status
                     orderData.payment = {
-                        method: 'udjokta',
+                        method: paymentType === 'cod' ? 'cod_advance' : 'full_payment',
                         status: 'pending',
+                        amount_paid: amount,
+                        total_amount: totals.total,
                         invoice_id: data.invoice_id || null,
                         payment_url: data.payment_url
                     };
@@ -1057,9 +897,7 @@
                     `• ${item.name || 'Product'} (x${item.quantity}) - ৳${(item.price * item.quantity).toFixed(0)}`
                 ).join('\n');
 
-                const paymentMethod = orderData.payment.method === 'bkash' ? 'bKash' : 
-                                     orderData.payment.method === 'nagad' ? 'Nagad' : 
-                                     orderData.payment.method === 'udjokta' ? 'Udjokta Pay' : 'COD';
+                const paymentMethod = orderData.payment.method === 'cod_advance' ? 'COD (30% Advance)' : 'Full Payment';
 
                 const message = `📦 *NEW ORDER - ${orderId}*
 
@@ -1068,7 +906,7 @@
 📞 *Phone:* ${orderData.customer.phone}
 💰 *Total:* ৳${orderData.total.toFixed(0)}
 💳 *Payment:* ${paymentMethod}
-🔑 *TrxID:* ${orderData.payment.trxId || orderData.payment.invoice_id || 'N/A'}
+🔑 *Paid:* ৳${orderData.payment.amount_paid.toFixed(0)}
 📝 *Note:* ${orderData.note || 'No notes'}
 ━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1113,9 +951,7 @@ ${itemsList}
                     `• ${item.name || 'Product'} (x${item.quantity}) - ৳${(item.price * item.quantity).toFixed(0)}`
                 ).join('\n');
 
-                const paymentMethod = orderData.payment.method === 'bkash' ? 'bKash' : 
-                                     orderData.payment.method === 'nagad' ? 'Nagad' : 
-                                     orderData.payment.method === 'udjokta' ? 'Udjokta Pay' : 'COD';
+                const paymentMethod = orderData.payment.method === 'cod_advance' ? 'Cash on Delivery (30% Advance Paid)' : 'Full Payment';
 
                 const message = `🛍️ *ESPERA MAVRO - Order Confirmation*
 
@@ -1135,10 +971,10 @@ ${itemsList}
 💰 *Subtotal:* ৳${orderData.subtotal.toFixed(0)}
 🚚 *Delivery:* ${orderData.delivery_charge > 0 ? '৳' + orderData.delivery_charge.toFixed(0) : 'FREE'}
 💎 *Total:* ৳${orderData.total.toFixed(0)}
+💳 *Paid Now:* ৳${orderData.payment.amount_paid.toFixed(0)}
 ━━━━━━━━━━━━━━━━━━━━━━━
 
-💳 *Payment:* ${paymentMethod}
-🔑 *Transaction ID:* ${orderData.payment.trxId || orderData.payment.invoice_id || 'N/A'}
+💳 *Payment Method:* ${paymentMethod}
 
 📍 *Delivery Address:*
 ${orderData.customer.address}, ${orderData.customer.city}
@@ -1189,8 +1025,8 @@ Thank you for choosing ESPERA MAVRO!`;
                 formData.append('Phone', orderData.customer.phone);
                 formData.append('Email', orderData.customer.email);
                 formData.append('Address', `${orderData.customer.address}, ${orderData.customer.city}`);
-                formData.append('Payment Method', orderData.payment.method);
-                formData.append('Transaction ID', orderData.payment.trxId || orderData.payment.invoice_id || 'N/A');
+                formData.append('Payment Method', orderData.payment.method === 'cod_advance' ? 'COD (30% Advance)' : 'Full Payment');
+                formData.append('Amount Paid', `৳${orderData.payment.amount_paid.toFixed(0)}`);
                 formData.append('Subtotal', `৳${orderData.subtotal.toFixed(0)}`);
                 formData.append('Delivery', orderData.delivery_charge > 0 ? `৳${orderData.delivery_charge.toFixed(0)}` : 'FREE');
                 formData.append('Total', `৳${orderData.total.toFixed(0)}`);
@@ -1212,21 +1048,6 @@ Thank you for choosing ESPERA MAVRO!`;
                 
             } catch (error) {
                 console.log('Email sending failed:', error);
-            }
-        }
-
-        // ========== SEND NOTIFICATIONS ==========
-        async function sendNotifications(orderData) {
-            try {
-                // Send emails
-                sendEmail(orderData, currentOrderId, 'admin');
-                sendEmail(orderData, currentOrderId, 'customer');
-                
-                // Send WhatsApp
-                sendAdminWhatsApp(orderData, currentOrderId);
-                sendCustomerWhatsApp(orderData, currentOrderId);
-            } catch (error) {
-                console.error('Notification error:', error);
             }
         }
 
@@ -1259,30 +1080,6 @@ Thank you for choosing ESPERA MAVRO!`;
                 return;
             }
 
-            // Payment validation
-            let paymentDetails = { method: selectedPayment };
-            
-            if (selectedPayment === 'bkash') {
-                const trxId = document.getElementById('bkashTrxId')?.value.trim();
-                if (!trxId) {
-                    alert('Please enter bKash Transaction ID');
-                    return;
-                }
-                paymentDetails = { method: 'bkash', trxId: trxId, status: 'awaiting_verification' };
-            } 
-            else if (selectedPayment === 'nagad') {
-                const trxId = document.getElementById('nagadTrxId')?.value.trim();
-                if (!trxId) {
-                    alert('Please enter Nagad Transaction ID');
-                    return;
-                }
-                paymentDetails = { method: 'nagad', trxId: trxId, status: 'awaiting_verification' };
-            } 
-            else if (selectedPayment === 'cod') {
-                paymentDetails = { method: 'cod', status: 'pending' };
-            }
-            // For udjokta, we'll handle in createUdjoktaPayment function
-
             // Prepare order data
             const orderData = {
                 order_id: currentOrderId,
@@ -1310,14 +1107,13 @@ Thank you for choosing ESPERA MAVRO!`;
                 status_history: [{
                     status: 'pending',
                     timestamp: new Date().toISOString(),
-                    note: 'Order placed'
+                    note: selectedPayment === 'cod' ? 'COD order - awaiting advance payment' : 'Full payment order'
                 }],
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
 
             console.log('Placing order:', orderData);
-            console.log('Order ID:', currentOrderId);
 
             // Show loading
             const loadingOverlay = document.getElementById('loadingOverlay');
@@ -1328,30 +1124,11 @@ Thank you for choosing ESPERA MAVRO!`;
             paymentInProgress = true;
 
             try {
-                if (selectedPayment === 'udjokta') {
-                    // Process Udjokta Pay payment
-                    await createUdjoktaPayment(orderData);
-                    // Note: The page will redirect, so we don't show success here
-                } else {
-                    // For bKash, Nagad, COD - save to Firebase
-                    orderData.payment = paymentDetails;
-                    await database.ref('orders/' + currentOrderId).set(orderData);
-                    
-                    // Send notifications
-                    sendNotifications(orderData);
-                    
-                    // Clear cart
-                    localStorage.removeItem('essence_cart');
-                    
-                    // Show success
-                    if (loadingOverlay) loadingOverlay.style.display = 'none';
-                    
-                    const orderIdElement = document.getElementById('orderId');
-                    if (orderIdElement) orderIdElement.innerText = currentOrderId;
-                    
-                    const successPopup = document.getElementById('successPopup');
-                    if (successPopup) successPopup.style.display = 'flex';
-                }
+                // Both payment methods go through Udjokta Pay
+                // For COD: Pay advance amount, For Full: Pay total amount
+                await createUdjoktaPayment(orderData, selectedPayment);
+                
+                // Note: The page will redirect, so we don't show success here
 
             } catch (error) {
                 console.error('❌ Order failed:', error);
@@ -1365,31 +1142,6 @@ Thank you for choosing ESPERA MAVRO!`;
         // ========== CONTINUE SHOPPING ==========
         window.continueShopping = function() {
             window.location.href = 'shop.html';
-        };
-
-        // ========== TEST FUNCTIONS ==========
-        window.testFirebase = function() {
-            const testRef = database.ref('test').push();
-            testRef.set({ 
-                test: true, 
-                message: 'Firebase is working!',
-                timestamp: Date.now() 
-            })
-            .then(() => {
-                console.log('✅ Firebase is working!');
-                alert('Firebase connected successfully!');
-            })
-            .catch(error => {
-                console.error('❌ Firebase error:', error);
-                alert('Firebase error: ' + error.message);
-            });
-        };
-
-        window.testCart = function() {
-            console.log('Current cart:', cart);
-            console.log('Current totals:', totals);
-            console.log('Current order ID:', currentOrderId);
-            alert('Check console for cart details');
         };
 
         // ========== INITIALIZE ==========
