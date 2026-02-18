@@ -24,6 +24,7 @@
             --success: #2e7d32;
             --warning: #ed6c02;
             --info: #0288d1;
+            --coupon: #9c27b0;
         }
 
         body {
@@ -174,6 +175,64 @@
             resize: vertical;
         }
 
+        .coupon-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px dashed var(--coupon);
+        }
+
+        .coupon-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .coupon-input-group input {
+            flex: 1;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .apply-coupon-btn {
+            background: var(--coupon);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .apply-coupon-btn:hover {
+            background: #7b1fa2;
+        }
+
+        .coupon-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .coupon-message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            display: block;
+        }
+
+        .coupon-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+            display: block;
+        }
+
         .payment-methods {
             display: flex;
             flex-direction: column;
@@ -320,6 +379,11 @@
             color: var(--text-light);
         }
 
+        .summary-row.discount {
+            color: var(--success);
+            font-weight: 600;
+        }
+
         .summary-row.total {
             font-size: 22px;
             font-weight: 800;
@@ -327,15 +391,6 @@
             padding-top: 15px;
             border-top: 2px dashed var(--border);
             color: var(--accent);
-        }
-
-        .delivery-badge {
-            background: #e8f5e9;
-            color: var(--success);
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
         }
 
         .place-order-btn {
@@ -533,6 +588,28 @@
                     </div>
                 </div>
 
+                <!-- Coupon Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-ticket-alt" style="color: var(--coupon);"></i>
+                        Apply Coupon
+                    </div>
+                    
+                    <div class="coupon-section">
+                        <div class="coupon-input-group">
+                            <input type="text" id="couponCode" placeholder="Enter coupon code" value="">
+                            <button class="apply-coupon-btn" onclick="applyCoupon()">
+                                <i class="fas fa-check"></i> Apply
+                            </button>
+                        </div>
+                        <div id="couponMessage" class="coupon-message"></div>
+                        <div id="appliedCouponInfo" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 8px;">
+                            <span id="appliedCouponText"></span>
+                            <button class="btn btn-sm" onclick="removeCoupon()" style="margin-left: 10px; color: var(--danger);">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Payment Method -->
                 <div class="form-section">
                     <div class="section-title">
@@ -546,7 +623,7 @@
                             <div class="payment-radio" id="radio-cod"></div>
                             <div class="payment-info">
                                 <div class="payment-name">Cash on Delivery</div>
-                                <div class="payment-desc">Pay when you receive your order</div>
+                                <div class="payment-desc">Pay 30% advance now, rest on delivery</div>
                             </div>
                             <div class="payment-icon">
                                 <i class="fas fa-money-bill-wave"></i>
@@ -569,7 +646,7 @@
                     <!-- Cash on Delivery Note -->
                     <div class="payment-note" id="cod-note" style="display: none;">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> For Cash on Delivery orders, you will need to pay 30% advance payment (product price + delivery charge) at the time of ordering. This is required because we import products from China sellers and need to pay shipping costs in advance.
+                        <strong>Note:</strong> For Cash on Delivery orders, you will need to pay 30% advance payment (after discount) at the time of ordering. This is required because we import products from China sellers and need to pay shipping costs in advance.
                     </div>
                 </div>
             </div>
@@ -583,6 +660,12 @@
                 <div class="summary-row">
                     <span>Subtotal</span>
                     <span id="summarySubtotal">৳0</span>
+                </div>
+
+                <!-- Discount Row (if coupon applied) -->
+                <div class="summary-row discount" id="discountRow" style="display: none;">
+                    <span>Discount <span id="couponCodeDisplay"></span></span>
+                    <span id="summaryDiscount">-৳0</span>
                 </div>
 
                 <div class="summary-row">
@@ -672,10 +755,20 @@
 
         // ========== STATE ==========
         let cart = [];
-        let totals = { subtotal: 0, deliveryTotal: 0, total: 0, itemCount: 0, advanceAmount: 0 };
+        let totals = { 
+            subtotal: 0, 
+            deliveryTotal: 0, 
+            discount: 0,
+            discountedSubtotal: 0,
+            total: 0, 
+            itemCount: 0, 
+            advanceAmount: 0 
+        };
         let selectedPayment = 'cod';
         let currentOrderId = '';
         let paymentInProgress = false;
+        let appliedCoupon = null;
+        let allCoupons = [];
 
         // ========== LOAD CART FROM LOCALSTORAGE ==========
         function loadCart() {
@@ -697,12 +790,15 @@
                 cart = cart.map(item => ({
                     ...item,
                     quantity: item.quantity || 1,
-                    price: parseFloat(item.price) || 0
+                    price: parseFloat(item.price) || 0,
+                    category: item.category || '',
+                    id: item.id || `item-${Date.now()}`
                 }));
 
                 calculateTotals();
                 renderSummary();
                 generateOrderId();
+                loadCoupons();
                 
                 console.log('Cart loaded:', cart);
             } catch (e) {
@@ -710,6 +806,133 @@
                 window.location.href = 'shop.html';
             }
         }
+
+        // ========== LOAD COUPONS ==========
+        function loadCoupons() {
+            database.ref('coupons').once('value', (snapshot) => {
+                allCoupons = [];
+                snapshot.forEach(child => {
+                    allCoupons.push({ id: child.key, ...child.val() });
+                });
+                console.log('Coupons loaded:', allCoupons);
+            });
+        }
+
+        // ========== CHECK IF PRODUCT IS EXCLUDED ==========
+        function isProductExcluded(product, coupon) {
+            // Check if product is in excluded list
+            if (coupon.exclude_products && coupon.exclude_products.includes(product.id)) {
+                return true;
+            }
+            
+            // Check if product category is excluded
+            if (coupon.exclude_categories && product.category && coupon.exclude_categories.includes(product.category)) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        // ========== APPLY COUPON ==========
+        window.applyCoupon = async () => {
+            const code = document.getElementById('couponCode').value.trim().toUpperCase();
+            const messageEl = document.getElementById('couponMessage');
+            
+            if (!code) {
+                showCouponMessage('Please enter a coupon code', 'error');
+                return;
+            }
+            
+            // Find coupon
+            const coupon = allCoupons.find(c => c.code === code);
+            
+            if (!coupon) {
+                showCouponMessage('Invalid coupon code', 'error');
+                return;
+            }
+            
+            // Check if coupon is active
+            if (coupon.status !== 'active') {
+                showCouponMessage('This coupon is not active', 'error');
+                return;
+            }
+            
+            // Check expiry
+            const now = new Date();
+            if (coupon.valid_until && new Date(coupon.valid_until) < now) {
+                showCouponMessage('This coupon has expired', 'error');
+                return;
+            }
+            
+            if (coupon.valid_from && new Date(coupon.valid_from) > now) {
+                showCouponMessage('This coupon is not valid yet', 'error');
+                return;
+            }
+            
+            // Check usage limit
+            if (coupon.usage_limit > 0 && coupon.usage_count >= coupon.usage_limit) {
+                showCouponMessage('This coupon has reached its usage limit', 'error');
+                return;
+            }
+            
+            // Check if any product is excluded
+            const excludedProducts = cart.filter(item => isProductExcluded(item, coupon));
+            if (excludedProducts.length > 0) {
+                showCouponMessage(`This coupon cannot be applied to: ${excludedProducts.map(p => p.name).join(', ')}`, 'error');
+                return;
+            }
+            
+            // Calculate discount
+            let discountAmount = 0;
+            
+            if (coupon.type === 'fixed') {
+                discountAmount = coupon.value;
+            } else {
+                // Percentage discount
+                discountAmount = (totals.subtotal * coupon.value) / 100;
+                if (coupon.max_discount_amount > 0 && discountAmount > coupon.max_discount_amount) {
+                    discountAmount = coupon.max_discount_amount;
+                }
+            }
+            
+            // Check minimum order
+            if (coupon.min_order_amount > 0 && totals.subtotal < coupon.min_order_amount) {
+                showCouponMessage(`Minimum order amount ৳${coupon.min_order_amount} required`, 'error');
+                return;
+            }
+            
+            // Apply coupon
+            appliedCoupon = {
+                ...coupon,
+                discountAmount: discountAmount
+            };
+            
+            // Recalculate totals with discount
+            calculateTotals();
+            renderSummary();
+            
+            // Show success message
+            showCouponMessage(`Coupon applied! You saved ৳${discountAmount.toFixed(0)}`, 'success');
+            
+            // Show applied coupon info
+            document.getElementById('appliedCouponInfo').style.display = 'block';
+            document.getElementById('appliedCouponText').innerHTML = `Applied: <strong>${code}</strong> - ৳${discountAmount.toFixed(0)} off`;
+            document.getElementById('couponCode').value = '';
+        };
+
+        function showCouponMessage(message, type) {
+            const el = document.getElementById('couponMessage');
+            el.className = `coupon-message ${type}`;
+            el.innerHTML = message;
+        }
+
+        window.removeCoupon = () => {
+            appliedCoupon = null;
+            calculateTotals();
+            renderSummary();
+            document.getElementById('appliedCouponInfo').style.display = 'none';
+            document.getElementById('couponMessage').style.display = 'none';
+        };
 
         // ========== CALCULATE TOTALS ==========
         function calculateTotals() {
@@ -721,13 +944,25 @@
                 itemCount += item.quantity || 1;
             });
 
+            // Calculate discount if coupon applied
+            let discount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+            let discountedSubtotal = subtotal - discount;
+            
+            // Ensure discounted subtotal is not negative
+            if (discountedSubtotal < 0) discountedSubtotal = 0;
+
             const deliveryTotal = subtotal > FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE * itemCount;
-            const advanceAmount = (subtotal * ADVANCE_PERCENTAGE) + deliveryTotal;
+            const total = discountedSubtotal + deliveryTotal;
+            
+            // Calculate COD advance (30% of discounted subtotal + delivery charge)
+            const advanceAmount = (discountedSubtotal * ADVANCE_PERCENTAGE) + deliveryTotal;
             
             totals = {
                 subtotal: subtotal,
+                discount: discount,
+                discountedSubtotal: discountedSubtotal,
                 deliveryTotal: deliveryTotal,
-                total: subtotal + deliveryTotal,
+                total: total,
                 itemCount: itemCount,
                 advanceAmount: Math.ceil(advanceAmount)
             };
@@ -768,6 +1003,17 @@
 
             // Update price displays
             document.getElementById('summarySubtotal').innerHTML = `৳${totals.subtotal.toFixed(0)}`;
+            
+            // Show discount row if discount applied
+            const discountRow = document.getElementById('discountRow');
+            if (totals.discount > 0) {
+                discountRow.style.display = 'flex';
+                document.getElementById('couponCodeDisplay').innerHTML = `(${appliedCoupon.code})`;
+                document.getElementById('summaryDiscount').innerHTML = `-৳${totals.discount.toFixed(0)}`;
+            } else {
+                discountRow.style.display = 'none';
+            }
+            
             document.getElementById('summaryDelivery').innerHTML = totals.deliveryTotal > 0 ? `৳${totals.deliveryTotal.toFixed(0)}` : '<span style="color: #2e7d32;">FREE</span>';
             document.getElementById('summaryTotal').innerHTML = `৳${totals.total.toFixed(0)}`;
             document.getElementById('advanceAmount').innerHTML = `৳${totals.advanceAmount.toFixed(0)}`;
@@ -840,7 +1086,9 @@
                         customer_phone: orderData.customer.phone,
                         payment_type: paymentType,
                         total_amount: totals.total,
-                        advance_amount: paymentType === 'cod' ? totals.advanceAmount : 0
+                        advance_amount: paymentType === 'cod' ? totals.advanceAmount : 0,
+                        discount_applied: totals.discount,
+                        coupon_code: appliedCoupon ? appliedCoupon.code : null
                     },
                     redirect_url: `${UDJOKTA_CONFIG.REDIRECT_URL}/payment-success.html?order_id=${orderData.order_id}`,
                     cancel_url: `${UDJOKTA_CONFIG.REDIRECT_URL}/payment-cancel.html?order_id=${orderData.order_id}`,
@@ -876,6 +1124,14 @@
                     
                     await database.ref('orders/' + currentOrderId).set(orderData);
                     
+                    // Update coupon usage count if coupon was applied
+                    if (appliedCoupon) {
+                        const couponRef = database.ref('coupons/' + appliedCoupon.id);
+                        await couponRef.update({
+                            usage_count: (appliedCoupon.usage_count || 0) + 1
+                        });
+                    }
+                    
                     // Store order ID in session storage for recovery
                     sessionStorage.setItem('last_order_id', currentOrderId);
                     
@@ -898,6 +1154,7 @@
                 ).join('\n');
 
                 const paymentMethod = orderData.payment.method === 'cod_advance' ? 'COD (30% Advance)' : 'Full Payment';
+                const discountText = orderData.discount_applied ? `\n🏷️ Discount: ৳${orderData.discount_applied}` : '';
 
                 const message = `📦 *NEW ORDER - ${orderId}*
 
@@ -906,7 +1163,8 @@
 📞 *Phone:* ${orderData.customer.phone}
 💰 *Total:* ৳${orderData.total.toFixed(0)}
 💳 *Payment:* ${paymentMethod}
-🔑 *Paid:* ৳${orderData.payment.amount_paid.toFixed(0)}
+🔑 *Paid:* ৳${orderData.payment.amount_paid.toFixed(0)}${discountText}
+🏷️ *Coupon:* ${orderData.coupon?.code || 'None'}
 📝 *Note:* ${orderData.note || 'No notes'}
 ━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -952,6 +1210,7 @@ ${itemsList}
                 ).join('\n');
 
                 const paymentMethod = orderData.payment.method === 'cod_advance' ? 'Cash on Delivery (30% Advance Paid)' : 'Full Payment';
+                const discountText = orderData.discount_applied ? `\n🏷️ *Discount:* -৳${orderData.discount_applied}` : '';
 
                 const message = `🛍️ *ESPERA MAVRO - Order Confirmation*
 
@@ -969,12 +1228,14 @@ ${itemsList}
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 💰 *Subtotal:* ৳${orderData.subtotal.toFixed(0)}
+${orderData.discount_applied ? `🏷️ *Discount:* -৳${orderData.discount_applied}` : ''}
 🚚 *Delivery:* ${orderData.delivery_charge > 0 ? '৳' + orderData.delivery_charge.toFixed(0) : 'FREE'}
 💎 *Total:* ৳${orderData.total.toFixed(0)}
 💳 *Paid Now:* ৳${orderData.payment.amount_paid.toFixed(0)}
 ━━━━━━━━━━━━━━━━━━━━━━━
 
 💳 *Payment Method:* ${paymentMethod}
+${orderData.coupon?.code ? `🏷️ *Coupon Applied:* ${orderData.coupon.code}` : ''}
 
 📍 *Delivery Address:*
 ${orderData.customer.address}, ${orderData.customer.city}
@@ -1028,8 +1289,10 @@ Thank you for choosing ESPERA MAVRO!`;
                 formData.append('Payment Method', orderData.payment.method === 'cod_advance' ? 'COD (30% Advance)' : 'Full Payment');
                 formData.append('Amount Paid', `৳${orderData.payment.amount_paid.toFixed(0)}`);
                 formData.append('Subtotal', `৳${orderData.subtotal.toFixed(0)}`);
+                formData.append('Discount', orderData.discount_applied ? `-৳${orderData.discount_applied}` : 'None');
                 formData.append('Delivery', orderData.delivery_charge > 0 ? `৳${orderData.delivery_charge.toFixed(0)}` : 'FREE');
                 formData.append('Total', `৳${orderData.total.toFixed(0)}`);
+                formData.append('Coupon', orderData.coupon?.code || 'None');
                 formData.append('Items', itemsList);
                 formData.append('Note', orderData.note || 'No notes');
                 formData.append('Tracking URL', `https://mavro-app.vercel.app/track-order.html?id=${orderId}`);
@@ -1048,6 +1311,21 @@ Thank you for choosing ESPERA MAVRO!`;
                 
             } catch (error) {
                 console.log('Email sending failed:', error);
+            }
+        }
+
+        // ========== SEND NOTIFICATIONS ==========
+        async function sendNotifications(orderData) {
+            try {
+                // Send emails
+                sendEmail(orderData, currentOrderId, 'admin');
+                sendEmail(orderData, currentOrderId, 'customer');
+                
+                // Send WhatsApp
+                sendAdminWhatsApp(orderData, currentOrderId);
+                sendCustomerWhatsApp(orderData, currentOrderId);
+            } catch (error) {
+                console.error('Notification error:', error);
             }
         }
 
@@ -1093,6 +1371,7 @@ Thank you for choosing ESPERA MAVRO!`;
                     postcode: postcode
                 },
                 subtotal: totals.subtotal,
+                discount_applied: totals.discount,
                 delivery_charge: totals.deliveryTotal,
                 total: totals.total,
                 items: cart.map(item => ({
@@ -1100,7 +1379,8 @@ Thank you for choosing ESPERA MAVRO!`;
                     name: item.name || 'Product',
                     price: item.price || 0,
                     quantity: item.quantity || 1,
-                    image: item.image || ''
+                    image: item.image || '',
+                    category: item.category || ''
                 })),
                 note: orderNote,
                 status: 'pending',
@@ -1112,6 +1392,15 @@ Thank you for choosing ESPERA MAVRO!`;
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
+
+            // Add coupon info if applied
+            if (appliedCoupon) {
+                orderData.coupon = {
+                    id: appliedCoupon.id,
+                    code: appliedCoupon.code,
+                    discount: totals.discount
+                };
+            }
 
             console.log('Placing order:', orderData);
 
@@ -1125,7 +1414,6 @@ Thank you for choosing ESPERA MAVRO!`;
 
             try {
                 // Both payment methods go through Udjokta Pay
-                // For COD: Pay advance amount, For Full: Pay total amount
                 await createUdjoktaPayment(orderData, selectedPayment);
                 
                 // Note: The page will redirect, so we don't show success here
