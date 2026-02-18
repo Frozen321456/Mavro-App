@@ -24,7 +24,8 @@
             --success: #2e7d32;
             --warning: #ed6c02;
             --info: #0288d1;
-            --coupon: #9c27b0;
+            --coupon: #ff385c;
+            --coupon-light: #ffe5e9;
         }
 
         body {
@@ -175,62 +176,201 @@
             resize: vertical;
         }
 
-        .coupon-section {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px dashed var(--coupon);
+        /* ========== COUPON SECTION - PROFESSIONAL RED THEME ========== */
+        .coupon-toggle {
+            background: linear-gradient(135deg, var(--coupon) 0%, #e62e4c 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            transition: 0.3s;
+            border: none;
+            width: 100%;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(255, 56, 92, 0.2);
+        }
+
+        .coupon-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 56, 92, 0.3);
+        }
+
+        .coupon-toggle i {
+            font-size: 20px;
+            transition: 0.3s;
+        }
+
+        .coupon-toggle.active i {
+            transform: rotate(180deg);
+        }
+
+        .coupon-panel {
+            background: var(--coupon-light);
+            border-radius: 20px;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.3s ease-in-out;
+            margin-top: 0;
+            border: 1px solid transparent;
+        }
+
+        .coupon-panel.active {
+            padding: 25px;
+            max-height: 300px;
+            border: 1px solid var(--coupon);
+            margin-bottom: 20px;
         }
 
         .coupon-input-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .coupon-input-group input {
             flex: 1;
-            padding: 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
+            min-width: 200px;
+            padding: 16px 20px;
+            border: 2px solid #ffccd4;
+            border-radius: 50px;
             font-size: 15px;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .coupon-input-group input:focus {
+            border-color: var(--coupon);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(255, 56, 92, 0.1);
+        }
+
+        .coupon-input-group input::placeholder {
+            color: #999;
+            font-style: italic;
         }
 
         .apply-coupon-btn {
             background: var(--coupon);
             color: white;
             border: none;
-            padding: 14px 25px;
-            border-radius: 12px;
-            font-weight: 600;
+            padding: 16px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
             transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(255, 56, 92, 0.2);
         }
 
         .apply-coupon-btn:hover {
-            background: #7b1fa2;
+            background: #e62e4c;
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(255, 56, 92, 0.3);
+        }
+
+        .apply-coupon-btn:active {
+            transform: scale(0.98);
+        }
+
+        .apply-coupon-btn i {
+            font-size: 16px;
         }
 
         .coupon-message {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            margin-top: 15px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
             display: none;
+            align-items: center;
+            gap: 10px;
         }
 
         .coupon-message.success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+            display: flex;
         }
 
         .coupon-message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-            display: block;
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+            display: flex;
+        }
+
+        .coupon-message i {
+            font-size: 18px;
+        }
+
+        .applied-coupon {
+            background: #e8f5e9;
+            border-radius: 50px;
+            padding: 12px 20px;
+            margin-top: 15px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px dashed #2e7d32;
+        }
+
+        .applied-coupon.active {
+            display: flex;
+        }
+
+        .applied-coupon-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .applied-coupon-info i {
+            color: #2e7d32;
+            font-size: 20px;
+        }
+
+        .applied-coupon-code {
+            font-weight: 700;
+            color: #2e7d32;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+
+        .applied-coupon-discount {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .remove-coupon-btn {
+            background: none;
+            border: none;
+            color: #c62828;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 5px 15px;
+            border-radius: 30px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .remove-coupon-btn:hover {
+            background: #ffebee;
         }
 
         .payment-methods {
@@ -382,6 +522,10 @@
         .summary-row.discount {
             color: var(--success);
             font-weight: 600;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
         }
 
         .summary-row.total {
@@ -515,6 +659,13 @@
             .checkout-title {
                 font-size: 24px;
             }
+            .coupon-input-group {
+                flex-direction: column;
+            }
+            .apply-coupon-btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -588,24 +739,41 @@
                     </div>
                 </div>
 
-                <!-- Coupon Section -->
+                <!-- Coupon Section - Professional Red Theme -->
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-ticket-alt" style="color: var(--coupon);"></i>
-                        Apply Coupon
+                        Have a Coupon?
                     </div>
                     
-                    <div class="coupon-section">
+                    <!-- Coupon Toggle Button -->
+                    <button class="coupon-toggle" onclick="toggleCouponPanel()" id="couponToggle">
+                        <span><i class="fas fa-tag"></i> Apply Coupon Code</span>
+                        <i class="fas fa-chevron-down" id="toggleIcon"></i>
+                    </button>
+
+                    <!-- Coupon Panel (Hidden by default) -->
+                    <div class="coupon-panel" id="couponPanel">
                         <div class="coupon-input-group">
-                            <input type="text" id="couponCode" placeholder="Enter coupon code" value="">
+                            <input type="text" id="couponCode" placeholder="Enter coupon code (e.g., SAVE50)" value="">
                             <button class="apply-coupon-btn" onclick="applyCoupon()">
-                                <i class="fas fa-check"></i> Apply
+                                <i class="fas fa-check-circle"></i> Apply
                             </button>
                         </div>
+                        
+                        <!-- Coupon Message -->
                         <div id="couponMessage" class="coupon-message"></div>
-                        <div id="appliedCouponInfo" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 8px;">
-                            <span id="appliedCouponText"></span>
-                            <button class="btn btn-sm" onclick="removeCoupon()" style="margin-left: 10px; color: var(--danger);">Remove</button>
+                        
+                        <!-- Applied Coupon Display -->
+                        <div class="applied-coupon" id="appliedCoupon">
+                            <div class="applied-coupon-info">
+                                <i class="fas fa-check-circle"></i>
+                                <span class="applied-coupon-code" id="appliedCouponCode"></span>
+                                <span class="applied-coupon-discount" id="appliedCouponDiscount"></span>
+                            </div>
+                            <button class="remove-coupon-btn" onclick="removeCoupon()">
+                                <i class="fas fa-times"></i> Remove
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -664,7 +832,7 @@
 
                 <!-- Discount Row (if coupon applied) -->
                 <div class="summary-row discount" id="discountRow" style="display: none;">
-                    <span>Discount <span id="couponCodeDisplay"></span></span>
+                    <span><i class="fas fa-tag"></i> Discount <span id="couponCodeDisplay"></span></span>
                     <span id="summaryDiscount">-৳0</span>
                 </div>
 
@@ -818,6 +986,22 @@
             });
         }
 
+        // ========== TOGGLE COUPON PANEL ==========
+        window.toggleCouponPanel = function() {
+            const panel = document.getElementById('couponPanel');
+            const toggle = document.getElementById('couponToggle');
+            const icon = document.getElementById('toggleIcon');
+            
+            panel.classList.toggle('active');
+            toggle.classList.toggle('active');
+            
+            if (panel.classList.contains('active')) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        };
+
         // ========== CHECK IF PRODUCT IS EXCLUDED ==========
         function isProductExcluded(product, coupon) {
             // Check if product is in excluded list
@@ -839,7 +1023,7 @@
             const messageEl = document.getElementById('couponMessage');
             
             if (!code) {
-                showCouponMessage('Please enter a coupon code', 'error');
+                showCouponMessage('Please enter a coupon code', 'error', '⚠️');
                 return;
             }
             
@@ -847,38 +1031,38 @@
             const coupon = allCoupons.find(c => c.code === code);
             
             if (!coupon) {
-                showCouponMessage('Invalid coupon code', 'error');
+                showCouponMessage('Invalid coupon code', 'error', '❌');
                 return;
             }
             
             // Check if coupon is active
             if (coupon.status !== 'active') {
-                showCouponMessage('This coupon is not active', 'error');
+                showCouponMessage('This coupon is not active', 'error', '❌');
                 return;
             }
             
             // Check expiry
             const now = new Date();
             if (coupon.valid_until && new Date(coupon.valid_until) < now) {
-                showCouponMessage('This coupon has expired', 'error');
+                showCouponMessage('This coupon has expired', 'error', '⏰');
                 return;
             }
             
             if (coupon.valid_from && new Date(coupon.valid_from) > now) {
-                showCouponMessage('This coupon is not valid yet', 'error');
+                showCouponMessage('This coupon is not valid yet', 'error', '⏳');
                 return;
             }
             
             // Check usage limit
             if (coupon.usage_limit > 0 && coupon.usage_count >= coupon.usage_limit) {
-                showCouponMessage('This coupon has reached its usage limit', 'error');
+                showCouponMessage('This coupon has reached its usage limit', 'error', '📊');
                 return;
             }
             
             // Check if any product is excluded
             const excludedProducts = cart.filter(item => isProductExcluded(item, coupon));
             if (excludedProducts.length > 0) {
-                showCouponMessage(`This coupon cannot be applied to: ${excludedProducts.map(p => p.name).join(', ')}`, 'error');
+                showCouponMessage(`This coupon cannot be applied to: ${excludedProducts.map(p => p.name).join(', ')}`, 'error', '🚫');
                 return;
             }
             
@@ -897,7 +1081,7 @@
             
             // Check minimum order
             if (coupon.min_order_amount > 0 && totals.subtotal < coupon.min_order_amount) {
-                showCouponMessage(`Minimum order amount ৳${coupon.min_order_amount} required`, 'error');
+                showCouponMessage(`Minimum order amount ৳${coupon.min_order_amount} required`, 'error', '💰');
                 return;
             }
             
@@ -912,26 +1096,40 @@
             renderSummary();
             
             // Show success message
-            showCouponMessage(`Coupon applied! You saved ৳${discountAmount.toFixed(0)}`, 'success');
+            showCouponMessage(`🎉 Coupon applied! You saved ৳${discountAmount.toFixed(0)}`, 'success', '✅');
             
             // Show applied coupon info
-            document.getElementById('appliedCouponInfo').style.display = 'block';
-            document.getElementById('appliedCouponText').innerHTML = `Applied: <strong>${code}</strong> - ৳${discountAmount.toFixed(0)} off`;
+            document.getElementById('appliedCoupon').classList.add('active');
+            document.getElementById('appliedCouponCode').innerHTML = appliedCoupon.code;
+            document.getElementById('appliedCouponDiscount').innerHTML = `-৳${discountAmount.toFixed(0)}`;
             document.getElementById('couponCode').value = '';
+            
+            // Close the panel after successful application (optional)
+            setTimeout(() => {
+                document.getElementById('couponPanel').classList.remove('active');
+                document.getElementById('couponToggle').classList.remove('active');
+                document.getElementById('toggleIcon').style.transform = 'rotate(0deg)';
+            }, 1500);
         };
 
-        function showCouponMessage(message, type) {
+        function showCouponMessage(message, type, icon) {
             const el = document.getElementById('couponMessage');
             el.className = `coupon-message ${type}`;
-            el.innerHTML = message;
+            el.innerHTML = `<i class="fas ${icon === '✅' ? 'fa-check-circle' : icon === '❌' ? 'fa-times-circle' : 'fa-info-circle'}"></i> ${message}`;
         }
 
         window.removeCoupon = () => {
             appliedCoupon = null;
             calculateTotals();
             renderSummary();
-            document.getElementById('appliedCouponInfo').style.display = 'none';
+            document.getElementById('appliedCoupon').classList.remove('active');
             document.getElementById('couponMessage').style.display = 'none';
+            
+            // Show a brief message
+            showCouponMessage('Coupon removed successfully', 'success', '✅');
+            setTimeout(() => {
+                document.getElementById('couponMessage').style.display = 'none';
+            }, 2000);
         };
 
         // ========== CALCULATE TOTALS ==========
