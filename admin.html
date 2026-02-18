@@ -18,6 +18,7 @@
             --warning: #ed6c02;
             --info: #0288d1;
             --danger: #d32f2f;
+            --coupon: #9c27b0;
         }
         
         body { background: var(--bg); font-family: 'Inter', sans-serif; }
@@ -173,6 +174,8 @@
         .status-completed { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
         .status-awaiting_verification { background: #fff3cd; color: #856404; border-left: 3px solid var(--warning); }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-expired { background: #f8d7da; color: #721c24; }
         
         .payment-info {
             background: #f8f9fa;
@@ -281,6 +284,25 @@
 
         .payment-type-advance { background: #fff3cd; color: #856404; }
         .payment-type-full { background: #d4edda; color: #155724; }
+
+        .coupon-badge {
+            background: var(--coupon);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .excluded-item {
+            background: #f5f5f5;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 2px;
+        }
     </style>
 </head>
 <body>
@@ -301,6 +323,9 @@
         </a>
         <a class="nav-link" onclick="showSection('categories', this)">
             <i class="fa fa-list"></i> Categories
+        </a>
+        <a class="nav-link" onclick="showSection('coupons', this)">
+            <i class="fa fa-ticket"></i> Coupons
         </a>
         <a class="nav-link" onclick="showSection('orders', this)">
             <i class="fa fa-shopping-cart"></i> Orders
@@ -331,14 +356,14 @@
             </div>
             <div class="col-md-3">
                 <div class="card-custom">
-                    <h6 class="text-muted">Pending Verification</h6>
-                    <h2 id="pendingVerificationCount">0</h2>
+                    <h6 class="text-muted">Active Coupons</h6>
+                    <h2 id="activeCoupons">0</h2>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card-custom">
-                    <h6 class="text-muted">Processing Orders</h6>
-                    <h2 id="processingCount">0</h2>
+                    <h6 class="text-muted">Pending Verification</h6>
+                    <h2 id="pendingVerificationCount">0</h2>
                 </div>
             </div>
         </div>
@@ -416,8 +441,8 @@
             </div>
             <div class="col-md-3">
                 <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <p>Advance Payments</p>
-                    <h3 id="advancePaymentsCount">0</h3>
+                    <p>Coupon Usage</p>
+                    <h3 id="couponUsageCount">0</h3>
                 </div>
             </div>
         </div>
@@ -539,6 +564,101 @@
         </div>
     </div>
 
+    <!-- Coupons Section -->
+    <div id="coupons" class="section" style="display: none;">
+        <h3 class="mb-4">Coupon Management</h3>
+        
+        <div class="card-custom">
+            <h5 class="mb-3">Create New Coupon</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="small fw-bold">Coupon Code *</label>
+                    <input type="text" id="couponCode" class="form-control" placeholder="e.g., SUMMER50">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Discount Type *</label>
+                    <select id="discountType" class="form-select" onchange="toggleDiscountFields()">
+                        <option value="fixed">Fixed Amount (৳)</option>
+                        <option value="percentage">Percentage (%)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Discount Value *</label>
+                    <input type="number" id="discountValue" class="form-control" placeholder="Enter amount">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="small fw-bold">Valid From</label>
+                    <input type="datetime-local" id="validFrom" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Valid Until</label>
+                    <input type="datetime-local" id="validUntil" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Usage Limit (0 = unlimited)</label>
+                    <input type="number" id="usageLimit" class="form-control" value="0">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Minimum Order Amount (0 = no minimum)</label>
+                    <input type="number" id="minOrderAmount" class="form-control" value="0">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Maximum Discount Amount (for percentage)</label>
+                    <input type="number" id="maxDiscountAmount" class="form-control" value="0" placeholder="0 = no limit">
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Exclude Products (Select products to exclude from discount)</label>
+                    <select id="excludeProducts" class="form-select" multiple size="3">
+                        <!-- Products will be loaded here -->
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple products</small>
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Exclude Categories (Select categories to exclude from discount)</label>
+                    <select id="excludeCategories" class="form-select" multiple size="3">
+                        <!-- Categories will be loaded here -->
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple categories</small>
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Description</label>
+                    <textarea id="couponDescription" class="form-control" rows="2" placeholder="Optional description"></textarea>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="createCoupon()">
+                        <i class="fas fa-plus-circle"></i> CREATE COUPON
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-custom">
+            <h5 class="mb-3">Active Coupons</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Discount</th>
+                            <th>Valid From</th>
+                            <th>Valid Until</th>
+                            <th>Used/Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponsList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- Payment Verification Section -->
     <div id="payment-verification" class="section" style="display: none;">
         <h3 class="mb-4">Payment Verification</h3>
@@ -594,6 +714,7 @@
                             <th>Payment Type</th>
                             <th>Paid</th>
                             <th>Due</th>
+                            <th>Coupon</th>
                             <th>Status</th>
                             <th>Date</th>
                             <th>Action</th>
@@ -635,6 +756,8 @@
     let currentFilter = 'all';
     let currentPaymentFilter = 'all';
     let ordersChart, revenueChart, paymentChart, statusChart;
+    let allProducts = [];
+    let allCategories = [];
 
     // Navigation
     window.showSection = (id, el) => {
@@ -645,6 +768,11 @@
         
         if (id === 'products') loadProducts();
         if (id === 'categories') loadCategories();
+        if (id === 'coupons') {
+            loadProductsForCoupon();
+            loadCategoriesForCoupon();
+            loadCoupons();
+        }
         if (id === 'payment-verification') loadPaymentVerification();
         if (id === 'orders') loadOrders('all');
         if (id === 'analytics') loadAnalytics();
@@ -746,10 +874,12 @@
             const list = document.getElementById('catList');
             select.innerHTML = '<option value="">Select Category</option>';
             list.innerHTML = "";
+            allCategories = [];
             
             snapshot.forEach(child => {
                 const category = child.val();
                 const catName = category.name || category;
+                allCategories.push({ id: child.key, name: catName });
                 select.innerHTML += `<option value="${catName}">${catName}</option>`;
                 list.innerHTML += `<span class="badge bg-dark p-2">${catName} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCategory('${child.key}')"></i></span>`;
             });
@@ -822,6 +952,7 @@
             const totalElement = document.getElementById('totalProducts');
             list.innerHTML = "";
             let count = 0;
+            allProducts = [];
             
             snapshot.forEach(child => {
                 count++;
@@ -829,6 +960,8 @@
                 const productName = product.name || product.title || 'No Name';
                 const productImg = product.image || (product.images ? product.images[0] : 'https://via.placeholder.com/50');
                 const variationsCount = product.variations ? Object.keys(product.variations).length : 0;
+                
+                allProducts.push({ id: child.key, name: productName, category: product.category });
                 
                 list.innerHTML += `
                     <tr>
@@ -857,6 +990,155 @@
     window.deleteProduct = (id) => {
         if(confirm("Delete this product?")) {
             database.ref('products/'+id).remove();
+        }
+    };
+
+    // ========== COUPON FUNCTIONS ==========
+    function toggleDiscountFields() {
+        const type = document.getElementById('discountType').value;
+        const maxDiscountField = document.getElementById('maxDiscountAmount').parentElement;
+        if (type === 'percentage') {
+            maxDiscountField.style.display = 'block';
+        } else {
+            maxDiscountField.style.display = 'none';
+        }
+    }
+
+    function loadProductsForCoupon() {
+        const select = document.getElementById('excludeProducts');
+        select.innerHTML = '';
+        allProducts.forEach(product => {
+            select.innerHTML += `<option value="${product.id}">${product.name}</option>`;
+        });
+    }
+
+    function loadCategoriesForCoupon() {
+        const select = document.getElementById('excludeCategories');
+        select.innerHTML = '';
+        allCategories.forEach(cat => {
+            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+    }
+
+    window.createCoupon = async () => {
+        const code = document.getElementById('couponCode').value.trim().toUpperCase();
+        const type = document.getElementById('discountType').value;
+        const value = parseFloat(document.getElementById('discountValue').value);
+        const validFrom = document.getElementById('validFrom').value;
+        const validUntil = document.getElementById('validUntil').value;
+        const usageLimit = parseInt(document.getElementById('usageLimit').value) || 0;
+        const minOrderAmount = parseFloat(document.getElementById('minOrderAmount').value) || 0;
+        const maxDiscountAmount = parseFloat(document.getElementById('maxDiscountAmount').value) || 0;
+        const description = document.getElementById('couponDescription').value.trim();
+        
+        // Get excluded items
+        const excludeProducts = Array.from(document.getElementById('excludeProducts').selectedOptions).map(opt => opt.value);
+        const excludeCategories = Array.from(document.getElementById('excludeCategories').selectedOptions).map(opt => opt.value);
+        
+        if (!code || !value) {
+            alert('Please enter coupon code and discount value');
+            return;
+        }
+        
+        if (type === 'percentage' && value > 100) {
+            alert('Percentage discount cannot exceed 100%');
+            return;
+        }
+        
+        const couponData = {
+            code: code,
+            type: type,
+            value: value,
+            valid_from: validFrom || null,
+            valid_until: validUntil || null,
+            usage_limit: usageLimit,
+            usage_count: 0,
+            min_order_amount: minOrderAmount,
+            max_discount_amount: maxDiscountAmount,
+            exclude_products: excludeProducts,
+            exclude_categories: excludeCategories,
+            description: description,
+            status: 'active',
+            created_at: new Date().toISOString()
+        };
+        
+        try {
+            await database.ref('coupons').push(couponData);
+            alert('Coupon created successfully!');
+            clearCouponForm();
+            loadCoupons();
+        } catch (error) {
+            console.error('Error creating coupon:', error);
+            alert('Failed to create coupon');
+        }
+    };
+
+    function clearCouponForm() {
+        document.getElementById('couponCode').value = '';
+        document.getElementById('discountValue').value = '';
+        document.getElementById('validFrom').value = '';
+        document.getElementById('validUntil').value = '';
+        document.getElementById('usageLimit').value = '0';
+        document.getElementById('minOrderAmount').value = '0';
+        document.getElementById('maxDiscountAmount').value = '0';
+        document.getElementById('couponDescription').value = '';
+        document.getElementById('excludeProducts').selectedIndex = -1;
+        document.getElementById('excludeCategories').selectedIndex = -1;
+    }
+
+    function loadCoupons() {
+        database.ref('coupons').on('value', snapshot => {
+            const list = document.getElementById('couponsList');
+            list.innerHTML = '';
+            let activeCount = 0;
+            const now = new Date();
+            
+            snapshot.forEach(child => {
+                const coupon = child.val();
+                const validFrom = coupon.valid_from ? new Date(coupon.valid_from) : null;
+                const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
+                
+                let status = 'active';
+                let statusClass = 'status-active';
+                
+                if (validUntil && validUntil < now) {
+                    status = 'expired';
+                    statusClass = 'status-expired';
+                } else if (coupon.usage_limit > 0 && coupon.usage_count >= coupon.usage_limit) {
+                    status = 'used up';
+                    statusClass = 'status-expired';
+                }
+                
+                if (status === 'active') activeCount++;
+                
+                const discountText = coupon.type === 'fixed' 
+                    ? `৳ ${coupon.value}` 
+                    : `${coupon.value}% ${coupon.max_discount_amount > 0 ? `(Max ৳${coupon.max_discount_amount})` : ''}`;
+                
+                list.innerHTML += `
+                    <tr>
+                        <td><strong>${coupon.code}</strong></td>
+                        <td>${discountText}</td>
+                        <td>${coupon.valid_from ? new Date(coupon.valid_from).toLocaleDateString() : 'Unlimited'}</td>
+                        <td>${coupon.valid_until ? new Date(coupon.valid_until).toLocaleDateString() : 'Unlimited'}</td>
+                        <td>${coupon.usage_count || 0}/${coupon.usage_limit || '∞'}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCoupon('${child.key}')">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('activeCoupons').innerText = activeCount;
+        });
+    }
+
+    window.deleteCoupon = (id) => {
+        if(confirm('Delete this coupon?')) {
+            database.ref('coupons/'+id).remove();
         }
     };
 
@@ -1053,6 +1335,7 @@
                     const paymentMethod = payment.method || 'cod_advance';
                     const paidAmount = payment.amount_paid || 0;
                     const dueAmount = order.total - paidAmount;
+                    const couponApplied = order.coupon ? `<span class="coupon-badge">${order.coupon.code}</span>` : '-';
                     
                     list.innerHTML += `
                         <tr>
@@ -1065,6 +1348,7 @@
                             <td>${getPaymentTypeBadge(paymentMethod)}</td>
                             <td><span class="text-success">৳ ${paidAmount.toFixed(0)}</span></td>
                             <td><span class="text-warning">৳ ${dueAmount.toFixed(0)}</span></td>
+                            <td>${couponApplied}</td>
                             <td>${getStatusBadge(order.status || 'pending')}</td>
                             <td>${new Date(order.created_at).toLocaleDateString()}</td>
                             <td>
@@ -1170,6 +1454,7 @@
             let orderStatus = { pending: 0, placed: 0, processing: 0, shipping: 0, completed: 0, cancelled: 0 };
             let productSales = {};
             let advancePaymentsCount = 0;
+            let couponUsageCount = 0;
 
             snapshot.forEach(child => {
                 totalOrders++;
@@ -1186,6 +1471,10 @@
                     advancePaymentsCount++;
                 }
                 
+                if (order.coupon) {
+                    couponUsageCount++;
+                }
+                
                 const status = order.status || 'pending';
                 orderStatus[status] = (orderStatus[status] || 0) + 1;
                 
@@ -1200,6 +1489,7 @@
             document.getElementById('analyticsRevenue').innerHTML = `৳${totalRevenue.toFixed(0)}`;
             document.getElementById('analyticsOrders').innerText = totalOrders;
             document.getElementById('advancePaymentsCount').innerText = advancePaymentsCount;
+            document.getElementById('couponUsageCount').innerText = couponUsageCount;
 
             // Payment Methods Stats
             const paymentStats = document.getElementById('paymentStats');
@@ -1324,6 +1614,7 @@
         loadPaymentVerification();
         loadDashboard();
         loadAnalytics();
+        toggleDiscountFields();
     }
 
     init();
