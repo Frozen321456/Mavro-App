@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | ESPERA MAVRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        :root {
+            --primary: #000000;
+            --accent: #ff385c;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --border: #eaeaea;
+            --text-light: #666666;
+            --success: #2e7d32;
+            --warning: #ed6c02;
+            --danger: #d32f2f;
+            --info: #0288d1;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        .bg-bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .bg-bubbles span {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%;
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo span::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 5px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        .logo p {
+            color: var(--text-light);
+            font-size: 15px;
+            margin-top: 15px;
+            font-weight: 400;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            transition: 0.3s;
+            z-index: 1;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 18px 20px 18px 55px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-size: 15px;
+            transition: 0.3s;
+            background: var(--white);
+            color: #333;
+            font-weight: 500;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 56, 92, 0.1);
+        }
+
+        .input-group input:focus + .input-icon {
+            color: var(--accent);
+        }
+
+        .input-group input::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+            transition: 0.3s;
+            z-index: 1;
+        }
+
+        .toggle-password:hover {
+            color: var(--accent);
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .remember input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .remember label {
+            color: var(--text-light);
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .forgot-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .forgot-link:hover {
+            color: #e62e4c;
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            background: #e62e4c;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 56, 92, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .login-btn:disabled::before {
+            display: none;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 25px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.show {
+            display: flex;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .message.info {
+            background: #e3f2fd;
+            color: var(--info);
+            border-left: 4px solid var(--info);
+        }
+
+        .message i {
+            font-size: 18px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--text-light);
+            font-size: 13px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .security-badge i {
+            color: var(--success);
+            font-size: 16px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .footer a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 40px 25px;
+            }
+
+            .logo h1 {
+                font-size: 30px;
+            }
+
+            .remember-forgot {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 10px;
+            height: 5px;
+            border-radius: 5px;
+            background: #eee;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 5px;
+            color: var(--text-light);
+            display: none;
+        }
+
+        .strength-text.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-bubbles">
+        <span style="width: 20px; height: 20px; left: 10%; animation-duration: 15s;"></span>
+        <span style="width: 40px; height: 40px; left: 20%; animation-duration: 20s; animation-delay: 2s;"></span>
+        <span style="width: 60px; height: 60px; left: 35%; animation-duration: 25s; animation-delay: 4s;"></span>
+        <span style="width: 30px; height: 30px; left: 50%; animation-duration: 18s; animation-delay: 1s;"></span>
+        <span style="width: 80px; height: 80px; left: 70%; animation-duration: 22s; animation-delay: 3s;"></span>
+        <span style="width: 25px; height: 25px; left: 85%; animation-duration: 16s; animation-delay: 5s;"></span>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <h1>ESPERA <span>MAVRO</span></h1>
+                <p>Admin Panel Login</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="message error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
+            </div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="message success">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText"></span>
+            </div>
+
+            <!-- Info Message -->
+            <div id="infoMessage" class="message info">
+                <i class="fas fa-info-circle"></i>
+                <span id="infoText"></span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="Email Address" 
+                        required 
+                        autocomplete="email"
+                        value=""
+                    >
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Password" 
+                        required 
+                        autocomplete="current-password"
+                        oninput="checkPasswordStrength(this.value)"
+                    >
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword()" id="togglePassword"></i>
+                </div>
+
+                <!-- Password Strength Indicator -->
+                <div class="password-strength" id="passwordStrength">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="strength-text" id="strengthText">
+                    <span id="strengthMessage"></span>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me for 30 days</label>
+                    </label>
+                    <a href="#" class="forgot-link" onclick="forgotPassword(event)">
+                        <i class="fas fa-key"></i> Forgot Password?
+                    </a>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span>Login to Dashboard</span>
+                </button>
+
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secured by Firebase Authentication</span>
+                    <i class="fas fa-lock"></i>
+                </div>
+            </form>
+
+            <div class="footer">
+                &copy; 2024 ESPERA MAVRO. All rights reserved.
+                <br>
+                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            messagingSenderId: "137893255543",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    showInfo('Please verify your email before logging in. Check your inbox.');
+                    return;
+                }
+
+                // Check if user is admin
+                try {
+                    const idToken = await user.getIdTokenResult();
+                    if (idToken.claims.admin === true) {
+                        // Show success message and redirect
+                        showSuccess('Login successful! Redirecting to dashboard...');
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 1500);
+                    } else {
+                        // Not admin, sign out
+                        await auth.signOut();
+                        showError('You are not authorized as admin');
+                    }
+                } catch (error) {
+                    console.error('Error checking admin status:', error);
+                    await auth.signOut();
+                }
+            }
+        });
+
+        // Handle Login
+        window.handleLogin = async (event) => {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Clear previous messages
+            hideAllMessages();
+
+            // Validation
+            if (!email || !password) {
+                showError('Please enter both email and password');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
+            // Show loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
+
+            try {
+                // Set persistence
+                const persistence = rememberMe 
+                    ? firebase.auth.Auth.Persistence.LOCAL 
+                    : firebase.auth.Auth.Persistence.SESSION;
+                
+                await auth.setPersistence(persistence);
+
+                // Sign in
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    // Send verification email
+                    await user.sendEmailVerification();
+                    await auth.signOut();
+                    showError('Please verify your email first. A new verification email has been sent to your inbox.');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>Login to Dashboard</span>';
+                    return;
+                }
+
+                // Get ID token and check admin claim
+                const idToken = await user.getIdTokenResult();
+                
+                if (idToken.claims.admin === true) {
+                    // Show success message
+                    showSuccess('Login successful! Redirecting to dashboard...');
+                    
+                    // Redirect to admin panel
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    // Not admin, sign out
+                    await auth.signOut();
+                    showError('You are not authorized as admin. Please contact the super admin.');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>Login to Dashboard</span>';
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Handle specific errors
+                let errorMessage = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email address';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password. Please try again';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address format';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled. Contact support';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many failed attempts. Please try again later';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your internet connection';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password';
+                        break;
+                    default:
+                        errorMessage = 'Login failed: ' + error.message;
+                }
+                
+                showError(errorMessage);
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Login to Dashboard</span>';
+            }
+        };
+
+        // Email validation
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Toggle Password Visibility
+        window.togglePassword = function() {
+            const password = document.getElementById('password');
+            const toggle = document.getElementById('togglePassword');
+            
+            if (password.type === 'password') {
+                password.type = 'text';
+                toggle.className = 'fas fa-eye-slash toggle-password';
+            } else {
+                password.type = 'password';
+                toggle.className = 'fas fa-eye toggle-password';
+            }
+        };
+
+        // Forgot Password
+        window.forgotPassword = async (event) => {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                showError('Please enter your email address first');
+                document.getElementById('email').focus();
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('Please enter a valid email address');
+                document.getElementById('email').focus();
+                return;
+            }
+
+            // Show loading
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span> Sending...';
+
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showSuccess('Password reset email sent! Please check your inbox.');
+                
+                // Clear password field
+                document.getElementById('password').value = '';
+            } catch (error) {
+                let errorMessage = 'Failed to send reset email';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email address';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showError(errorMessage);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Login to Dashboard</span>';
+            }
+        };
+
+        // Password strength checker
+        window.checkPasswordStrength = function(password) {
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthDiv = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('strengthText');
+            const strengthMessage = document.getElementById('strengthMessage');
+
+            if (password.length === 0) {
+                strengthDiv.classList.remove('show');
+                strengthText.classList.remove('show');
+                return;
+            }
+
+            strengthDiv.classList.add('show');
+            strengthText.classList.add('show');
+
+            let strength = 0;
+            let message = '';
+
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]+/)) strength += 25;
+            if (password.match(/[A-Z]+/)) strength += 25;
+            if (password.match(/[0-9]+/)) strength += 15;
+            if (password.match(/[$@#&!]+/)) strength += 10;
+
+            strengthBar.style.width = strength + '%';
+
+            if (strength < 30) {
+                strengthBar.style.background = '#ff4444';
+                message = 'Weak password';
+            } else if (strength < 60) {
+                strengthBar.style.background = '#ffbb33';
+                message = 'Medium password';
+            } else {
+                strengthBar.style.background = '#00C851';
+                message = 'Strong password';
+            }
+
+            strengthMessage.innerText = message;
+        };
+
+        // Show Error Message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.innerText = message;
+            errorDiv.classList.add('show');
+            
+            // Hide other messages
+            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('infoMessage').classList.remove('show');
+        }
+
+        // Show Success Message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            successText.innerText = message;
+            successDiv.classList.add('show');
+            
+            // Hide other messages
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('infoMessage').classList.remove('show');
+        }
+
+        // Show Info Message
+        function showInfo(message) {
+            const infoDiv = document.getElementById('infoMessage');
+            const infoText = document.getElementById('infoText');
+            infoText.innerText = message;
+            infoDiv.classList.add('show');
+            
+            // Hide other messages
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        // Hide All Messages
+        function hideAllMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('infoMessage').classList.remove('show');
+        }
+
+        // Add enter key support
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin(e);
+            }
+        });
+
+        // Auto-focus email field
+        window.onload = function() {
+            document.getElementById('email').focus();
+            
+            // Add floating animation to bubbles
+            const bubbles = document.querySelectorAll('.bg-bubbles span');
+            bubbles.forEach((bubble, index) => {
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = Math.floor(Math.random() * 20 + 10) + 's';
+                bubble.style.animationDelay = Math.random() * 5 + 's';
+            });
+        };
+    </script>
+</body>
+</html>
