@@ -1,7 +1,7 @@
 {
   "name": "mavro-essence-api",
   "version": "3.1.0",
-  "description": "MoveDrop Integration API - Complete Node.js Solution",
+  "description": "MoveDrop Custom Channel Integration - Node.js API",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
@@ -9,9 +9,9 @@
     "vercel-build": "echo 'Building for Vercel'"
   },
   "dependencies": {
+    "axios": "^1.6.2",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "firebase-admin": "^11.11.0"
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
