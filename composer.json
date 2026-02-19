@@ -1,5 +1,7 @@
 {
+  "name": "mavro-essence/api",
+  "description": "Mavro Essence API for MoveDrop",
   "require": {
-    "php": ">=7.4.0"
+    "php": ">=7.4"
   }
 }
