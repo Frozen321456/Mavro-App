@@ -3,7 +3,7 @@ const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
-const API_KEY = 'MAVRO-ESSENCE-SECURE-KEY-2026';
+const API_KEY = 'MAVRO-ESSENCE-NEW-KEY-2026';
 const FIREBASE_URL = 'https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app';
 const PORT = process.env.PORT || 3000;
 
@@ -853,3 +853,4 @@ if (require.main === module) {
 }
 
 module.exports = app;
+
