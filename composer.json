@@ -1,7 +1,14 @@
 {
   "name": "mavro-essence/api",
   "description": "Mavro Essence API for MoveDrop",
+  "type": "project",
   "require": {
     "php": ">=8.0"
-  }
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mavro Essence"
+    }
+  ]
 }
