@@ -11,8 +11,8 @@
       "dest": "/api/index.php"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1.html"
+      "src": "^/(.*)$",
+      "dest": "/$1"
     }
   ]
 }
