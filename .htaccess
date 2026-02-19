@@ -1,11 +1,8 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    
+    # Redirect everything to index.php for API routes
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?path=$1 [QSA,L]
+    RewriteRule ^api/(.*)$ api/index.php?path=$1 [QSA,L]
 </IfModule>
-
-# PHP handlers
-<FilesMatch "\.php$">
-    SetHandler application/x-httpd-php
-</FilesMatch>
