@@ -21,119 +21,16 @@
             --coupon: #9c27b0;
         }
         
-        body { 
-            background: var(--bg); 
-            font-family: 'Inter', sans-serif; 
-            padding-top: 70px;
-        }
-        
-        /* Navbar */
-        .admin-navbar {
-            background: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .navbar-brand {
-            font-weight: 800;
-            font-size: 24px;
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .navbar-brand span {
-            color: var(--accent);
-        }
-        
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 20px;
-            background: #f5f5f5;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
-            text-transform: uppercase;
-        }
-        
-        .user-details {
-            line-height: 1.4;
-        }
-        
-        .user-name {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--primary);
-        }
-        
-        .user-email {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-        
-        .logout-btn {
-            background: none;
-            border: 1px solid var(--border);
-            padding: 10px 25px;
-            border-radius: 50px;
-            color: var(--danger);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logout-btn:hover {
-            background: #ffebee;
-            border-color: var(--danger);
-            transform: translateY(-2px);
-        }
-        
-        .logout-btn i {
-            font-size: 16px;
-        }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; }
         
         .sidebar { 
             background: #fff; 
-            height: calc(100vh - 70px); 
+            height: 100vh; 
             position: fixed; 
-            top: 70px;
-            left: 0;
             width: 280px; 
-            border-right: 1px solid #eee; 
+            border-right: 1px solid #ddd; 
             padding: 25px; 
-            z-index: 99; 
+            z-index: 100; 
             overflow-y: auto; 
             box-shadow: 2px 0 10px rgba(0,0,0,0.02);
         }
@@ -141,7 +38,6 @@
         .main { 
             margin-left: 280px; 
             padding: 30px; 
-            min-height: calc(100vh - 70px);
         }
         
         @media (max-width: 768px) { 
@@ -149,22 +45,11 @@
                 height: auto; 
                 width: 100%; 
                 position: relative; 
-                top: 0;
             } 
             .main { 
                 margin-left: 0; 
                 padding: 15px; 
-                margin-top: 140px;
             } 
-            .admin-navbar {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px;
-            }
-            .user-menu {
-                width: 100%;
-                justify-content: space-between;
-            }
         }
         
         .card-custom { 
@@ -191,7 +76,6 @@
         
         .nav-link:hover { 
             background: #f5f5f5; 
-            color: var(--accent);
         }
         
         .nav-link.active { 
@@ -258,12 +142,6 @@
             cursor: pointer; 
             background: #fff; 
             font-weight: bold; 
-            transition: 0.3s;
-        }
-
-        .upload-trigger:hover {
-            border-color: var(--accent);
-            color: var(--accent);
         }
 
         #editor { 
@@ -328,7 +206,6 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            transition: 0.2s;
         }
         
         .verify-btn:hover { background: #1e5622; }
@@ -386,7 +263,6 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            transition: 0.2s;
         }
 
         .delete-btn:hover { background: #b71c1c; }
@@ -427,1514 +303,1321 @@
             gap: 5px;
             margin: 2px;
         }
-        
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.98);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--accent);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .auth-error {
-            background: #ffebee;
-            color: var(--danger);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 50px auto;
-            max-width: 500px;
-            border-left: 4px solid var(--danger);
-        }
-        
-        .auth-error h3 {
-            margin-bottom: 15px;
-            color: var(--danger);
-        }
-        
-        .auth-error p {
-            margin-bottom: 20px;
-            color: #666;
-        }
-        
-        .auth-error .btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: 0.3s;
-        }
-        
-        .auth-error .btn:hover {
-            background: #e62e4c;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,56,92,0.3);
-        }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p>Loading Dashboard...</p>
-    </div>
 
-    <!-- Navbar (will be hidden if not authenticated) -->
-    <nav class="admin-navbar" id="navbar" style="display: none;">
-        <a href="#" class="navbar-brand">ESPERA <span>MAVRO</span></a>
-        
-        <div class="user-menu">
-            <div class="user-info" id="userInfo">
-                <div class="user-avatar" id="userAvatar">A</div>
-                <div class="user-details">
-                    <div class="user-name" id="userName">Loading...</div>
-                    <div class="user-email" id="userEmail">Loading...</div>
-                </div>
-            </div>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-        </div>
+<div class="sidebar">
+    <h4 class="mb-4 fw-bold text-center">ESPERA <span style="color: var(--accent);">MAVRO</span></h4>
+    <p class="text-center small text-muted mb-4">Master Admin Panel</p>
+    
+    <nav class="nav flex-column">
+        <a class="nav-link active" onclick="showSection('dashboard', this)">
+            <i class="fa fa-dashboard"></i> Dashboard
+        </a>
+        <a class="nav-link" onclick="showSection('analytics', this)">
+            <i class="fa fa-chart-line"></i> Analytics
+        </a>
+        <a class="nav-link" onclick="showSection('products', this)">
+            <i class="fa fa-box"></i> Products
+        </a>
+        <a class="nav-link" onclick="showSection('categories', this)">
+            <i class="fa fa-list"></i> Categories
+        </a>
+        <a class="nav-link" onclick="showSection('coupons', this)">
+            <i class="fa fa-ticket"></i> Coupons
+        </a>
+        <a class="nav-link" onclick="showSection('orders', this)">
+            <i class="fa fa-shopping-cart"></i> Orders
+        </a>
+        <a class="nav-link" onclick="showSection('payment-verification', this)">
+            <i class="fa fa-check-circle"></i> Payment Verification
+            <span class="badge bg-danger ms-auto" id="pendingPaymentCount">0</span>
+        </a>
     </nav>
+</div>
 
-    <!-- Sidebar (will be hidden if not authenticated) -->
-    <div class="sidebar" id="sidebar" style="display: none;">
-        <nav class="nav flex-column">
-            <a class="nav-link active" onclick="showSection('dashboard', this)">
-                <i class="fa fa-dashboard"></i> Dashboard
-            </a>
-            <a class="nav-link" onclick="showSection('analytics', this)">
-                <i class="fa fa-chart-line"></i> Analytics
-            </a>
-            <a class="nav-link" onclick="showSection('products', this)">
-                <i class="fa fa-box"></i> Products
-            </a>
-            <a class="nav-link" onclick="showSection('categories', this)">
-                <i class="fa fa-list"></i> Categories
-            </a>
-            <a class="nav-link" onclick="showSection('coupons', this)">
-                <i class="fa fa-ticket"></i> Coupons
-            </a>
-            <a class="nav-link" onclick="showSection('orders', this)">
-                <i class="fa fa-shopping-cart"></i> Orders
-            </a>
-            <a class="nav-link" onclick="showSection('payment-verification', this)">
-                <i class="fa fa-check-circle"></i> Payment Verification
-                <span class="badge bg-danger ms-auto" id="pendingPaymentCount">0</span>
-            </a>
-        </nav>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="main" id="mainContent" style="display: none;">
-        <!-- Auth Error (shown if not admin) -->
-        <div id="authError" class="auth-error" style="display: none;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); margin-bottom: 20px;"></i>
-            <h3>Access Denied</h3>
-            <p>You don't have permission to access the admin panel.<br>Please contact the super administrator.</p>
-            <a href="login.html" class="btn">Go to Login</a>
-        </div>
-
-        <!-- Dashboard -->
-        <div id="dashboard" class="section">
-            <h3 class="mb-4">Dashboard Overview</h3>
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Total Products</h6>
-                        <h2 id="totalProducts">0</h2>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Total Orders</h6>
-                        <h2 id="totalOrders">0</h2>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Active Coupons</h6>
-                        <h2 id="activeCoupons">0</h2>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Pending Verification</h6>
-                        <h2 id="pendingVerificationCount">0</h2>
-                    </div>
+<div class="main">
+    <!-- Dashboard -->
+    <div id="dashboard" class="section">
+        <h3 class="mb-4">Dashboard Overview</h3>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Total Products</h6>
+                    <h2 id="totalProducts">0</h2>
                 </div>
             </div>
-            
-            <div class="row g-4 mt-2">
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Completed Orders</h6>
-                        <h2 id="completedCount">0</h2>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Total Revenue</h6>
-                        <h2 id="totalRevenue">৳0</h2>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Today's Orders</h6>
-                        <h2 id="todayOrders">0</h2>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-custom">
-                        <h6 class="text-muted">Avg Order Value</h6>
-                        <h2 id="avgOrderValue">৳0</h2>
-                    </div>
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Total Orders</h6>
+                    <h2 id="totalOrders">0</h2>
                 </div>
             </div>
-            
-            <div class="card-custom mt-4">
-                <h5>Recent Orders</h5>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Amount</th>
-                                <th>Payment Type</th>
-                                <th>Paid Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentOrdersList"></tbody>
-                    </table>
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Active Coupons</h6>
+                    <h2 id="activeCoupons">0</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Pending Verification</h6>
+                    <h2 id="pendingVerificationCount">0</h2>
                 </div>
             </div>
         </div>
-
-        <!-- Analytics Section -->
-        <div id="analytics" class="section" style="display: none;">
-            <h3 class="mb-4">Analytics Dashboard</h3>
-            
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <p>Total Revenue</p>
-                        <h3 id="analyticsRevenue">৳0</h3>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <p>Total Orders</p>
-                        <h3 id="analyticsOrders">0</h3>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <p>Total Products</p>
-                        <h3 id="analyticsProducts">0</h3>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                        <p>Coupon Usage</p>
-                        <h3 id="couponUsageCount">0</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mt-2">
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <canvas id="ordersChart"></canvas>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mt-2">
-                <div class="col-md-4">
-                    <div class="card-custom">
-                        <h5>Payment Types</h5>
-                        <canvas id="paymentChart" style="height: 200px;"></canvas>
-                        <div class="mt-3" id="paymentStats"></div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card-custom">
-                        <h5>Order Status</h5>
-                        <canvas id="statusChart" style="height: 200px;"></canvas>
-                        <div class="mt-3" id="statusStats"></div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card-custom">
-                        <h5>Top Products</h5>
-                        <div id="topProductsList"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Products Section -->
-        <div id="products" class="section" style="display: none;">
-            <div class="card-custom">
-                <h5 class="mb-4 fw-bold">Publish New Product</h5>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Product Name *</label>
-                        <input type="text" id="pName" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="small fw-bold">SKU *</label>
-                        <input type="text" id="pSku" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="small fw-bold">Price (৳) *</label>
-                        <input type="number" id="pPrice" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Category</label>
-                        <select id="pCatSel" class="form-select">
-                            <option value="">Select Category</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Main Image *</label>
-                        <input type="file" id="pImg" class="form-control" accept="image/*">
-                    </div>
-                    <div class="col-12">
-                        <label class="small fw-bold">Gallery Images</label>
-                        <div class="upload-trigger" onclick="document.getElementById('galleryInput').click()">+ Add Gallery Images</div>
-                        <input type="file" id="galleryInput" class="d-none" multiple accept="image/*">
-                        <div id="galleryContainer" class="gallery-container"></div>
-                    </div>
-                    <div class="col-12">
-                        <h5>Variations</h5>
-                        <button class="btn btn-sm btn-outline-dark mb-2" onclick="addVariation()">+ Add Variation</button>
-                        <div id="variationsContainer"></div>
-                    </div>
-                    <div class="col-12">
-                        <label class="small fw-bold">Description</label>
-                        <div id="editor"></div>
-                    </div>
-                    <div class="col-12">
-                        <button id="savePBtn" class="btn btn-dark w-100 py-3 mt-3 fw-bold">PUBLISH PRODUCT</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-custom">
-                <h5>Live Inventory</h5>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Product</th>
-                                <th>SKU</th>
-                                <th>Price</th>
-                                <th>Variations</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pList"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Categories Section -->
-        <div id="categories" class="section" style="display: none;">
-            <div class="card-custom">
-                <h5>Manage Categories</h5>
-                <div class="input-group mb-3">
-                    <input type="text" id="catName" class="form-control" placeholder="Category Name">
-                    <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
-                </div>
-                <div id="catList" class="d-flex flex-wrap gap-2"></div>
-            </div>
-        </div>
-
-        <!-- Coupons Section -->
-        <div id="coupons" class="section" style="display: none;">
-            <h3 class="mb-4">Coupon Management</h3>
-            
-            <div class="card-custom">
-                <h5 class="mb-3">Create New Coupon</h5>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Coupon Code *</label>
-                        <input type="text" id="couponCode" class="form-control" placeholder="e.g., SUMMER50">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Discount Type *</label>
-                        <select id="discountType" class="form-select" onchange="toggleDiscountFields()">
-                            <option value="fixed">Fixed Amount (৳)</option>
-                            <option value="percentage">Percentage (%)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Discount Value *</label>
-                        <input type="number" id="discountValue" class="form-control" placeholder="Enter amount">
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Valid From</label>
-                        <input type="datetime-local" id="validFrom" class="form-control">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Valid Until</label>
-                        <input type="datetime-local" id="validUntil" class="form-control">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Usage Limit (0 = unlimited)</label>
-                        <input type="number" id="usageLimit" class="form-control" value="0">
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Minimum Order Amount (0 = no minimum)</label>
-                        <input type="number" id="minOrderAmount" class="form-control" value="0">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Maximum Discount Amount (for percentage)</label>
-                        <input type="number" id="maxDiscountAmount" class="form-control" value="0" placeholder="0 = no limit">
-                    </div>
-                    
-                    <div class="col-12">
-                        <label class="small fw-bold">Exclude Products (Select products to exclude from discount)</label>
-                        <select id="excludeProducts" class="form-select" multiple size="3">
-                            <!-- Products will be loaded here -->
-                        </select>
-                        <small class="text-muted">Hold Ctrl/Cmd to select multiple products</small>
-                    </div>
-                    
-                    <div class="col-12">
-                        <label class="small fw-bold">Exclude Categories (Select categories to exclude from discount)</label>
-                        <select id="excludeCategories" class="form-select" multiple size="3">
-                            <!-- Categories will be loaded here -->
-                        </select>
-                        <small class="text-muted">Hold Ctrl/Cmd to select multiple categories</small>
-                    </div>
-                    
-                    <div class="col-12">
-                        <label class="small fw-bold">Description</label>
-                        <textarea id="couponDescription" class="form-control" rows="2" placeholder="Optional description"></textarea>
-                    </div>
-                    
-                    <div class="col-12">
-                        <button class="btn btn-dark w-100 py-3" onclick="createCoupon()">
-                            <i class="fas fa-plus-circle"></i> CREATE COUPON
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card-custom">
-                <h5 class="mb-3">Active Coupons</h5>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Discount</th>
-                                <th>Valid From</th>
-                                <th>Valid Until</th>
-                                <th>Used/Total</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="couponsList"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Payment Verification Section -->
-        <div id="payment-verification" class="section" style="display: none;">
-            <h3 class="mb-4">Payment Verification</h3>
-            
-            <div class="filter-bar">
-                <button class="filter-btn active" onclick="filterPayments('all', this)">All</button>
-                <button class="filter-btn" onclick="filterPayments('cod_advance', this)">COD Advance</button>
-                <button class="filter-btn" onclick="filterPayments('full_payment', this)">Full Payment</button>
-            </div>
-            
-            <div class="card-custom">
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Total Amount</th>
-                                <th>Payment Type</th>
-                                <th>Paid Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentVerificationList"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Orders Section -->
-        <div id="orders" class="section" style="display: none;">
-            <h3 class="mb-4">Order Management</h3>
-            
-            <div class="filter-bar">
-                <button class="filter-btn active" onclick="filterOrders('all', this)">All</button>
-                <button class="filter-btn" onclick="filterOrders('pending', this)">Pending</button>
-                <button class="filter-btn" onclick="filterOrders('placed', this)">Order Placed</button>
-                <button class="filter-btn" onclick="filterOrders('processing', this)">Processing</button>
-                <button class="filter-btn" onclick="filterOrders('shipping', this)">Shipping</button>
-                <button class="filter-btn" onclick="filterOrders('completed', this)">Completed</button>
-                <button class="filter-btn" onclick="filterOrders('cancelled', this)">Cancelled</button>
-            </div>
-            
-            <div class="card-custom">
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Total</th>
-                                <th>Payment Type</th>
-                                <th>Paid</th>
-                                <th>Due</th>
-                                <th>Coupon</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderList"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
-            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
-            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "espera-mavro-6ddc5",
-            storageBucket: "espera-mavro-6ddc5.appspot.com",
-            messagingSenderId: "137893255543",
-            appId: "1:137893255543:web:a660bd412eb26ee322a972"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        // Global variables
-        let currentUser = null;
-        let isAdmin = false;
-
-        // Check authentication status
-        auth.onAuthStateChanged(async (user) => {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const navbar = document.getElementById('navbar');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const authError = document.getElementById('authError');
-
-            if (user) {
-                console.log('User logged in:', user.email);
-                
-                try {
-                    // Get ID token and check admin claim
-                    const idToken = await user.getIdTokenResult();
-                    console.log('ID Token claims:', idToken.claims);
-                    
-                    if (idToken.claims.admin === true) {
-                        // User is admin - show the panel
-                        currentUser = user;
-                        isAdmin = true;
-                        
-                        // Hide loading
-                        loadingOverlay.style.display = 'none';
-                        
-                        // Show navbar, sidebar and main content
-                        navbar.style.display = 'flex';
-                        sidebar.style.display = 'block';
-                        mainContent.style.display = 'block';
-                        authError.style.display = 'none';
-                        
-                        // Update user info
-                        document.getElementById('userName').innerText = user.displayName || 'Admin User';
-                        document.getElementById('userEmail').innerText = user.email;
-                        
-                        // Set avatar
-                        const avatar = document.getElementById('userAvatar');
-                        if (user.displayName) {
-                            avatar.innerText = user.displayName.charAt(0).toUpperCase();
-                        } else {
-                            avatar.innerText = user.email.charAt(0).toUpperCase();
-                        }
-
-                        // Initialize the admin panel
-                        init();
-                        
-                    } else {
-                        // User is not admin
-                        console.log('User is not admin');
-                        loadingOverlay.style.display = 'none';
-                        navbar.style.display = 'none';
-                        sidebar.style.display = 'none';
-                        mainContent.style.display = 'block';
-                        authError.style.display = 'block';
-                        
-                        // Sign out the user
-                        await auth.signOut();
-                    }
-                    
-                } catch (error) {
-                    console.error('Auth error:', error);
-                    loadingOverlay.style.display = 'none';
-                    navbar.style.display = 'none';
-                    sidebar.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    authError.style.display = 'block';
-                }
-                
-            } else {
-                // No user logged in - redirect to login
-                console.log('No user logged in, redirecting to login...');
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Logout function
-        window.logout = async () => {
-            try {
-                document.getElementById('loadingOverlay').style.display = 'flex';
-                await auth.signOut();
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-                alert('Failed to logout');
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
-        };
-
-        // Initialize Quill
-        const quill = new Quill('#editor', { theme: 'snow' });
         
-        // State
-        let galleryArr = [];
-        let variations = [];
-        let currentFilter = 'all';
-        let currentPaymentFilter = 'all';
-        let ordersChart, revenueChart, paymentChart, statusChart;
-        let allProducts = [];
-        let allCategories = [];
-
-        // Navigation
-        window.showSection = (id, el) => {
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            el.classList.add('active');
-            
-            if (id === 'products') loadProducts();
-            if (id === 'categories') loadCategories();
-            if (id === 'coupons') {
-                loadProductsForCoupon();
-                loadCategoriesForCoupon();
-                loadCoupons();
-            }
-            if (id === 'payment-verification') loadPaymentVerification();
-            if (id === 'orders') loadOrders('all');
-            if (id === 'analytics') loadAnalytics();
-            if (id === 'dashboard') loadDashboard();
-        };
-
-        // ========== IMAGE HANDLING ==========
-        const toBase64 = f => new Promise((resolve) => {
-            const reader = new FileReader(); 
-            reader.readAsDataURL(f); 
-            reader.onload = () => resolve(reader.result);
-        });
-
-        document.getElementById('galleryInput').onchange = async (e) => {
-            for(let file of e.target.files) { 
-                galleryArr.push(await toBase64(file)); 
-            }
-            renderGallery();
-        };
-
-        function renderGallery() {
-            const container = document.getElementById('galleryContainer');
-            container.innerHTML = galleryArr.map((src, index) => `
-                <div class="gallery-item">
-                    <img src="${src}">
-                    <button class="remove-btn" onclick="galleryArr.splice(${index},1);renderGallery()">×</button>
+        <div class="row g-4 mt-2">
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Completed Orders</h6>
+                    <h2 id="completedCount">0</h2>
                 </div>
-            `).join('');
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Total Revenue</h6>
+                    <h2 id="totalRevenue">৳0</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Today's Orders</h6>
+                    <h2 id="todayOrders">0</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom">
+                    <h6 class="text-muted">Avg Order Value</h6>
+                    <h2 id="avgOrderValue">৳0</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-custom mt-4">
+            <h5>Recent Orders</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Payment Type</th>
+                            <th>Paid Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentOrdersList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div id="analytics" class="section" style="display: none;">
+        <h3 class="mb-4">Analytics Dashboard</h3>
+        
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <p>Total Revenue</p>
+                    <h3 id="analyticsRevenue">৳0</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <p>Total Orders</p>
+                    <h3 id="analyticsOrders">0</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <p>Total Products</p>
+                    <h3 id="analyticsProducts">0</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <p>Coupon Usage</p>
+                    <h3 id="couponUsageCount">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <h5>Payment Types</h5>
+                    <canvas id="paymentChart" style="height: 200px;"></canvas>
+                    <div class="mt-3" id="paymentStats"></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <h5>Order Status</h5>
+                    <canvas id="statusChart" style="height: 200px;"></canvas>
+                    <div class="mt-3" id="statusStats"></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <h5>Top Products</h5>
+                    <div id="topProductsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="products" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5 class="mb-4 fw-bold">Publish New Product</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Product Name *</label>
+                    <input type="text" id="pName" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">SKU *</label>
+                    <input type="text" id="pSku" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Price (৳) *</label>
+                    <input type="number" id="pPrice" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Category</label>
+                    <select id="pCatSel" class="form-select">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Main Image *</label>
+                    <input type="file" id="pImg" class="form-control" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <label class="small fw-bold">Gallery Images</label>
+                    <div class="upload-trigger" onclick="document.getElementById('galleryInput').click()">+ Add Gallery Images</div>
+                    <input type="file" id="galleryInput" class="d-none" multiple accept="image/*">
+                    <div id="galleryContainer" class="gallery-container"></div>
+                </div>
+                <div class="col-12">
+                    <h5>Variations</h5>
+                    <button class="btn btn-sm btn-outline-dark mb-2" onclick="addVariation()">+ Add Variation</button>
+                    <div id="variationsContainer"></div>
+                </div>
+                <div class="col-12">
+                    <label class="small fw-bold">Description</label>
+                    <div id="editor"></div>
+                </div>
+                <div class="col-12">
+                    <button id="savePBtn" class="btn btn-dark w-100 py-3 mt-3 fw-bold">PUBLISH PRODUCT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom">
+            <h5>Live Inventory</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Price</th>
+                            <th>Variations</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div id="categories" class="section" style="display: none;">
+        <div class="card-custom">
+            <h5>Manage Categories</h5>
+            <div class="input-group mb-3">
+                <input type="text" id="catName" class="form-control" placeholder="Category Name">
+                <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
+            </div>
+            <div id="catList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+    </div>
+
+    <!-- Coupons Section -->
+    <div id="coupons" class="section" style="display: none;">
+        <h3 class="mb-4">Coupon Management</h3>
+        
+        <div class="card-custom">
+            <h5 class="mb-3">Create New Coupon</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="small fw-bold">Coupon Code *</label>
+                    <input type="text" id="couponCode" class="form-control" placeholder="e.g., SUMMER50">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Discount Type *</label>
+                    <select id="discountType" class="form-select" onchange="toggleDiscountFields()">
+                        <option value="fixed">Fixed Amount (৳)</option>
+                        <option value="percentage">Percentage (%)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Discount Value *</label>
+                    <input type="number" id="discountValue" class="form-control" placeholder="Enter amount">
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="small fw-bold">Valid From</label>
+                    <input type="datetime-local" id="validFrom" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Valid Until</label>
+                    <input type="datetime-local" id="validUntil" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Usage Limit (0 = unlimited)</label>
+                    <input type="number" id="usageLimit" class="form-control" value="0">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Minimum Order Amount (0 = no minimum)</label>
+                    <input type="number" id="minOrderAmount" class="form-control" value="0">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Maximum Discount Amount (for percentage)</label>
+                    <input type="number" id="maxDiscountAmount" class="form-control" value="0" placeholder="0 = no limit">
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Exclude Products (Select products to exclude from discount)</label>
+                    <select id="excludeProducts" class="form-select" multiple size="3">
+                        <!-- Products will be loaded here -->
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple products</small>
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Exclude Categories (Select categories to exclude from discount)</label>
+                    <select id="excludeCategories" class="form-select" multiple size="3">
+                        <!-- Categories will be loaded here -->
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple categories</small>
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Description</label>
+                    <textarea id="couponDescription" class="form-control" rows="2" placeholder="Optional description"></textarea>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="createCoupon()">
+                        <i class="fas fa-plus-circle"></i> CREATE COUPON
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-custom">
+            <h5 class="mb-3">Active Coupons</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Discount</th>
+                            <th>Valid From</th>
+                            <th>Valid Until</th>
+                            <th>Used/Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponsList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Verification Section -->
+    <div id="payment-verification" class="section" style="display: none;">
+        <h3 class="mb-4">Payment Verification</h3>
+        
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterPayments('all', this)">All</button>
+            <button class="filter-btn" onclick="filterPayments('cod_advance', this)">COD Advance</button>
+            <button class="filter-btn" onclick="filterPayments('full_payment', this)">Full Payment</button>
+        </div>
+        
+        <div class="card-custom">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total Amount</th>
+                            <th>Payment Type</th>
+                            <th>Paid Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentVerificationList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="orders" class="section" style="display: none;">
+        <h3 class="mb-4">Order Management</h3>
+        
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterOrders('all', this)">All</button>
+            <button class="filter-btn" onclick="filterOrders('pending', this)">Pending</button>
+            <button class="filter-btn" onclick="filterOrders('placed', this)">Order Placed</button>
+            <button class="filter-btn" onclick="filterOrders('processing', this)">Processing</button>
+            <button class="filter-btn" onclick="filterOrders('shipping', this)">Shipping</button>
+            <button class="filter-btn" onclick="filterOrders('completed', this)">Completed</button>
+            <button class="filter-btn" onclick="filterOrders('cancelled', this)">Cancelled</button>
+        </div>
+        
+        <div class="card-custom">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Payment Type</th>
+                            <th>Paid</th>
+                            <th>Due</th>
+                            <th>Coupon</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+        databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "espera-mavro-6ddc5",
+        storageBucket: "espera-mavro-6ddc5.appspot.com",
+        messagingSenderId: "137893255543",
+        appId: "1:137893255543:web:a660bd412eb26ee322a972"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Initialize Quill
+    const quill = new Quill('#editor', { theme: 'snow' });
+    
+    // State
+    let galleryArr = [];
+    let variations = [];
+    let currentFilter = 'all';
+    let currentPaymentFilter = 'all';
+    let ordersChart, revenueChart, paymentChart, statusChart;
+    let allProducts = [];
+    let allCategories = [];
+
+    // Navigation
+    window.showSection = (id, el) => {
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        el.classList.add('active');
+        
+        if (id === 'products') loadProducts();
+        if (id === 'categories') loadCategories();
+        if (id === 'coupons') {
+            loadProductsForCoupon();
+            loadCategoriesForCoupon();
+            loadCoupons();
         }
+        if (id === 'payment-verification') loadPaymentVerification();
+        if (id === 'orders') loadOrders('all');
+        if (id === 'analytics') loadAnalytics();
+        if (id === 'dashboard') loadDashboard();
+    };
 
-        // ========== VARIATIONS ==========
-        window.addVariation = () => {
-            variations.push({ 
-                name: '', 
-                value: '', 
-                price: '', 
-                image: null,
-                imagePreview: null 
-            });
-            renderVariations();
-        };
+    // ========== IMAGE HANDLING ==========
+    const toBase64 = f => new Promise((resolve) => {
+        const reader = new FileReader(); 
+        reader.readAsDataURL(f); 
+        reader.onload = () => resolve(reader.result);
+    });
 
-        function renderVariations() {
-            const container = document.getElementById('variationsContainer');
-            container.innerHTML = variations.map((v, i) => `
-                <div class="variation-row">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" placeholder="Type (e.g., Color)" value="${v.name}" onchange="updateVariation(${i}, 'name', this.value)">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" placeholder="Value (e.g., Red)" value="${v.value}" onchange="updateVariation(${i}, 'value', this.value)">
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control" placeholder="Price" value="${v.price}" onchange="updateVariation(${i}, 'price', this.value)">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="file" class="form-control" accept="image/*" onchange="uploadVariationImage(${i}, this)">
-                            ${v.imagePreview ? `<img src="${v.imagePreview}" class="variant-image-preview">` : ''}
-                        </div>
-                        <div class="col-md-1">
-                            <button class="btn btn-outline-danger" onclick="removeVariation(${i})">×</button>
-                        </div>
+    document.getElementById('galleryInput').onchange = async (e) => {
+        for(let file of e.target.files) { 
+            galleryArr.push(await toBase64(file)); 
+        }
+        renderGallery();
+    };
+
+    function renderGallery() {
+        const container = document.getElementById('galleryContainer');
+        container.innerHTML = galleryArr.map((src, index) => `
+            <div class="gallery-item">
+                <img src="${src}">
+                <button class="remove-btn" onclick="galleryArr.splice(${index},1);renderGallery()">×</button>
+            </div>
+        `).join('');
+    }
+
+    // ========== VARIATIONS ==========
+    window.addVariation = () => {
+        variations.push({ 
+            name: '', 
+            value: '', 
+            price: '', 
+            image: null,
+            imagePreview: null 
+        });
+        renderVariations();
+    };
+
+    function renderVariations() {
+        const container = document.getElementById('variationsContainer');
+        container.innerHTML = variations.map((v, i) => `
+            <div class="variation-row">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Type (e.g., Color)" value="${v.name}" onchange="updateVariation(${i}, 'name', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Value (e.g., Red)" value="${v.value}" onchange="updateVariation(${i}, 'value', this.value)">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" placeholder="Price" value="${v.price}" onchange="updateVariation(${i}, 'price', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="file" class="form-control" accept="image/*" onchange="uploadVariationImage(${i}, this)">
+                        ${v.imagePreview ? `<img src="${v.imagePreview}" class="variant-image-preview">` : ''}
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-danger" onclick="removeVariation(${i})">×</button>
                     </div>
                 </div>
-            `).join('');
-        }
+            </div>
+        `).join('');
+    }
 
-        window.updateVariation = (index, field, value) => {
-            variations[index][field] = value;
-        };
+    window.updateVariation = (index, field, value) => {
+        variations[index][field] = value;
+    };
 
-        window.uploadVariationImage = async (index, input) => {
-            if (input.files && input.files[0]) {
-                const base64 = await toBase64(input.files[0]);
-                variations[index].image = base64;
-                variations[index].imagePreview = base64;
-                renderVariations();
-            }
-        };
-
-        window.removeVariation = (index) => {
-            variations.splice(index, 1);
+    window.uploadVariationImage = async (index, input) => {
+        if (input.files && input.files[0]) {
+            const base64 = await toBase64(input.files[0]);
+            variations[index].image = base64;
+            variations[index].imagePreview = base64;
             renderVariations();
-        };
+        }
+    };
 
-        // ========== CATEGORIES ==========
-        document.getElementById('saveCatBtn').onclick = async () => {
-            const name = document.getElementById('catName').value.trim();
-            if(name) { 
-                await database.ref('categories').push({ name }); 
-                document.getElementById('catName').value = ""; 
-            }
-        };
+    window.removeVariation = (index) => {
+        variations.splice(index, 1);
+        renderVariations();
+    };
 
-        function loadCategories() {
-            database.ref('categories').on('value', snapshot => {
-                const select = document.getElementById('pCatSel');
-                const list = document.getElementById('catList');
-                select.innerHTML = '<option value="">Select Category</option>';
-                list.innerHTML = "";
-                allCategories = [];
-                
-                snapshot.forEach(child => {
-                    const category = child.val();
-                    const catName = category.name || category;
-                    allCategories.push({ id: child.key, name: catName });
-                    select.innerHTML += `<option value="${catName}">${catName}</option>`;
-                    list.innerHTML += `<span class="badge bg-dark p-2">${catName} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCategory('${child.key}')"></i></span>`;
-                });
+    // ========== CATEGORIES ==========
+    document.getElementById('saveCatBtn').onclick = async () => {
+        const name = document.getElementById('catName').value.trim();
+        if(name) { 
+            await database.ref('categories').push({ name }); 
+            document.getElementById('catName').value = ""; 
+        }
+    };
+
+    function loadCategories() {
+        database.ref('categories').on('value', snapshot => {
+            const select = document.getElementById('pCatSel');
+            const list = document.getElementById('catList');
+            select.innerHTML = '<option value="">Select Category</option>';
+            list.innerHTML = "";
+            allCategories = [];
+            
+            snapshot.forEach(child => {
+                const category = child.val();
+                const catName = category.name || category;
+                allCategories.push({ id: child.key, name: catName });
+                select.innerHTML += `<option value="${catName}">${catName}</option>`;
+                list.innerHTML += `<span class="badge bg-dark p-2">${catName} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCategory('${child.key}')"></i></span>`;
             });
+        });
+    }
+
+    window.deleteCategory = (id) => {
+        if(confirm('Delete this category?')) {
+            database.ref('categories/'+id).remove();
         }
+    };
 
-        window.deleteCategory = (id) => {
-            if(confirm('Delete this category?')) {
-                database.ref('categories/'+id).remove();
+    // ========== PRODUCTS ==========
+    document.getElementById('savePBtn').onclick = async () => {
+        const btn = document.getElementById('savePBtn');
+        const name = document.getElementById('pName').value.trim();
+        const sku = document.getElementById('pSku').value.trim();
+        const price = document.getElementById('pPrice').value;
+        const category = document.getElementById('pCatSel').value;
+        const mainImgFile = document.getElementById('pImg').files[0];
+        
+        if(!name || !mainImgFile || !price) {
+            alert("Please fill all required fields!");
+            return;
+        }
+        
+        btn.disabled = true; 
+        btn.innerText = "Publishing...";
+        
+        // Create variations object with images
+        const variationsData = {};
+        variations.forEach((v, idx) => {
+            if (v.name && v.value) {
+                variationsData[`var_${idx}`] = {
+                    name: v.name,
+                    value: v.value,
+                    price: v.price || price,
+                    image: v.image || null
+                };
             }
+        });
+        
+        const productData = {
+            name: name,
+            title: name,
+            sku: sku,
+            price: parseFloat(price),
+            category: category,
+            description: quill.root.innerHTML,
+            image: await toBase64(mainImgFile),
+            images: [await toBase64(mainImgFile), ...galleryArr],
+            variations: Object.keys(variationsData).length > 0 ? variationsData : null,
+            created_at: new Date().toISOString()
         };
+        
+        try {
+            await database.ref('products').push(productData);
+            alert("Product published successfully!");
+            location.reload();
+        } catch (error) {
+            alert("Error: " + error.message);
+            btn.disabled = false;
+            btn.innerText = "PUBLISH PRODUCT";
+        }
+    };
 
-        // ========== PRODUCTS ==========
-        document.getElementById('savePBtn').onclick = async () => {
-            const btn = document.getElementById('savePBtn');
-            const name = document.getElementById('pName').value.trim();
-            const sku = document.getElementById('pSku').value.trim();
-            const price = document.getElementById('pPrice').value;
-            const category = document.getElementById('pCatSel').value;
-            const mainImgFile = document.getElementById('pImg').files[0];
+    function loadProducts() {
+        database.ref('products').on('value', snapshot => {
+            const list = document.getElementById('pList');
+            const totalElement = document.getElementById('totalProducts');
+            list.innerHTML = "";
+            let count = 0;
+            allProducts = [];
             
-            if(!name || !mainImgFile || !price) {
-                alert("Please fill all required fields!");
-                return;
-            }
-            
-            btn.disabled = true; 
-            btn.innerText = "Publishing...";
-            
-            // Create variations object with images
-            const variationsData = {};
-            variations.forEach((v, idx) => {
-                if (v.name && v.value) {
-                    variationsData[`var_${idx}`] = {
-                        name: v.name,
-                        value: v.value,
-                        price: v.price || price,
-                        image: v.image || null
-                    };
-                }
+            snapshot.forEach(child => {
+                count++;
+                const product = child.val();
+                const productName = product.name || product.title || 'No Name';
+                const productImg = product.image || (product.images ? product.images[0] : 'https://via.placeholder.com/50');
+                const variationsCount = product.variations ? Object.keys(product.variations).length : 0;
+                
+                allProducts.push({ id: child.key, name: productName, category: product.category });
+                
+                list.innerHTML += `
+                    <tr>
+                        <td><img src="${productImg}" class="product-img" onerror="this.src='https://via.placeholder.com/50'"></td>
+                        <td>
+                            <strong>${productName}</strong><br>
+                            <small class="text-muted">${child.key}</small>
+                        </td>
+                        <td>${product.sku || '-'}</td>
+                        <td>৳${product.price || '0'}</td>
+                        <td>${variationsCount} variations</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${child.key}')">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
             });
             
-            const productData = {
-                name: name,
-                title: name,
-                sku: sku,
-                price: parseFloat(price),
-                category: category,
-                description: quill.root.innerHTML,
-                image: await toBase64(mainImgFile),
-                images: [await toBase64(mainImgFile), ...galleryArr],
-                variations: Object.keys(variationsData).length > 0 ? variationsData : null,
-                created_at: new Date().toISOString()
-            };
-            
-            try {
-                await database.ref('products').push(productData);
-                alert("Product published successfully!");
-                location.reload();
-            } catch (error) {
-                alert("Error: " + error.message);
-                btn.disabled = false;
-                btn.innerText = "PUBLISH PRODUCT";
-            }
+            totalElement.innerText = count;
+            document.getElementById('analyticsProducts').innerText = count;
+        });
+    }
+
+    window.deleteProduct = (id) => {
+        if(confirm("Delete this product?")) {
+            database.ref('products/'+id).remove();
+        }
+    };
+
+    // ========== COUPON FUNCTIONS ==========
+    function toggleDiscountFields() {
+        const type = document.getElementById('discountType').value;
+        const maxDiscountField = document.getElementById('maxDiscountAmount').parentElement;
+        if (type === 'percentage') {
+            maxDiscountField.style.display = 'block';
+        } else {
+            maxDiscountField.style.display = 'none';
+        }
+    }
+
+    function loadProductsForCoupon() {
+        const select = document.getElementById('excludeProducts');
+        select.innerHTML = '';
+        allProducts.forEach(product => {
+            select.innerHTML += `<option value="${product.id}">${product.name}</option>`;
+        });
+    }
+
+    function loadCategoriesForCoupon() {
+        const select = document.getElementById('excludeCategories');
+        select.innerHTML = '';
+        allCategories.forEach(cat => {
+            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+    }
+
+    window.createCoupon = async () => {
+        const code = document.getElementById('couponCode').value.trim().toUpperCase();
+        const type = document.getElementById('discountType').value;
+        const value = parseFloat(document.getElementById('discountValue').value);
+        const validFrom = document.getElementById('validFrom').value;
+        const validUntil = document.getElementById('validUntil').value;
+        const usageLimit = parseInt(document.getElementById('usageLimit').value) || 0;
+        const minOrderAmount = parseFloat(document.getElementById('minOrderAmount').value) || 0;
+        const maxDiscountAmount = parseFloat(document.getElementById('maxDiscountAmount').value) || 0;
+        const description = document.getElementById('couponDescription').value.trim();
+        
+        // Get excluded items
+        const excludeProducts = Array.from(document.getElementById('excludeProducts').selectedOptions).map(opt => opt.value);
+        const excludeCategories = Array.from(document.getElementById('excludeCategories').selectedOptions).map(opt => opt.value);
+        
+        if (!code || !value) {
+            alert('Please enter coupon code and discount value');
+            return;
+        }
+        
+        if (type === 'percentage' && value > 100) {
+            alert('Percentage discount cannot exceed 100%');
+            return;
+        }
+        
+        const couponData = {
+            code: code,
+            type: type,
+            value: value,
+            valid_from: validFrom || null,
+            valid_until: validUntil || null,
+            usage_limit: usageLimit,
+            usage_count: 0,
+            min_order_amount: minOrderAmount,
+            max_discount_amount: maxDiscountAmount,
+            exclude_products: excludeProducts,
+            exclude_categories: excludeCategories,
+            description: description,
+            status: 'active',
+            created_at: new Date().toISOString()
         };
-
-        function loadProducts() {
-            database.ref('products').on('value', snapshot => {
-                const list = document.getElementById('pList');
-                const totalElement = document.getElementById('totalProducts');
-                list.innerHTML = "";
-                let count = 0;
-                allProducts = [];
-                
-                snapshot.forEach(child => {
-                    count++;
-                    const product = child.val();
-                    const productName = product.name || product.title || 'No Name';
-                    const productImg = product.image || (product.images ? product.images[0] : 'https://via.placeholder.com/50');
-                    const variationsCount = product.variations ? Object.keys(product.variations).length : 0;
-                    
-                    allProducts.push({ id: child.key, name: productName, category: product.category });
-                    
-                    list.innerHTML += `
-                        <tr>
-                            <td><img src="${productImg}" class="product-img" onerror="this.src='https://via.placeholder.com/50'"></td>
-                            <td>
-                                <strong>${productName}</strong><br>
-                                <small class="text-muted">${child.key}</small>
-                            </td>
-                            <td>${product.sku || '-'}</td>
-                            <td>৳${product.price || '0'}</td>
-                            <td>${variationsCount} variations</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${child.key}')">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                totalElement.innerText = count;
-                document.getElementById('analyticsProducts').innerText = count;
-            });
+        
+        try {
+            await database.ref('coupons').push(couponData);
+            alert('Coupon created successfully!');
+            clearCouponForm();
+            loadCoupons();
+        } catch (error) {
+            console.error('Error creating coupon:', error);
+            alert('Failed to create coupon');
         }
+    };
 
-        window.deleteProduct = (id) => {
-            if(confirm("Delete this product?")) {
-                database.ref('products/'+id).remove();
-            }
-        };
+    function clearCouponForm() {
+        document.getElementById('couponCode').value = '';
+        document.getElementById('discountValue').value = '';
+        document.getElementById('validFrom').value = '';
+        document.getElementById('validUntil').value = '';
+        document.getElementById('usageLimit').value = '0';
+        document.getElementById('minOrderAmount').value = '0';
+        document.getElementById('maxDiscountAmount').value = '0';
+        document.getElementById('couponDescription').value = '';
+        document.getElementById('excludeProducts').selectedIndex = -1;
+        document.getElementById('excludeCategories').selectedIndex = -1;
+    }
 
-        // ========== COUPON FUNCTIONS ==========
-        function toggleDiscountFields() {
-            const type = document.getElementById('discountType').value;
-            const maxDiscountField = document.getElementById('maxDiscountAmount').parentElement;
-            if (type === 'percentage') {
-                maxDiscountField.style.display = 'block';
-            } else {
-                maxDiscountField.style.display = 'none';
-            }
-        }
-
-        function loadProductsForCoupon() {
-            const select = document.getElementById('excludeProducts');
-            select.innerHTML = '';
-            allProducts.forEach(product => {
-                select.innerHTML += `<option value="${product.id}">${product.name}</option>`;
-            });
-        }
-
-        function loadCategoriesForCoupon() {
-            const select = document.getElementById('excludeCategories');
-            select.innerHTML = '';
-            allCategories.forEach(cat => {
-                select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-            });
-        }
-
-        window.createCoupon = async () => {
-            const code = document.getElementById('couponCode').value.trim().toUpperCase();
-            const type = document.getElementById('discountType').value;
-            const value = parseFloat(document.getElementById('discountValue').value);
-            const validFrom = document.getElementById('validFrom').value;
-            const validUntil = document.getElementById('validUntil').value;
-            const usageLimit = parseInt(document.getElementById('usageLimit').value) || 0;
-            const minOrderAmount = parseFloat(document.getElementById('minOrderAmount').value) || 0;
-            const maxDiscountAmount = parseFloat(document.getElementById('maxDiscountAmount').value) || 0;
-            const description = document.getElementById('couponDescription').value.trim();
+    function loadCoupons() {
+        database.ref('coupons').on('value', snapshot => {
+            const list = document.getElementById('couponsList');
+            list.innerHTML = '';
+            let activeCount = 0;
+            const now = new Date();
             
-            // Get excluded items
-            const excludeProducts = Array.from(document.getElementById('excludeProducts').selectedOptions).map(opt => opt.value);
-            const excludeCategories = Array.from(document.getElementById('excludeCategories').selectedOptions).map(opt => opt.value);
-            
-            if (!code || !value) {
-                alert('Please enter coupon code and discount value');
-                return;
-            }
-            
-            if (type === 'percentage' && value > 100) {
-                alert('Percentage discount cannot exceed 100%');
-                return;
-            }
-            
-            const couponData = {
-                code: code,
-                type: type,
-                value: value,
-                valid_from: validFrom || null,
-                valid_until: validUntil || null,
-                usage_limit: usageLimit,
-                usage_count: 0,
-                min_order_amount: minOrderAmount,
-                max_discount_amount: maxDiscountAmount,
-                exclude_products: excludeProducts,
-                exclude_categories: excludeCategories,
-                description: description,
-                status: 'active',
-                created_at: new Date().toISOString()
-            };
-            
-            try {
-                await database.ref('coupons').push(couponData);
-                alert('Coupon created successfully!');
-                clearCouponForm();
-                loadCoupons();
-            } catch (error) {
-                console.error('Error creating coupon:', error);
-                alert('Failed to create coupon');
-            }
-        };
-
-        function clearCouponForm() {
-            document.getElementById('couponCode').value = '';
-            document.getElementById('discountValue').value = '';
-            document.getElementById('validFrom').value = '';
-            document.getElementById('validUntil').value = '';
-            document.getElementById('usageLimit').value = '0';
-            document.getElementById('minOrderAmount').value = '0';
-            document.getElementById('maxDiscountAmount').value = '0';
-            document.getElementById('couponDescription').value = '';
-            document.getElementById('excludeProducts').selectedIndex = -1;
-            document.getElementById('excludeCategories').selectedIndex = -1;
-        }
-
-        function loadCoupons() {
-            database.ref('coupons').on('value', snapshot => {
-                const list = document.getElementById('couponsList');
-                list.innerHTML = '';
-                let activeCount = 0;
-                const now = new Date();
+            snapshot.forEach(child => {
+                const coupon = child.val();
+                const validFrom = coupon.valid_from ? new Date(coupon.valid_from) : null;
+                const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
                 
-                snapshot.forEach(child => {
-                    const coupon = child.val();
-                    const validFrom = coupon.valid_from ? new Date(coupon.valid_from) : null;
-                    const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
-                    
-                    let status = 'active';
-                    let statusClass = 'status-active';
-                    
-                    if (validUntil && validUntil < now) {
-                        status = 'expired';
-                        statusClass = 'status-expired';
-                    } else if (coupon.usage_limit > 0 && coupon.usage_count >= coupon.usage_limit) {
-                        status = 'used up';
-                        statusClass = 'status-expired';
-                    }
-                    
-                    if (status === 'active') activeCount++;
-                    
-                    const discountText = coupon.type === 'fixed' 
-                        ? `৳ ${coupon.value}` 
-                        : `${coupon.value}% ${coupon.max_discount_amount > 0 ? `(Max ৳${coupon.max_discount_amount})` : ''}`;
-                    
-                    list.innerHTML += `
-                        <tr>
-                            <td><strong>${coupon.code}</strong></td>
-                            <td>${discountText}</td>
-                            <td>${coupon.valid_from ? new Date(coupon.valid_from).toLocaleDateString() : 'Unlimited'}</td>
-                            <td>${coupon.valid_until ? new Date(coupon.valid_until).toLocaleDateString() : 'Unlimited'}</td>
-                            <td>${coupon.usage_count || 0}/${coupon.usage_limit || '∞'}</td>
-                            <td><span class="status-badge ${statusClass}">${status}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCoupon('${child.key}')">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                let status = 'active';
+                let statusClass = 'status-active';
                 
-                document.getElementById('activeCoupons').innerText = activeCount;
-            });
-        }
-
-        window.deleteCoupon = (id) => {
-            if(confirm('Delete this coupon?')) {
-                database.ref('coupons/'+id).remove();
-            }
-        };
-
-        // ========== ORDER STATUS ==========
-        const statusOptions = [
-            { value: 'pending', label: '⏳ Pending', class: 'status-pending' },
-            { value: 'placed', label: '📦 Order Placed', class: 'status-placed' },
-            { value: 'processing', label: '⚙️ Processing', class: 'status-processing' },
-            { value: 'shipping', label: '🚚 Shipping', class: 'status-shipping' },
-            { value: 'completed', label: '✅ Completed', class: 'status-completed' },
-            { value: 'cancelled', label: '❌ Cancelled', class: 'status-cancelled' }
-        ];
-
-        function getStatusBadge(status) {
-            const option = statusOptions.find(opt => opt.value === status) || statusOptions[0];
-            return `<span class="status-badge ${option.class}">${option.label}</span>`;
-        }
-
-        function getPaymentTypeBadge(method) {
-            if (method === 'cod_advance') {
-                return '<span class="payment-type-badge payment-type-advance"><i class="fas fa-clock"></i> COD Advance</span>';
-            } else if (method === 'full_payment') {
-                return '<span class="payment-type-badge payment-type-full"><i class="fas fa-check-circle"></i> Full Payment</span>';
-            }
-            return '<span class="payment-type-badge">Unknown</span>';
-        }
-
-        window.updateOrderStatus = async (orderId, newStatus) => {
-            try {
-                const orderRef = database.ref('orders/' + orderId);
-                const snapshot = await orderRef.once('value');
-                const order = snapshot.val();
-
-                const statusHistory = order.status_history || [];
-                statusHistory.push({
-                    status: newStatus,
-                    timestamp: new Date().toISOString(),
-                    note: `Status updated to ${newStatus} by admin`
-                });
-
-                await orderRef.update({
-                    status: newStatus,
-                    updated_at: new Date().toISOString(),
-                    status_history: statusHistory
-                });
-
-                alert('Order status updated successfully!');
-                
-                if (document.getElementById('payment-verification').style.display !== 'none') {
-                    loadPaymentVerification();
-                } else if (document.getElementById('orders').style.display !== 'none') {
-                    loadOrders(currentFilter);
-                }
-                loadAnalytics();
-                loadDashboard();
-                
-            } catch (error) {
-                console.error('Error updating status:', error);
-                alert('Failed to update status');
-            }
-        };
-
-        window.deleteOrder = async (orderId) => {
-            if(confirm("Are you sure you want to delete this order?")) {
-                try {
-                    await database.ref('orders/' + orderId).remove();
-                    alert("Order deleted successfully!");
-                    loadOrders(currentFilter);
-                    loadAnalytics();
-                    loadDashboard();
-                } catch (error) {
-                    console.error('Error deleting order:', error);
-                    alert("Failed to delete order");
-                }
-            }
-        };
-
-        // ========== PAYMENT VERIFICATION ==========
-        window.verifyPayment = async (orderId) => {
-            try {
-                const orderRef = database.ref('orders/' + orderId);
-                const snapshot = await orderRef.once('value');
-                const order = snapshot.val();
-
-                const statusHistory = order.status_history || [];
-                let statusNote = '';
-                
-                if (order.payment.method === 'cod_advance') {
-                    statusNote = `Advance payment verified (৳${order.payment.amount_paid}). Order placed with China supplier.`;
-                } else {
-                    statusNote = `Full payment verified (৳${order.payment.amount_paid}). Order placed with China supplier.`;
+                if (validUntil && validUntil < now) {
+                    status = 'expired';
+                    statusClass = 'status-expired';
+                } else if (coupon.usage_limit > 0 && coupon.usage_count >= coupon.usage_limit) {
+                    status = 'used up';
+                    statusClass = 'status-expired';
                 }
                 
-                statusHistory.push({
-                    status: 'placed',
-                    timestamp: new Date().toISOString(),
-                    note: statusNote
-                });
+                if (status === 'active') activeCount++;
+                
+                const discountText = coupon.type === 'fixed' 
+                    ? `৳ ${coupon.value}` 
+                    : `${coupon.value}% ${coupon.max_discount_amount > 0 ? `(Max ৳${coupon.max_discount_amount})` : ''}`;
+                
+                list.innerHTML += `
+                    <tr>
+                        <td><strong>${coupon.code}</strong></td>
+                        <td>${discountText}</td>
+                        <td>${coupon.valid_from ? new Date(coupon.valid_from).toLocaleDateString() : 'Unlimited'}</td>
+                        <td>${coupon.valid_until ? new Date(coupon.valid_until).toLocaleDateString() : 'Unlimited'}</td>
+                        <td>${coupon.usage_count || 0}/${coupon.usage_limit || '∞'}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCoupon('${child.key}')">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('activeCoupons').innerText = activeCount;
+        });
+    }
 
-                await orderRef.update({
-                    'payment.status': 'paid',
-                    'payment.verified_at': new Date().toISOString(),
-                    'payment.verified_by': 'admin',
-                    status: 'placed',
-                    updated_at: new Date().toISOString(),
-                    status_history: statusHistory
-                });
+    window.deleteCoupon = (id) => {
+        if(confirm('Delete this coupon?')) {
+            database.ref('coupons/'+id).remove();
+        }
+    };
 
-                alert('Payment verified! Order status set to "Order Placed"');
+    // ========== ORDER STATUS ==========
+    const statusOptions = [
+        { value: 'pending', label: '⏳ Pending', class: 'status-pending' },
+        { value: 'placed', label: '📦 Order Placed', class: 'status-placed' },
+        { value: 'processing', label: '⚙️ Processing', class: 'status-processing' },
+        { value: 'shipping', label: '🚚 Shipping', class: 'status-shipping' },
+        { value: 'completed', label: '✅ Completed', class: 'status-completed' },
+        { value: 'cancelled', label: '❌ Cancelled', class: 'status-cancelled' }
+    ];
+
+    function getStatusBadge(status) {
+        const option = statusOptions.find(opt => opt.value === status) || statusOptions[0];
+        return `<span class="status-badge ${option.class}">${option.label}</span>`;
+    }
+
+    function getPaymentTypeBadge(method) {
+        if (method === 'cod_advance') {
+            return '<span class="payment-type-badge payment-type-advance"><i class="fas fa-clock"></i> COD Advance</span>';
+        } else if (method === 'full_payment') {
+            return '<span class="payment-type-badge payment-type-full"><i class="fas fa-check-circle"></i> Full Payment</span>';
+        }
+        return '<span class="payment-type-badge">Unknown</span>';
+    }
+
+    window.updateOrderStatus = async (orderId, newStatus) => {
+        try {
+            const orderRef = database.ref('orders/' + orderId);
+            const snapshot = await orderRef.once('value');
+            const order = snapshot.val();
+
+            const statusHistory = order.status_history || [];
+            statusHistory.push({
+                status: newStatus,
+                timestamp: new Date().toISOString(),
+                note: `Status updated to ${newStatus} by admin`
+            });
+
+            await orderRef.update({
+                status: newStatus,
+                updated_at: new Date().toISOString(),
+                status_history: statusHistory
+            });
+
+            alert('Order status updated successfully!');
+            
+            if (document.getElementById('payment-verification').style.display !== 'none') {
                 loadPaymentVerification();
+            } else if (document.getElementById('orders').style.display !== 'none') {
+                loadOrders(currentFilter);
+            }
+            loadAnalytics();
+            loadDashboard();
+            
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update status');
+        }
+    };
+
+    window.deleteOrder = async (orderId) => {
+        if(confirm("Are you sure you want to delete this order?")) {
+            try {
+                await database.ref('orders/' + orderId).remove();
+                alert("Order deleted successfully!");
+                loadOrders(currentFilter);
                 loadAnalytics();
                 loadDashboard();
-                
             } catch (error) {
-                console.error('Error verifying payment:', error);
-                alert('Failed to verify payment');
+                console.error('Error deleting order:', error);
+                alert("Failed to delete order");
             }
-        };
-
-        function loadPaymentVerification() {
-            database.ref('orders').once('value', (snapshot) => {
-                const list = document.getElementById('paymentVerificationList');
-                list.innerHTML = '';
-                let pendingCount = 0;
-
-                snapshot.forEach(child => {
-                    const order = child.val();
-                    const payment = order.payment || {};
-                    
-                    // Only show orders that need verification (pending status)
-                    if (payment.status === 'pending') {
-                        pendingCount++;
-                        
-                        // Apply filter
-                        if (currentPaymentFilter !== 'all' && payment.method !== currentPaymentFilter) {
-                            return;
-                        }
-                        
-                        list.innerHTML += `
-                            <tr>
-                                <td><strong>${child.key}</strong></td>
-                                <td>
-                                    ${order.customer?.name || 'N/A'}<br>
-                                    <small class="text-muted">${order.customer?.phone || ''}</small>
-                                </td>
-                                <td>৳ ${order.total?.toFixed(0) || '0'}</td>
-                                <td>${getPaymentTypeBadge(payment.method)}</td>
-                                <td><strong>৳ ${payment.amount_paid?.toFixed(0) || '0'}</strong></td>
-                                <td>
-                                    <span class="status-badge status-pending">
-                                        <i class="fas fa-clock"></i> Awaiting
-                                    </span>
-                                </td>
-                                <td>
-                                    <button class="verify-btn" onclick="verifyPayment('${child.key}')">
-                                        <i class="fas fa-check"></i> Verify
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                });
-
-                if (pendingCount === 0) {
-                    list.innerHTML = '<tr><td colspan="7" class="text-center py-4">No pending verifications</td></tr>';
-                }
-
-                document.getElementById('pendingPaymentCount').innerText = pendingCount;
-                document.getElementById('pendingVerificationCount').innerText = pendingCount;
-            });
         }
+    };
 
-        // ========== ORDERS ==========
-        window.filterOrders = (status, btn) => {
-            currentFilter = status;
-            loadOrders(status);
+    // ========== PAYMENT VERIFICATION ==========
+    window.verifyPayment = async (orderId) => {
+        try {
+            const orderRef = database.ref('orders/' + orderId);
+            const snapshot = await orderRef.once('value');
+            const order = snapshot.val();
+
+            const statusHistory = order.status_history || [];
+            let statusNote = '';
             
-            document.querySelectorAll('#orders .filter-btn').forEach(b => {
-                b.classList.remove('active');
+            if (order.payment.method === 'cod_advance') {
+                statusNote = `Advance payment verified (৳${order.payment.amount_paid}). Order placed with China supplier.`;
+            } else {
+                statusNote = `Full payment verified (৳${order.payment.amount_paid}). Order placed with China supplier.`;
+            }
+            
+            statusHistory.push({
+                status: 'placed',
+                timestamp: new Date().toISOString(),
+                note: statusNote
             });
-            btn.classList.add('active');
-        };
 
-        function loadOrders(statusFilter = 'all') {
-            database.ref('orders').once('value', (snapshot) => {
-                const list = document.getElementById('orderList');
-                list.innerHTML = '';
-
-                snapshot.forEach(child => {
-                    const order = child.val();
-                    
-                    if (statusFilter === 'all' || order.status === statusFilter) {
-                        const payment = order.payment || {};
-                        const paymentMethod = payment.method || 'cod_advance';
-                        const paidAmount = payment.amount_paid || 0;
-                        const dueAmount = order.total - paidAmount;
-                        const couponApplied = order.coupon ? `<span class="coupon-badge">${order.coupon.code}</span>` : '-';
-                        
-                        list.innerHTML += `
-                            <tr>
-                                <td><strong>${child.key}</strong></td>
-                                <td>
-                                    ${order.customer?.name || 'N/A'}<br>
-                                    <small class="text-muted">${order.customer?.phone || ''}</small>
-                                </td>
-                                <td>৳ ${order.total?.toFixed(0) || '0'}</td>
-                                <td>${getPaymentTypeBadge(paymentMethod)}</td>
-                                <td><span class="text-success">৳ ${paidAmount.toFixed(0)}</span></td>
-                                <td><span class="text-warning">৳ ${dueAmount.toFixed(0)}</span></td>
-                                <td>${couponApplied}</td>
-                                <td>${getStatusBadge(order.status || 'pending')}</td>
-                                <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                                <td>
-                                    <select class="form-select form-select-sm mb-1" onchange="updateOrderStatus('${child.key}', this.value)">
-                                        ${statusOptions.map(opt => `
-                                            <option value="${opt.value}" ${order.status === opt.value ? 'selected' : ''}>
-                                                ${opt.label}
-                                            </option>
-                                        `).join('')}
-                                    </select>
-                                    <button class="btn btn-sm btn-outline-danger mt-1" onclick="deleteOrder('${child.key}')">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                });
+            await orderRef.update({
+                'payment.status': 'paid',
+                'payment.verified_at': new Date().toISOString(),
+                'payment.verified_by': 'admin',
+                status: 'placed',
+                updated_at: new Date().toISOString(),
+                status_history: statusHistory
             });
-        }
 
-        // ========== PAYMENT FILTER ==========
-        window.filterPayments = (method, btn) => {
-            currentPaymentFilter = method;
+            alert('Payment verified! Order status set to "Order Placed"');
             loadPaymentVerification();
+            loadAnalytics();
+            loadDashboard();
             
-            document.querySelectorAll('#payment-verification .filter-btn').forEach(b => {
-                b.classList.remove('active');
-            });
-            btn.classList.add('active');
-        };
+        } catch (error) {
+            console.error('Error verifying payment:', error);
+            alert('Failed to verify payment');
+        }
+    };
 
-        // ========== DASHBOARD ==========
-        function loadDashboard() {
-            database.ref('orders').once('value', (snapshot) => {
-                let totalOrders = 0;
-                let pendingVerification = 0;
-                let processingCount = 0;
-                let completedCount = 0;
-                let totalRevenue = 0;
-                let advancePaymentsCount = 0;
-                let todayOrders = 0;
-                let recentOrders = [];
-                const today = new Date().toDateString();
+    function loadPaymentVerification() {
+        database.ref('orders').once('value', (snapshot) => {
+            const list = document.getElementById('paymentVerificationList');
+            list.innerHTML = '';
+            let pendingCount = 0;
 
-                snapshot.forEach(child => {
-                    totalOrders++;
-                    const order = child.val();
+            snapshot.forEach(child => {
+                const order = child.val();
+                const payment = order.payment || {};
+                
+                // Only show orders that need verification (pending status)
+                if (payment.status === 'pending') {
+                    pendingCount++;
                     
-                    if (order.payment?.status === 'pending') pendingVerification++;
-                    if (order.status === 'processing') processingCount++;
-                    if (order.status === 'completed') {
-                        completedCount++;
-                        totalRevenue += order.total || 0;
+                    // Apply filter
+                    if (currentPaymentFilter !== 'all' && payment.method !== currentPaymentFilter) {
+                        return;
                     }
                     
-                    if (order.payment?.method === 'cod_advance') {
-                        advancePaymentsCount++;
-                    }
-                    
-                    if (new Date(order.created_at).toDateString() === today) {
-                        todayOrders++;
-                    }
-                    
-                    if (recentOrders.length < 5) {
-                        recentOrders.push({ id: child.key, ...order });
-                    }
-                });
-
-                document.getElementById('totalOrders').innerText = totalOrders;
-                document.getElementById('pendingVerificationCount').innerText = pendingVerification;
-                document.getElementById('processingCount').innerText = processingCount;
-                document.getElementById('completedCount').innerText = completedCount;
-                document.getElementById('totalRevenue').innerText = `৳${totalRevenue.toFixed(0)}`;
-                document.getElementById('todayOrders').innerText = todayOrders;
-                document.getElementById('avgOrderValue').innerText = totalOrders > 0 ? `৳${(totalRevenue/totalOrders).toFixed(0)}` : '৳0';
-
-                const recentList = document.getElementById('recentOrdersList');
-                recentList.innerHTML = '';
-                recentOrders.forEach(order => {
-                    const paidAmount = order.payment?.amount_paid || 0;
-                    recentList.innerHTML += `
+                    list.innerHTML += `
                         <tr>
-                            <td>${order.id}</td>
-                            <td>${order.customer?.name || 'N/A'}</td>
+                            <td><strong>${child.key}</strong></td>
+                            <td>
+                                ${order.customer?.name || 'N/A'}<br>
+                                <small class="text-muted">${order.customer?.phone || ''}</small>
+                            </td>
                             <td>৳ ${order.total?.toFixed(0) || '0'}</td>
-                            <td>${getPaymentTypeBadge(order.payment?.method)}</td>
-                            <td>৳ ${paidAmount.toFixed(0)}</td>
+                            <td>${getPaymentTypeBadge(payment.method)}</td>
+                            <td><strong>৳ ${payment.amount_paid?.toFixed(0) || '0'}</strong></td>
+                            <td>
+                                <span class="status-badge status-pending">
+                                    <i class="fas fa-clock"></i> Awaiting
+                                </span>
+                            </td>
+                            <td>
+                                <button class="verify-btn" onclick="verifyPayment('${child.key}')">
+                                    <i class="fas fa-check"></i> Verify
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (pendingCount === 0) {
+                list.innerHTML = '<tr><td colspan="7" class="text-center py-4">No pending verifications</td></tr>';
+            }
+
+            document.getElementById('pendingPaymentCount').innerText = pendingCount;
+            document.getElementById('pendingVerificationCount').innerText = pendingCount;
+        });
+    }
+
+    // ========== ORDERS ==========
+    window.filterOrders = (status, btn) => {
+        currentFilter = status;
+        loadOrders(status);
+        
+        document.querySelectorAll('#orders .filter-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+    };
+
+    function loadOrders(statusFilter = 'all') {
+        database.ref('orders').once('value', (snapshot) => {
+            const list = document.getElementById('orderList');
+            list.innerHTML = '';
+
+            snapshot.forEach(child => {
+                const order = child.val();
+                
+                if (statusFilter === 'all' || order.status === statusFilter) {
+                    const payment = order.payment || {};
+                    const paymentMethod = payment.method || 'cod_advance';
+                    const paidAmount = payment.amount_paid || 0;
+                    const dueAmount = order.total - paidAmount;
+                    const couponApplied = order.coupon ? `<span class="coupon-badge">${order.coupon.code}</span>` : '-';
+                    
+                    list.innerHTML += `
+                        <tr>
+                            <td><strong>${child.key}</strong></td>
+                            <td>
+                                ${order.customer?.name || 'N/A'}<br>
+                                <small class="text-muted">${order.customer?.phone || ''}</small>
+                            </td>
+                            <td>৳ ${order.total?.toFixed(0) || '0'}</td>
+                            <td>${getPaymentTypeBadge(paymentMethod)}</td>
+                            <td><span class="text-success">৳ ${paidAmount.toFixed(0)}</span></td>
+                            <td><span class="text-warning">৳ ${dueAmount.toFixed(0)}</span></td>
+                            <td>${couponApplied}</td>
                             <td>${getStatusBadge(order.status || 'pending')}</td>
                             <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <select class="form-select form-select-sm mb-1" onchange="updateOrderStatus('${child.key}', this.value)">
+                                    ${statusOptions.map(opt => `
+                                        <option value="${opt.value}" ${order.status === opt.value ? 'selected' : ''}>
+                                            ${opt.label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                                <button class="btn btn-sm btn-outline-danger mt-1" onclick="deleteOrder('${child.key}')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
                     `;
-                });
+                }
             });
-        }
+        });
+    }
 
-        // ========== ANALYTICS ==========
-        function loadAnalytics() {
-            database.ref('orders').once('value', (snapshot) => {
-                let totalRevenue = 0;
-                let totalOrders = 0;
-                let paymentMethods = { cod_advance: 0, full_payment: 0 };
-                let orderStatus = { pending: 0, placed: 0, processing: 0, shipping: 0, completed: 0, cancelled: 0 };
-                let productSales = {};
-                let advancePaymentsCount = 0;
-                let couponUsageCount = 0;
+    // ========== PAYMENT FILTER ==========
+    window.filterPayments = (method, btn) => {
+        currentPaymentFilter = method;
+        loadPaymentVerification();
+        
+        document.querySelectorAll('#payment-verification .filter-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+    };
 
-                snapshot.forEach(child => {
-                    totalOrders++;
-                    const order = child.val();
-                    
-                    if (order.status === 'completed') {
-                        totalRevenue += order.total || 0;
-                    }
-                    
-                    const method = order.payment?.method || 'cod_advance';
-                    paymentMethods[method] = (paymentMethods[method] || 0) + 1;
-                    
-                    if (method === 'cod_advance') {
-                        advancePaymentsCount++;
-                    }
-                    
-                    if (order.coupon) {
-                        couponUsageCount++;
-                    }
-                    
-                    const status = order.status || 'pending';
-                    orderStatus[status] = (orderStatus[status] || 0) + 1;
-                    
-                    if (order.items) {
-                        order.items.forEach(item => {
-                            const productName = item.name;
-                            productSales[productName] = (productSales[productName] || 0) + item.quantity;
-                        });
-                    }
-                });
+    // ========== DASHBOARD ==========
+    function loadDashboard() {
+        database.ref('orders').once('value', (snapshot) => {
+            let totalOrders = 0;
+            let pendingVerification = 0;
+            let processingCount = 0;
+            let completedCount = 0;
+            let totalRevenue = 0;
+            let advancePaymentsCount = 0;
+            let todayOrders = 0;
+            let recentOrders = [];
+            const today = new Date().toDateString();
 
-                document.getElementById('analyticsRevenue').innerHTML = `৳${totalRevenue.toFixed(0)}`;
-                document.getElementById('analyticsOrders').innerText = totalOrders;
-                document.getElementById('advancePaymentsCount').innerText = advancePaymentsCount;
-                document.getElementById('couponUsageCount').innerText = couponUsageCount;
-
-                // Payment Methods Stats
-                const paymentStats = document.getElementById('paymentStats');
-                paymentStats.innerHTML = `
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>COD Advance (30%):</span> <strong>${paymentMethods.cod_advance || 0}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>Full Payment:</span> <strong>${paymentMethods.full_payment || 0}</strong>
-                    </div>
-                `;
-
-                // Status Stats
-                const statusStats = document.getElementById('statusStats');
-                statusStats.innerHTML = `
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>⏳ Pending:</span> <strong>${orderStatus.pending || 0}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>📦 Placed:</span> <strong>${orderStatus.placed || 0}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>⚙️ Processing:</span> <strong>${orderStatus.processing || 0}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>🚚 Shipping:</span> <strong>${orderStatus.shipping || 0}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>✅ Completed:</span> <strong>${orderStatus.completed || 0}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>❌ Cancelled:</span> <strong>${orderStatus.cancelled || 0}</strong>
-                    </div>
-                `;
-
-                // Top Products
-                const topProducts = Object.entries(productSales)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
+            snapshot.forEach(child => {
+                totalOrders++;
+                const order = child.val();
                 
-                const topProductsList = document.getElementById('topProductsList');
-                topProductsList.innerHTML = topProducts.length > 0 
-                    ? topProducts.map(([name, qty]) => `
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>${name}</span>
-                            <strong>${qty} sold</strong>
-                        </div>
-                    `).join('')
-                    : '<p class="text-muted">No sales data yet</p>';
-
-                // Charts
-                if (ordersChart) ordersChart.destroy();
-                if (revenueChart) revenueChart.destroy();
-                if (paymentChart) paymentChart.destroy();
-                if (statusChart) statusChart.destroy();
-
-                ordersChart = new Chart(document.getElementById('ordersChart'), {
-                    type: 'line',
-                    data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                        datasets: [{
-                            label: 'Orders',
-                            data: [12, 19, 15, 25, 22, 30],
-                            borderColor: '#ff385c',
-                            tension: 0.4
-                        }]
-                    },
-                    options: { responsive: true }
-                });
-
-                revenueChart = new Chart(document.getElementById('revenueChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                        datasets: [{
-                            label: 'Revenue (৳)',
-                            data: [15000, 22000, 18000, 28000, 25000, 35000],
-                            backgroundColor: '#ff385c'
-                        }]
-                    },
-                    options: { responsive: true }
-                });
-
-                paymentChart = new Chart(document.getElementById('paymentChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['COD Advance (30%)', 'Full Payment'],
-                        datasets: [{
-                            data: [paymentMethods.cod_advance || 1, paymentMethods.full_payment || 1],
-                            backgroundColor: ['#ffc107', '#28a745']
-                        }]
-                    },
-                    options: { responsive: true }
-                });
-
-                statusChart = new Chart(document.getElementById('statusChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Pending', 'Placed', 'Processing', 'Shipping', 'Completed', 'Cancelled'],
-                        datasets: [{
-                            data: [
-                                orderStatus.pending || 1,
-                                orderStatus.placed || 1,
-                                orderStatus.processing || 1,
-                                orderStatus.shipping || 1,
-                                orderStatus.completed || 1,
-                                orderStatus.cancelled || 1
-                            ],
-                            backgroundColor: ['#ffc107', '#28a745', '#17a2b8', '#007bff', '#28a745', '#dc3545']
-                        }]
-                    },
-                    options: { responsive: true }
-                });
+                if (order.payment?.status === 'pending') pendingVerification++;
+                if (order.status === 'processing') processingCount++;
+                if (order.status === 'completed') {
+                    completedCount++;
+                    totalRevenue += order.total || 0;
+                }
+                
+                if (order.payment?.method === 'cod_advance') {
+                    advancePaymentsCount++;
+                }
+                
+                if (new Date(order.created_at).toDateString() === today) {
+                    todayOrders++;
+                }
+                
+                if (recentOrders.length < 5) {
+                    recentOrders.push({ id: child.key, ...order });
+                }
             });
-        }
 
-        // Initialize
-        function init() {
-            console.log('Initializing admin panel...');
-            loadCategories();
-            loadProducts();
-            loadOrders('all');
-            loadPaymentVerification();
-            loadDashboard();
-            loadAnalytics();
-            toggleDiscountFields();
-        }
-    </script>
+            document.getElementById('totalOrders').innerText = totalOrders;
+            document.getElementById('pendingVerificationCount').innerText = pendingVerification;
+            document.getElementById('processingCount').innerText = processingCount;
+            document.getElementById('completedCount').innerText = completedCount;
+            document.getElementById('totalRevenue').innerText = `৳${totalRevenue.toFixed(0)}`;
+            document.getElementById('todayOrders').innerText = todayOrders;
+            document.getElementById('avgOrderValue').innerText = totalOrders > 0 ? `৳${(totalRevenue/totalOrders).toFixed(0)}` : '৳0';
+
+            const recentList = document.getElementById('recentOrdersList');
+            recentList.innerHTML = '';
+            recentOrders.forEach(order => {
+                const paidAmount = order.payment?.amount_paid || 0;
+                recentList.innerHTML += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.customer?.name || 'N/A'}</td>
+                        <td>৳ ${order.total?.toFixed(0) || '0'}</td>
+                        <td>${getPaymentTypeBadge(order.payment?.method)}</td>
+                        <td>৳ ${paidAmount.toFixed(0)}</td>
+                        <td>${getStatusBadge(order.status || 'pending')}</td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `;
+            });
+        });
+    }
+
+    // ========== ANALYTICS ==========
+    function loadAnalytics() {
+        database.ref('orders').once('value', (snapshot) => {
+            let totalRevenue = 0;
+            let totalOrders = 0;
+            let paymentMethods = { cod_advance: 0, full_payment: 0 };
+            let orderStatus = { pending: 0, placed: 0, processing: 0, shipping: 0, completed: 0, cancelled: 0 };
+            let productSales = {};
+            let advancePaymentsCount = 0;
+            let couponUsageCount = 0;
+
+            snapshot.forEach(child => {
+                totalOrders++;
+                const order = child.val();
+                
+                if (order.status === 'completed') {
+                    totalRevenue += order.total || 0;
+                }
+                
+                const method = order.payment?.method || 'cod_advance';
+                paymentMethods[method] = (paymentMethods[method] || 0) + 1;
+                
+                if (method === 'cod_advance') {
+                    advancePaymentsCount++;
+                }
+                
+                if (order.coupon) {
+                    couponUsageCount++;
+                }
+                
+                const status = order.status || 'pending';
+                orderStatus[status] = (orderStatus[status] || 0) + 1;
+                
+                if (order.items) {
+                    order.items.forEach(item => {
+                        const productName = item.name;
+                        productSales[productName] = (productSales[productName] || 0) + item.quantity;
+                    });
+                }
+            });
+
+            document.getElementById('analyticsRevenue').innerHTML = `৳${totalRevenue.toFixed(0)}`;
+            document.getElementById('analyticsOrders').innerText = totalOrders;
+            document.getElementById('advancePaymentsCount').innerText = advancePaymentsCount;
+            document.getElementById('couponUsageCount').innerText = couponUsageCount;
+
+            // Payment Methods Stats
+            const paymentStats = document.getElementById('paymentStats');
+            paymentStats.innerHTML = `
+                <div class="d-flex justify-content-between mb-1">
+                    <span>COD Advance (30%):</span> <strong>${paymentMethods.cod_advance || 0}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Full Payment:</span> <strong>${paymentMethods.full_payment || 0}</strong>
+                </div>
+            `;
+
+            // Status Stats
+            const statusStats = document.getElementById('statusStats');
+            statusStats.innerHTML = `
+                <div class="d-flex justify-content-between mb-1">
+                    <span>⏳ Pending:</span> <strong>${orderStatus.pending || 0}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>📦 Placed:</span> <strong>${orderStatus.placed || 0}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>⚙️ Processing:</span> <strong>${orderStatus.processing || 0}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>🚚 Shipping:</span> <strong>${orderStatus.shipping || 0}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>✅ Completed:</span> <strong>${orderStatus.completed || 0}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>❌ Cancelled:</span> <strong>${orderStatus.cancelled || 0}</strong>
+                </div>
+            `;
+
+            // Top Products
+            const topProducts = Object.entries(productSales)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const topProductsList = document.getElementById('topProductsList');
+            topProductsList.innerHTML = topProducts.length > 0 
+                ? topProducts.map(([name, qty]) => `
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>${name}</span>
+                        <strong>${qty} sold</strong>
+                    </div>
+                `).join('')
+                : '<p class="text-muted">No sales data yet</p>';
+
+            // Charts
+            if (ordersChart) ordersChart.destroy();
+            if (revenueChart) revenueChart.destroy();
+            if (paymentChart) paymentChart.destroy();
+            if (statusChart) statusChart.destroy();
+
+            ordersChart = new Chart(document.getElementById('ordersChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Orders',
+                        data: [12, 19, 15, 25, 22, 30],
+                        borderColor: '#ff385c',
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            revenueChart = new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue (৳)',
+                        data: [15000, 22000, 18000, 28000, 25000, 35000],
+                        backgroundColor: '#ff385c'
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            paymentChart = new Chart(document.getElementById('paymentChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['COD Advance (30%)', 'Full Payment'],
+                    datasets: [{
+                        data: [paymentMethods.cod_advance || 1, paymentMethods.full_payment || 1],
+                        backgroundColor: ['#ffc107', '#28a745']
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            statusChart = new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Placed', 'Processing', 'Shipping', 'Completed', 'Cancelled'],
+                    datasets: [{
+                        data: [
+                            orderStatus.pending || 1,
+                            orderStatus.placed || 1,
+                            orderStatus.processing || 1,
+                            orderStatus.shipping || 1,
+                            orderStatus.completed || 1,
+                            orderStatus.cancelled || 1
+                        ],
+                        backgroundColor: ['#ffc107', '#28a745', '#17a2b8', '#007bff', '#28a745', '#dc3545']
+                    }]
+                },
+                options: { responsive: true }
+            });
+        });
+    }
+
+    // Initialize
+    function init() {
+        loadCategories();
+        loadProducts();
+        loadOrders('all');
+        loadPaymentVerification();
+        loadDashboard();
+        loadAnalytics();
+        toggleDiscountFields();
+    }
+
+    init();
+</script>
 </body>
-                </html>
+</html>
