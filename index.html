@@ -2,1112 +2,1288 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Espera Mavro - Full Control</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ESPERA MAVRO | Premium Global Sourcing</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <style>
-        :root { 
-            --dark: #111; 
-            --bg: #f8f9fa;
+        /* [Your existing CSS styles remain exactly the same] */
+        :root {
             --primary: #000000;
             --accent: #ff385c;
-            --success: #2e7d32;
-            --warning: #ed6c02;
-            --info: #0288d1;
-            --danger: #d32f2f;
+            --bg: #ffffff;
+            --secondary-bg: #f8f8f8;
+            --text-muted: #666;
+            --border: #e2e2e2;
+            --gold: #c5a059;
+            --soft-shadow: 0 8px 20px rgba(0,0,0,0.02);
         }
-        
-        body { background: var(--bg); font-family: 'Inter', sans-serif; }
-        
-        .sidebar { 
-            background: #fff; 
-            height: 100vh; 
-            position: fixed; 
-            width: 280px; 
-            border-right: 1px solid #ddd; 
-            padding: 25px; 
-            z-index: 100; 
-            overflow-y: auto; 
-            box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--primary); overflow-x: hidden; }
+
+        /* Smooth scrolling for the whole page */
+        html {
+            scroll-behavior: smooth;
         }
-        
-        .main { 
-            margin-left: 280px; 
-            padding: 30px; 
+
+        /* fade-up animation */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
-        
-        @media (max-width: 768px) { 
-            .sidebar { 
-                height: auto; 
-                width: 100%; 
-                position: relative; 
-            } 
-            .main { 
-                margin-left: 0; 
-                padding: 15px; 
-            } 
+        .fade-up.appeared {
+            opacity: 1;
+            transform: translateY(0);
         }
+
+        /* --- Header --- */
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 4%; }
+        .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; text-decoration: none; color: #000; }
+        .logo span { color: var(--accent); }
         
-        .card-custom { 
-            background: #fff; 
-            padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-            margin-bottom: 25px; 
-            border: 1px solid #eee; 
-        }
+        .nav-actions { display: flex; align-items: center; gap: 15px; }
+        .nav-icon { font-size: 18px; color: #000; cursor: pointer; position: relative; }
+        .cart-count { position: absolute; top: -8px; right: -10px; background: var(--accent); color: #fff; font-size: 8px; font-weight: 800; padding: 2px 5px; border-radius: 50px; }
+
+        /* --- Search Bar --- */
+        .search-wrapper { width: 100%; padding: 75px 4% 10px; background: #fff; }
+        .search-inner { position: relative; }
+        .search-inner input { width: 100%; padding: 10px 40px 10px 15px; border-radius: 25px; border: 1px solid var(--border); font-size: 13px; background: var(--secondary-bg); }
+        .search-inner input:focus { border-color: var(--primary); background: #fff; outline: none; }
+        .search-inner button { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); background: var(--primary); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 12px; }
+
+        /* --- Hero --- */
+        .hero { position: relative; height: 200px; background: #111; display: flex; align-items: center; overflow: hidden; }
+        .hero-content { padding: 0 4%; color: #fff; z-index: 2; width: 100%; }
+        .hero-tag { color: var(--gold); font-weight: 600; font-size: 9px; margin-bottom: 5px; display: block; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 28px; line-height: 1.1; margin-bottom: 5px; }
+        .hero p { font-size: 12px; opacity: 0.7; margin-bottom: 10px; width: 70%; }
+        .hero-btn { padding: 8px 20px; background: #fff; color: #000; text-decoration: none; font-weight: 600; border-radius: 25px; font-size: 11px; display: inline-block; }
+        .hero-img { position: absolute; right: 0; bottom: 0; width: 55%; height: 100%; object-fit: cover; opacity: 0.4; }
+
+        /* --- Category Grid (single, professional) --- */
+        .section-header { padding: 25px 4% 10px; display: flex; justify-content: space-between; align-items: center; }
+        .section-header h2 { font-size: 18px; font-weight: 800; }
+        .section-header a { font-size: 10px; font-weight: 600; color: #666; text-decoration: none; }
         
-        .nav-link { 
-            color: #333; 
-            padding: 12px 15px; 
-            border-radius: 12px; 
-            margin-bottom: 5px; 
-            cursor: pointer; 
-            text-decoration: none; 
-            display: flex;
-            align-items: center;
+        /* Category Grid */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            transition: 0.2s;
+            padding: 0 4% 20px;
+        }
+        .cat-grid-item {
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 18px 4px 14px;
+            text-align: center;
+            text-decoration: none;
+            color: #000;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            box-shadow: var(--soft-shadow);
+        }
+        .cat-grid-item i { font-size: 26px; color: #000; margin-bottom: 8px; display: block; }
+        .cat-grid-item span { font-size: 11px; font-weight: 600; }
+
+        /* --- PRODUCT GRID (featured slider) --- */
+        .product-grid {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 0 4% 15px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .product-grid::-webkit-scrollbar { display: none; }
+
+        .p-card { 
+            flex: 0 0 72%;
+            max-width: 72%;
+            background: #fff; 
+            padding: 8px; 
+            text-decoration: none; 
+            color: inherit; 
+            position: relative;
+            border-radius: 8px;
+            scroll-snap-align: start;
+            border: 1px solid var(--border);
+        }
+
+        .image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #f5f5f5;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .image-container img { 
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
         }
         
-        .nav-link:hover { 
-            background: #f5f5f5; 
-        }
-        
-        .nav-link.active { 
-            background: var(--primary); 
+        .p-badge { 
+            position: absolute; 
+            top: 6px; 
+            left: 6px; 
+            background: var(--accent); 
             color: #fff; 
+            font-size: 7px; 
+            font-weight: 700; 
+            padding: 2px 5px; 
+            border-radius: 2px; 
+            z-index: 10; 
         }
         
-        .nav-link i { 
-            width: 24px; 
-            font-size: 18px; 
+        .p-card h3 { 
+            font-size: 11px; 
+            font-weight: 600; 
+            margin-bottom: 4px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            line-height: 1.3;
+        }
+        
+        .p-price { 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            margin-bottom: 2px;
+        }
+        
+        .p-price .sale { 
+            font-size: 13px; 
+            font-weight: 800; 
+            color: var(--accent); 
+        }
+        
+        .wholesale-info { 
+            font-size: 7px; 
+            color: #2e7d32; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 2px; 
+            margin-top: 2px;
         }
 
-        .section-group {
+        /* --- Banner row --- */
+        .banner-row {
+            display: flex;
+            gap: 8px;
+            padding: 0 4% 20px;
+        }
+        .banner-half {
+            flex: 1;
+            background: #f1f0f0;
+            border-radius: 20px;
+            padding: 18px 12px;
+            min-height: 100px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--soft-shadow);
+        }
+        .banner-half::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%);
+            z-index: 1;
+        }
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .banner-content .tag {
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 50px;
+            width: fit-content;
+            margin-bottom: 4px;
+        }
+        .banner-content h4 { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+        .banner-content p { font-size: 9px; opacity: 0.9; }
+
+        /* --- Service strip --- */
+        .service-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 0 4% 25px;
+        }
+        .service-card {
+            background: var(--secondary-bg);
+            border-radius: 20px;
+            padding: 18px 4px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--soft-shadow);
+        }
+        .service-card i { font-size: 22px; color: #000; margin-bottom: 6px; }
+        .service-card h5 { font-size: 11px; font-weight: 800; margin-bottom: 4px; }
+        .service-card p { font-size: 7px; color: #555; }
+
+        /* --- Reviews Display (from Firebase) --- */
+        .review-scroll {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding: 0 4% 25px;
+            scrollbar-width: none;
+        }
+        .review-scroll::-webkit-scrollbar { display: none; }
+        .review-card {
+            flex: 0 0 70%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 22px 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        }
+        .review-stars { color: #f5b342; font-size: 14px; margin-bottom: 8px; }
+        .review-text { font-size: 12px; font-weight: 400; margin-bottom: 16px; line-height: 1.5; }
+        .reviewer { display: flex; align-items: center; gap: 10px; }
+        .reviewer img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
+        .reviewer strong { font-size: 12px; }
+        .review-date { font-size: 8px; color: #aaa; margin-left: auto; }
+
+        /* --- Trust badges --- */
+        .trust-badge-row {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 4% 25px;
+            background: #fafafa;
+            margin: 0 4% 20px;
+            border-radius: 40px;
+        }
+        .trust-item {
+            text-align: center;
+        }
+        .trust-item i { font-size: 22px; color: #2e7d32; }
+        .trust-item span { display: block; font-size: 9px; font-weight: 600; margin-top: 4px; }
+
+        /* --- Sidebar --- */
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1999; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: all; }
+        .sidebar { position: fixed; top: 0; left: -100%; width: 260px; height: 100%; background: #fff; z-index: 2000; transition: 0.3s; padding: 35px 20px; overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar-close { position: absolute; right: 12px; top: 12px; font-size: 18px; cursor: pointer; }
+        .side-links { margin-top: 35px; }
+        .side-links a { display: block; font-size: 16px; font-weight: 700; color: #000; text-decoration: none; margin-bottom: 15px; }
+        .side-cats-title { margin-top: 25px; font-size: 10px; font-weight: 700; color: #888; letter-spacing: 1px; margin-bottom: 12px; }
+        .side-cat-list a { display: block; font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #444; text-decoration: none; }
+        .side-cat-list a i { width: 18px; margin-right: 6px; color: var(--accent); font-size: 12px; }
+
+        /* ========== PROFESSIONAL FOOTER STYLES ========== */
+        .footer {
+            background: #0a0a0a;
+            color: #fff;
+            margin-top: 60px;
+            position: relative;
+            border-top: 1px solid #222;
+        }
+
+        .footer-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 5% 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
             margin-bottom: 40px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
         }
 
-        .section-title {
-            font-size: 18px;
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer-col h4 {
+            font-size: 16px;
             font-weight: 700;
             margin-bottom: 20px;
-            color: var(--accent);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #ff385c;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .footer-logo span {
+            color: #ff385c;
+        }
+
+        .footer-about {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-social a {
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
         }
 
-        .section-title i {
-            font-size: 24px;
+        .footer-social a:hover {
+            background: #ff385c;
+            transform: translateY(-3px);
         }
 
-        .preview-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+        .footer-links {
+            list-style: none;
+            padding: 0;
         }
 
-        .icon-selector {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 10px;
-            margin-top: 10px;
+        .footer-links li {
+            margin-bottom: 12px;
         }
 
-        .icon-option {
-            text-align: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .icon-option:hover {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
+        .footer-links a i {
+            font-size: 10px;
+            color: #ff385c;
         }
 
-        .icon-option.selected {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+        .footer-links a:hover {
+            color: #ff385c;
+            transform: translateX(5px);
         }
 
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 10px;
-            border: 1px solid #ddd;
+        .footer-contact {
+            list-style: none;
+            padding: 0;
         }
 
-        .live-preview {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 15px;
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .footer-contact li i {
+            color: #ff385c;
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .footer-contact a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-contact a:hover {
+            color: #ff385c;
+        }
+
+        .footer-payment {
             margin-top: 20px;
+        }
+
+        .footer-payment h5 {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .payment-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .payment-icons i {
+            font-size: 28px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .payment-icons i:hover {
+            color: #ff385c;
+        }
+
+        /* Newsletter Section */
+        .footer-newsletter {
+            background: #111;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .newsletter-content h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .newsletter-content p {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: #ff385c;
+        }
+
+        .newsletter-form button {
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: none;
+            background: #ff385c;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .newsletter-form button:hover {
+            background: #e62e4e;
+            transform: translateY(-2px);
+        }
+
+        /* Bottom Footer */
+        .footer-bottom {
+            border-top: 1px solid #222;
+            padding: 20px 5%;
+            background: #050505;
+        }
+
+        .footer-bottom-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .footer-copyright {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .footer-legal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-legal a {
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+
+        .footer-legal a:hover {
+            color: #ff385c;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: #ff385c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(255, 56, 92, 0.3);
+            transition: all 0.3s;
+            z-index: 99;
+        }
+
+        .scroll-top:hover {
+            background: #e62e4e;
+            transform: translateY(-3px);
+        }
+
+        .scroll-top.show {
+            display: flex;
+        }
+
+        .loading { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+
+        @media (min-width: 768px) {
+            .product-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                overflow-x: visible;
+                gap: 15px;
+            }
+            .p-card { flex: none; max-width: 100%; }
+            .review-card { flex: 0 0 40%; }
+            .cat-grid { grid-template-columns: repeat(6,1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .footer-newsletter {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .newsletter-form {
+                max-width: 100%;
+            }
+            
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-legal {
+                justify-content: center;
+            }
+            
+            .scroll-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+
+        /* Admin Edit Button */
+        .admin-edit-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 99;
+            text-decoration: none;
+        }
+
+        .admin-edit-btn:hover {
+            background: #ff385c;
+            transform: scale(1.1);
+        }
+
+        /* Section Badge for Admin */
+        .section-badge {
+            background: #ff385c;
+            color: white;
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 10px;
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h4 class="mb-4 fw-bold text-center">ESPERA <span style="color: var(--accent);">MAVRO</span></h4>
-    <p class="text-center small text-muted mb-4">Full Control Admin Panel</p>
-    
-    <nav class="nav flex-column">
-        <a class="nav-link" onclick="showSection('dashboard', this)">
-            <i class="fa fa-dashboard"></i> Dashboard
-        </a>
-        <a class="nav-link" onclick="showSection('sections', this)">
-            <i class="fa fa-layers"></i> Page Sections
-        </a>
-        <a class="nav-link" onclick="showSection('hero', this)">
-            <i class="fa fa-image"></i> Hero Section
-        </a>
-        <a class="nav-link" onclick="showSection('banners', this)">
-            <i class="fa fa-images"></i> Banners
-        </a>
-        <a class="nav-link" onclick="showSection('services', this)">
-            <i class="fa fa-cubes"></i> Services
-        </a>
-        <a class="nav-link" onclick="showSection('trust', this)">
-            <i class="fa fa-shield-alt"></i> Trust Badges
-        </a>
-        <a class="nav-link" onclick="showSection('footer', this)">
-            <i class="fa fa-foot"></i> Footer
-        </a>
-        <a class="nav-link" onclick="showSection('products', this)">
-            <i class="fa fa-box"></i> Products
-        </a>
-        <a class="nav-link" onclick="showSection('categories', this)">
-            <i class="fa fa-list"></i> Categories
-        </a>
-        <a class="nav-link" onclick="showSection('coupons', this)">
-            <i class="fa fa-ticket"></i> Coupons
-        </a>
-        <a class="nav-link" onclick="showSection('orders', this)">
-            <i class="fa fa-shopping-cart"></i> Orders
-        </a>
-        <a class="nav-link" onclick="showSection('reviews', this)">
-            <i class="fa fa-star"></i> Reviews
-        </a>
-    </nav>
-</div>
+    <header class="header">
+        <div class="nav-icon" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></div>
+        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
+        <div class="nav-actions">
+            <i class="fa-solid fa-magnifying-glass nav-icon" onclick="document.getElementById('searchInput').focus()"></i>
+            <a href="cart.html" class="nav-icon">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+        </div>
+    </header>
 
-<div class="main">
-    <!-- Dashboard -->
-    <div id="dashboard" class="section" style="display: none;">
-        <h3 class="mb-4">Dashboard Overview</h3>
-        <div class="row g-4">
-            <div class="col-md-3">
-                <div class="card-custom">
-                    <h6 class="text-muted">Total Products</h6>
-                    <h2 id="totalProducts">0</h2>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-custom">
-                    <h6 class="text-muted">Total Orders</h6>
-                    <h2 id="totalOrders">0</h2>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-custom">
-                    <h6 class="text-muted">Total Reviews</h6>
-                    <h2 id="totalReviews">0</h2>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card-custom">
-                    <h6 class="text-muted">Active Coupons</h6>
-                    <h2 id="activeCoupons">0</h2>
-                </div>
+    <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-close" onclick="toggleMenu()"><i class="fa-solid fa-xmark"></i></div>
+        <div class="side-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="track-order.html">Track Order</a>
+            <a href="cart.html">Cart</a>
+        </div>
+        <div class="side-cats-title">CATEGORIES</div>
+        <div class="side-cat-list" id="sideCats"></div>
+    </div>
+
+    <div class="search-wrapper">
+        <div class="search-inner">
+            <input type="text" id="searchInput" placeholder="Search products..." onkeyup="handleSearch(event)">
+            <button onclick="doSearch()"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- hero section (with fade) -->
+    <section class="hero fade-up" id="hero-section" data-section="hero">
+        <div class="hero-content">
+            <span class="hero-tag" id="hero-tag">CHINA TO BANGLADESH</span>
+            <h1 id="hero-title">Global<br>Wholesale</h1>
+            <p id="hero-text">Premium sourcing with door-to-door shipping</p>
+            <a href="shop.html" class="hero-btn" id="hero-btn-text">SHOP NOW</a>
+        </div>
+        <img src="" class="hero-img" id="hero-image" alt="hero" loading="lazy">
+    </section>
+
+    <!-- Single Category Grid -->
+    <section class="section-header fade-up">
+        <h2>Shop by Category <span class="section-badge">Categories</span></h2>
+        <a href="shop.html">all</a>
+    </section>
+    <div class="cat-grid fade-up" id="featuredCatGrid"></div>
+
+    <!-- Featured products slider -->
+    <section class="section-header fade-up">
+        <h2>Featured Products <span class="section-badge">Products</span></h2>
+        <span style="font-size: 9px; background: #f0f0f0; padding: 2px 6px; border-radius: 20px;" id="featured-badge">HOT</span>
+    </section>
+    <div class="product-grid fade-up" id="productGrid">
+        <div class="loading">Loading products...</div>
+    </div>
+
+    <!-- banner row -->
+    <div class="banner-row fade-up" id="banner-section">
+        <div class="banner-half" id="banner-left" style="background-image: url('');">
+            <div class="banner-content">
+                <span class="tag" id="banner-left-tag">SUMMER 26</span>
+                <h4 id="banner-left-title">Essentials</h4>
+                <p id="banner-left-text">up to 40% off</p>
             </div>
         </div>
-        
-        <div class="card-custom mt-4">
-            <h5>Quick Actions</h5>
-            <div class="row g-3 mt-2">
-                <div class="col-md-3">
-                    <button class="btn btn-outline-dark w-100 py-3" onclick="showSection('hero', document.querySelector('[onclick*=\"hero\"]'))">
-                        <i class="fa fa-image"></i> Edit Hero
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-outline-dark w-100 py-3" onclick="showSection('banners', document.querySelector('[onclick*=\"banners\"]'))">
-                        <i class="fa fa-images"></i> Edit Banners
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-outline-dark w-100 py-3" onclick="showSection('services', document.querySelector('[onclick*=\"services\"]'))">
-                        <i class="fa fa-cubes"></i> Edit Services
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-outline-dark w-100 py-3" onclick="showSection('footer', document.querySelector('[onclick*=\"footer\"]'))">
-                        <i class="fa fa-foot"></i> Edit Footer
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card-custom mt-4">
-            <h5>Recent Orders</h5>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentOrdersList"></tbody>
-                </table>
+        <div class="banner-half" id="banner-right" style="background-image: url('');">
+            <div class="banner-content">
+                <span class="tag" id="banner-right-tag">BAGS</span>
+                <h4 id="banner-right-title">Leather</h4>
+                <p id="banner-right-text">wholesale price</p>
             </div>
         </div>
     </div>
 
-    <!-- Sections Overview -->
-    <div id="sections" class="section" style="display: block;">
-        <h3 class="mb-4">Page Sections Control</h3>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa fa-image fa-2x me-3" style="color: var(--accent);"></i>
-                        <div>
-                            <h5 class="mb-1">Hero Section</h5>
-                            <p class="text-muted small">Main banner with tagline and image</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-dark w-100" onclick="showSection('hero', document.querySelector('[onclick*=\"hero\"]'))">
-                        Edit Hero
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa fa-images fa-2x me-3" style="color: var(--accent);"></i>
-                        <div>
-                            <h5 class="mb-1">Banners</h5>
-                            <p class="text-muted small">Left and right promotional banners</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-dark w-100" onclick="showSection('banners', document.querySelector('[onclick*=\"banners\"]'))">
-                        Edit Banners
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa fa-cubes fa-2x me-3" style="color: var(--accent);"></i>
-                        <div>
-                            <h5 class="mb-1">Services</h5>
-                            <p class="text-muted small">4 service cards with icons</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-dark w-100" onclick="showSection('services', document.querySelector('[onclick*=\"services\"]'))">
-                        Edit Services
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa fa-shield-alt fa-2x me-3" style="color: var(--accent);"></i>
-                        <div>
-                            <h5 class="mb-1">Trust Badges</h5>
-                            <p class="text-muted small">4 trust indicators</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-dark w-100" onclick="showSection('trust', document.querySelector('[onclick*=\"trust\"]'))">
-                        Edit Trust Badges
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa fa-foot fa-2x me-3" style="color: var(--accent);"></i>
-                        <div>
-                            <h5 class="mb-1">Footer</h5>
-                            <p class="text-muted small">Footer content, social links, contact</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-dark w-100" onclick="showSection('footer', document.querySelector('[onclick*=\"footer\"]'))">
-                        Edit Footer
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card-custom">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa fa-star fa-2x me-3" style="color: var(--accent);"></i>
-                        <div>
-                            <h5 class="mb-1">Reviews</h5>
-                            <p class="text-muted small">Customer reviews management</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-dark w-100" onclick="showSection('reviews', document.querySelector('[onclick*=\"reviews\"]'))">
-                        Manage Reviews
-                    </button>
-                </div>
-            </div>
+    <!-- service strip -->
+    <div class="service-strip fade-up" id="service-section">
+        <div class="service-card" id="service-1">
+            <i class="fa-solid fa-truck-fast" id="service-1-icon"></i>
+            <h5 id="service-1-title">Door-to-Door</h5>
+            <p id="service-1-desc">China-BD express</p>
+        </div>
+        <div class="service-card" id="service-2">
+            <i class="fa-solid fa-hand-holding-dollar" id="service-2-icon"></i>
+            <h5 id="service-2-title">Wholesale</h5>
+            <p id="service-2-desc">low MOQ</p>
+        </div>
+        <div class="service-card" id="service-3">
+            <i class="fa-solid fa-shield" id="service-3-icon"></i>
+            <h5 id="service-3-title">Secure Payment</h5>
+            <p id="service-3-desc">escrow available</p>
+        </div>
+        <div class="service-card" id="service-4">
+            <i class="fa-solid fa-clock" id="service-4-icon"></i>
+            <h5 id="service-4-title">24/7 Support</h5>
+            <p id="service-4-desc">chat with us</p>
         </div>
     </div>
 
-    <!-- Hero Section Editor -->
-    <div id="hero" class="section" style="display: none;">
-        <h3 class="mb-4">Hero Section Editor</h3>
-        
-        <div class="card-custom">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="small fw-bold">Tag Line</label>
-                    <input type="text" id="heroTag" class="form-control" placeholder="e.g., CHINA TO BANGLADESH">
+    <!-- Trust badges -->
+    <div class="trust-badge-row fade-up" id="trust-section">
+        <div class="trust-item" id="trust-1"><i class="fa-regular fa-circle-check"></i><span>Verified</span></div>
+        <div class="trust-item" id="trust-2"><i class="fa-regular fa-gem"></i><span>Premium</span></div>
+        <div class="trust-item" id="trust-3"><i class="fa-regular fa-credit-card"></i><span>Secure</span></div>
+        <div class="trust-item" id="trust-4"><i class="fa-regular fa-clock"></i><span>Fast</span></div>
+    </div>
+
+    <!-- Customer Reviews Display from Firebase -->
+    <section class="section-header fade-up">
+        <h2>Customer reviews <span class="section-badge">Reviews</span></h2>
+        <span><i class="fa-solid fa-star" style="color: var(--gold);"></i> <span id="averageRating">4.8</span></span>
+    </section>
+    <div class="review-scroll fade-up" id="reviewContainer">
+        <div class="loading">Loading reviews...</div>
+    </div>
+
+    <!-- ========== NEW PROFESSIONAL FOOTER ========== -->
+    <footer class="footer">
+        <!-- Main Footer -->
+        <div class="footer-main">
+            <div class="footer-grid">
+                <!-- Column 1: Brand & About -->
+                <div class="footer-col">
+                    <div class="footer-logo">ESPERA <span>MAVRO.</span></div>
+                    <p class="footer-about" id="footer-about-text">Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.</p>
+                    <div class="footer-social" id="footer-social">
+                        <a href="#" aria-label="Facebook" id="social-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram" id="social-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="WhatsApp" id="social-wa"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" aria-label="LinkedIn" id="social-li"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube" id="social-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
                 </div>
-                
-                <div class="col-md-6">
-                    <label class="small fw-bold">Title (use &lt;br&gt; for line break)</label>
-                    <input type="text" id="heroTitle" class="form-control" placeholder="e.g., Global&lt;br&gt;Wholesale">
+
+                <!-- Column 2: Quick Links -->
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links" id="footer-quick-links">
+                        <li><a href="index.html"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="shop.html"><i class="fas fa-chevron-right"></i> Shop</a></li>
+                        <li><a href="track-order.html"><i class="fas fa-chevron-right"></i> Track Order</a></li>
+                        <li><a href="cart.html"><i class="fas fa-chevron-right"></i> Cart</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Wholesale</a></li>
+                    </ul>
                 </div>
-                
-                <div class="col-md-6">
-                    <label class="small fw-bold">Description Text</label>
-                    <input type="text" id="heroText" class="form-control" placeholder="e.g., Premium sourcing with door-to-door shipping">
+
+                <!-- Column 3: Categories -->
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul class="footer-links" id="footerCategories">
+                        <!-- Categories will be loaded dynamically -->
+                        <li><i class="fas fa-spinner fa-spin"></i> Loading...</li>
+                    </ul>
                 </div>
-                
-                <div class="col-md-6">
-                    <label class="small fw-bold">Button Text</label>
-                    <input type="text" id="heroBtnText" class="form-control" placeholder="SHOP NOW">
-                </div>
-                
-                <div class="col-md-6">
-                    <label class="small fw-bold">Hero Image URL</label>
-                    <input type="text" id="heroImage" class="form-control" placeholder="https://...">
-                </div>
-                
-                <div class="col-md-6">
-                    <label class="small fw-bold">Button Link</label>
-                    <input type="text" id="heroBtnLink" class="form-control" value="shop.html">
-                </div>
-                
-                <div class="col-12">
-                    <div class="live-preview">
-                        <h6>Live Preview:</h6>
-                        <div style="background: #111; color: white; padding: 20px; border-radius: 10px;">
-                            <span id="previewTag" style="color: #c5a059; font-size: 12px;">CHINA TO BANGLADESH</span>
-                            <h3 id="previewTitle" style="font-size: 24px;">Global<br>Wholesale</h3>
-                            <p id="previewText" style="font-size: 14px;">Premium sourcing with door-to-door shipping</p>
-                            <span id="previewBtn" style="background: white; color: black; padding: 5px 15px; border-radius: 20px; font-size: 12px;">SHOP NOW</span>
+
+                <!-- Column 4: Contact Info -->
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-contact" id="footer-contact">
+                        <li id="contact-address"><i class="fas fa-map-marker-alt"></i> Dhaka, Bangladesh</li>
+                        <li id="contact-phone"><i class="fas fa-phone-alt"></i> <a href="tel:+8801721383418">+880 1721-383418</a></li>
+                        <li id="contact-email"><i class="fas fa-envelope"></i> <a href="mailto:esperamavro@gmail.com">esperamavro@gmail.com</a></li>
+                        <li id="contact-hours"><i class="fas fa-clock"></i> Support: 24/7</li>
+                    </ul>
+                    
+                    <!-- Payment Methods -->
+                    <div class="footer-payment">
+                        <h5>We Accept</h5>
+                        <div class="payment-icons" id="payment-icons">
+                            <i class="fab fa-cc-visa" title="Visa"></i>
+                            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                            <i class="fab fa-cc-amex" title="American Express"></i>
+                            <i class="fab fa-cc-paypal" title="PayPal"></i>
+                            <i class="fab fa-bkash" title="bKash"></i>
+                            <i class="fas fa-credit-card" title="Nagad"></i>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Newsletter Section -->
+            <div class="footer-newsletter">
+                <div class="newsletter-content">
+                    <h4>Subscribe to Our Newsletter</h4>
+                    <p>Get updates on new collections, exclusive deals, and wholesale offers</p>
+                </div>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); subscribeNewsletter()">
+                    <input type="email" id="newsletterEmail" placeholder="Your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <div class="footer-copyright" id="copyright-text">
+                    © 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform
+                </div>
+                <div class="footer-legal" id="footer-legal">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="refund.html">Refund Policy</a>
+                    <a href="#">Shipping Info</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Edit Button -->
+    <a href="admin.html" class="admin-edit-btn" title="Edit in Admin Panel">
+        <i class="fas fa-edit"></i>
+    </a>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="scrollToTop()" id="scrollTopBtn" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // FIREBASE INIT
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // icons helper
+        const categoryIcons = {
+            'fashion': 'fa-solid fa-shirt',
+            'womens fashion': 'fa-solid fa-person-dress',
+            'bag': 'fa-solid fa-bag-shopping',
+            'household': 'fa-solid fa-couch',
+            'cosmetics': 'fa-solid fa-spray-can-sparkles',
+            'beauty': 'fa-solid fa-star',
+            'default': 'fa-solid fa-cube'
+        };
+        
+        function getCategoryIcon(catName) {
+            if (!catName) return categoryIcons.default;
+            const key = catName.toLowerCase();
+            if (key.includes('fashion')) return 'fa-solid fa-shirt';
+            if (key.includes('womens')) return 'fa-solid fa-person-dress';
+            if (key.includes('bag')) return 'fa-solid fa-bag-shopping';
+            if (key.includes('house')) return 'fa-solid fa-couch';
+            if (key.includes('cosmetic')) return 'fa-solid fa-spray-can-sparkles';
+            return categoryIcons.default;
+        }
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // ========== LOAD ALL SECTIONS FROM FIREBASE ==========
+
+        // Load Hero Section
+        function loadHeroSection() {
+            database.ref('sections/hero').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                document.getElementById('hero-tag').innerText = data.tag || 'CHINA TO BANGLADESH';
+                document.getElementById('hero-title').innerHTML = data.title || 'Global<br>Wholesale';
+                document.getElementById('hero-text').innerText = data.text || 'Premium sourcing with door-to-door shipping';
+                document.getElementById('hero-btn-text').innerText = data.btn_text || 'SHOP NOW';
                 
-                <div class="col-12">
-                    <button class="btn btn-dark w-100 py-3" onclick="saveHeroSection()">
-                        <i class="fas fa-save"></i> SAVE HERO SECTION
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Banners Editor -->
-    <div id="banners" class="section" style="display: none;">
-        <h3 class="mb-4">Banners Editor</h3>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Left Banner</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Tag</label>
-                        <input type="text" id="leftBannerTag" class="form-control" placeholder="SUMMER 26">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Title</label>
-                        <input type="text" id="leftBannerTitle" class="form-control" placeholder="Essentials">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Text</label>
-                        <input type="text" id="leftBannerText" class="form-control" placeholder="up to 40% off">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Image URL</label>
-                        <input type="text" id="leftBannerImage" class="form-control" placeholder="https://...">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Right Banner</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Tag</label>
-                        <input type="text" id="rightBannerTag" class="form-control" placeholder="BAGS">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Title</label>
-                        <input type="text" id="rightBannerTitle" class="form-control" placeholder="Leather">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Text</label>
-                        <input type="text" id="rightBannerText" class="form-control" placeholder="wholesale price">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Image URL</label>
-                        <input type="text" id="rightBannerImage" class="form-control" placeholder="https://...">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-12">
-                <button class="btn btn-dark w-100 py-3" onclick="saveBanners()">
-                    <i class="fas fa-save"></i> SAVE BANNERS
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Services Editor -->
-    <div id="services" class="section" style="display: none;">
-        <h3 class="mb-4">Services Editor</h3>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Service 1</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon (Font Awesome class)</label>
-                        <input type="text" id="service1Icon" class="form-control" value="fa-truck-fast">
-                        <small class="text-muted">e.g., fa-truck-fast, fa-hand-holding-dollar</small>
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Title</label>
-                        <input type="text" id="service1Title" class="form-control" value="Door-to-Door">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Description</label>
-                        <input type="text" id="service1Desc" class="form-control" value="China-BD express">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Service 2</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="service2Icon" class="form-control" value="fa-hand-holding-dollar">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Title</label>
-                        <input type="text" id="service2Title" class="form-control" value="Wholesale">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Description</label>
-                        <input type="text" id="service2Desc" class="form-control" value="low MOQ">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Service 3</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="service3Icon" class="form-control" value="fa-shield">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Title</label>
-                        <input type="text" id="service3Title" class="form-control" value="Secure Payment">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Description</label>
-                        <input type="text" id="service3Desc" class="form-control" value="escrow available">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Service 4</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="service4Icon" class="form-control" value="fa-clock">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Title</label>
-                        <input type="text" id="service4Title" class="form-control" value="24/7 Support">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Description</label>
-                        <input type="text" id="service4Desc" class="form-control" value="chat with us">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-12">
-                <button class="btn btn-dark w-100 py-3" onclick="saveServices()">
-                    <i class="fas fa-save"></i> SAVE SERVICES
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Trust Badges Editor -->
-    <div id="trust" class="section" style="display: none;">
-        <h3 class="mb-4">Trust Badges Editor</h3>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Badge 1</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="trust1Icon" class="form-control" value="fa-circle-check">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Text</label>
-                        <input type="text" id="trust1Text" class="form-control" value="Verified">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Badge 2</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="trust2Icon" class="form-control" value="fa-gem">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Text</label>
-                        <input type="text" id="trust2Text" class="form-control" value="Premium">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Badge 3</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="trust3Icon" class="form-control" value="fa-credit-card">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Text</label>
-                        <input type="text" id="trust3Text" class="form-control" value="Secure">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card-custom">
-                    <h5>Badge 4</h5>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Icon</label>
-                        <input type="text" id="trust4Icon" class="form-control" value="fa-clock">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold">Text</label>
-                        <input type="text" id="trust4Text" class="form-control" value="Fast">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-12">
-                <button class="btn btn-dark w-100 py-3" onclick="saveTrustBadges()">
-                    <i class="fas fa-save"></i> SAVE TRUST BADGES
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer Editor -->
-    <div id="footer" class="section" style="display: none;">
-        <h3 class="mb-4">Footer Editor</h3>
-        
-        <div class="card-custom">
-            <h5>About Text</h5>
-            <textarea id="footerAbout" class="form-control" rows="3">Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.</textarea>
-        </div>
-        
-        <div class="card-custom">
-            <h5>Social Links</h5>
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="small fw-bold">Facebook</label>
-                    <input type="text" id="socialFb" class="form-control" value="#">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">Instagram</label>
-                    <input type="text" id="socialIg" class="form-control" value="#">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">WhatsApp</label>
-                    <input type="text" id="socialWa" class="form-control" value="#">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">LinkedIn</label>
-                    <input type="text" id="socialLi" class="form-control" value="#">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">YouTube</label>
-                    <input type="text" id="socialYt" class="form-control" value="#">
-                </div>
-            </div>
-        </div>
-        
-        <div class="card-custom">
-            <h5>Contact Information</h5>
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="small fw-bold">Address</label>
-                    <input type="text" id="contactAddress" class="form-control" value="Dhaka, Bangladesh">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">Phone</label>
-                    <input type="text" id="contactPhone" class="form-control" value="+880 1721-383418">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">Email</label>
-                    <input type="email" id="contactEmail" class="form-control" value="esperamavro@gmail.com">
-                </div>
-                <div class="col-md-6">
-                    <label class="small fw-bold">Hours</label>
-                    <input type="text" id="contactHours" class="form-control" value="Support: 24/7">
-                </div>
-            </div>
-        </div>
-        
-        <div class="card-custom">
-            <h5>Copyright Text</h5>
-            <input type="text" id="copyrightText" class="form-control" value="© 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform">
-        </div>
-        
-        <button class="btn btn-dark w-100 py-3" onclick="saveFooter()">
-            <i class="fas fa-save"></i> SAVE FOOTER
-        </button>
-    </div>
-
-    <!-- Reviews Management -->
-    <div id="reviews" class="section" style="display: none;">
-        <h3 class="mb-4">Reviews Management</h3>
-        
-        <div class="card-custom">
-            <h5>All Customer Reviews</h5>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Rating</th>
-                            <th>Review</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reviewsList"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- [Rest of your existing sections: Products, Categories, Coupons, Orders remain the same] -->
-    <!-- Products Section -->
-    <div id="products" class="section" style="display: none;">
-        <!-- Your existing products section code -->
-        <div class="card-custom">
-            <h5 class="mb-4 fw-bold">Publish New Product</h5>
-            <!-- ... existing product form ... -->
-        </div>
-    </div>
-
-    <!-- Categories Section -->
-    <div id="categories" class="section" style="display: none;">
-        <!-- Your existing categories section code -->
-    </div>
-
-    <!-- Coupons Section -->
-    <div id="coupons" class="section" style="display: none;">
-        <!-- Your existing coupons section code -->
-    </div>
-
-    <!-- Orders Section -->
-    <div id="orders" class="section" style="display: none;">
-        <!-- Your existing orders section code -->
-    </div>
-</div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-<script>
-    // Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
-        authDomain: "espera-mavro-6ddc5.firebaseapp.com",
-        databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "espera-mavro-6ddc5",
-        storageBucket: "espera-mavro-6ddc5.appspot.com",
-        appId: "1:137893255543:web:a660bd412eb26ee322a972"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    // Navigation
-    window.showSection = (id, el) => {
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        el.classList.add('active');
-        
-        // Load section data when opened
-        if (id === 'hero') loadHeroData();
-        if (id === 'banners') loadBannerData();
-        if (id === 'services') loadServicesData();
-        if (id === 'trust') loadTrustData();
-        if (id === 'footer') loadFooterData();
-        if (id === 'reviews') loadReviewsList();
-        if (id === 'products') loadProducts();
-        if (id === 'categories') loadCategories();
-        if (id === 'coupons') loadCoupons();
-        if (id === 'orders') loadOrders('all');
-        if (id === 'dashboard') loadDashboard();
-    };
-
-    // ========== LOAD DATA FUNCTIONS ==========
-    
-    function loadHeroData() {
-        database.ref('sections/hero').once('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            document.getElementById('heroTag').value = data.tag || 'CHINA TO BANGLADESH';
-            document.getElementById('heroTitle').value = data.title || 'Global<br>Wholesale';
-            document.getElementById('heroText').value = data.text || 'Premium sourcing with door-to-door shipping';
-            document.getElementById('heroBtnText').value = data.btn_text || 'SHOP NOW';
-            document.getElementById('heroImage').value = data.image || 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1000&q=80';
-            document.getElementById('heroBtnLink').value = data.btn_link || 'shop.html';
-            updateHeroPreview();
-        });
-    }
-
-    function loadBannerData() {
-        database.ref('sections/banners').once('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            
-            // Left banner
-            const left = data.left || {};
-            document.getElementById('leftBannerTag').value = left.tag || 'SUMMER 26';
-            document.getElementById('leftBannerTitle').value = left.title || 'Essentials';
-            document.getElementById('leftBannerText').value = left.text || 'up to 40% off';
-            document.getElementById('leftBannerImage').value = left.image || 'https://images.unsplash.com/photo-1555529771-122e5d9f2341?auto=format&fit=crop&w=600&q=80';
-            
-            // Right banner
-            const right = data.right || {};
-            document.getElementById('rightBannerTag').value = right.tag || 'BAGS';
-            document.getElementById('rightBannerTitle').value = right.title || 'Leather';
-            document.getElementById('rightBannerText').value = right.text || 'wholesale price';
-            document.getElementById('rightBannerImage').value = right.image || 'https://images.unsplash.com/photo-1584917865442-2d7b27f2a3e9?auto=format&fit=crop&w=600&q=80';
-        });
-    }
-
-    function loadServicesData() {
-        database.ref('sections/services').once('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            
-            for (let i = 1; i <= 4; i++) {
-                const service = data[`service_${i}`] || {};
-                document.getElementById(`service${i}Icon`).value = service.icon || ['fa-truck-fast', 'fa-hand-holding-dollar', 'fa-shield', 'fa-clock'][i-1];
-                document.getElementById(`service${i}Title`).value = service.title || ['Door-to-Door', 'Wholesale', 'Secure Payment', '24/7 Support'][i-1];
-                document.getElementById(`service${i}Desc`).value = service.desc || ['China-BD express', 'low MOQ', 'escrow available', 'chat with us'][i-1];
-            }
-        });
-    }
-
-    function loadTrustData() {
-        database.ref('sections/trust').once('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            
-            const defaultIcons = ['fa-circle-check', 'fa-gem', 'fa-credit-card', 'fa-clock'];
-            const defaultTexts = ['Verified', 'Premium', 'Secure', 'Fast'];
-            
-            for (let i = 1; i <= 4; i++) {
-                const trust = data[`trust_${i}`] || {};
-                document.getElementById(`trust${i}Icon`).value = trust.icon || defaultIcons[i-1];
-                document.getElementById(`trust${i}Text`).value = trust.text || defaultTexts[i-1];
-            }
-        });
-    }
-
-    function loadFooterData() {
-        database.ref('sections/footer').once('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            
-            document.getElementById('footerAbout').value = data.about_text || 'Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.';
-            
-            const social = data.social || {};
-            document.getElementById('socialFb').value = social.facebook || '#';
-            document.getElementById('socialIg').value = social.instagram || '#';
-            document.getElementById('socialWa').value = social.whatsapp || '#';
-            document.getElementById('socialLi').value = social.linkedin || '#';
-            document.getElementById('socialYt').value = social.youtube || '#';
-            
-            const contact = data.contact || {};
-            document.getElementById('contactAddress').value = contact.address || 'Dhaka, Bangladesh';
-            document.getElementById('contactPhone').value = contact.phone || '+880 1721-383418';
-            document.getElementById('contactEmail').value = contact.email || 'esperamavro@gmail.com';
-            document.getElementById('contactHours').value = contact.hours || 'Support: 24/7';
-            
-            document.getElementById('copyrightText').value = data.copyright || '© 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform';
-        });
-    }
-
-    function loadReviewsList() {
-        const list = document.getElementById('reviewsList');
-        list.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
-        
-        database.ref('reviews').once('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                list.innerHTML = '<tr><td colspan="5" class="text-center py-4">No reviews yet</td></tr>';
-                return;
-            }
-            
-            let html = '';
-            snapshot.forEach((child) => {
-                const review = child.val();
-                const date = review.date ? new Date(review.date).toLocaleDateString() : 'N/A';
-                
-                html += `
-                    <tr>
-                        <td>${review.name || 'Anonymous'}</td>
-                        <td>${'★'.repeat(review.rating || 5)}</td>
-                        <td>${review.text || ''}</td>
-                        <td>${date}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReview('${child.key}')">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                const heroImg = document.getElementById('hero-image');
+                heroImg.src = data.image || 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1000&q=80';
             });
-            list.innerHTML = html;
-        });
-    }
+        }
 
-    // ========== SAVE FUNCTIONS ==========
-
-    function saveHeroSection() {
-        const data = {
-            tag: document.getElementById('heroTag').value,
-            title: document.getElementById('heroTitle').value,
-            text: document.getElementById('heroText').value,
-            btn_text: document.getElementById('heroBtnText').value,
-            btn_link: document.getElementById('heroBtnLink').value,
-            image: document.getElementById('heroImage').value
-        };
-        
-        database.ref('sections/hero').set(data)
-            .then(() => {
-                alert('Hero section saved successfully!');
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error saving hero section');
+        // Load Banner Section
+        function loadBannerSection() {
+            database.ref('sections/banners').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                // Left Banner
+                const leftBanner = data.left || {};
+                document.getElementById('banner-left').style.backgroundImage = `url('${leftBanner.image || 'https://images.unsplash.com/photo-1555529771-122e5d9f2341?auto=format&fit=crop&w=600&q=80'}')`;
+                document.getElementById('banner-left-tag').innerText = leftBanner.tag || 'SUMMER 26';
+                document.getElementById('banner-left-title').innerText = leftBanner.title || 'Essentials';
+                document.getElementById('banner-left-text').innerText = leftBanner.text || 'up to 40% off';
+                
+                // Right Banner
+                const rightBanner = data.right || {};
+                document.getElementById('banner-right').style.backgroundImage = `url('${rightBanner.image || 'https://images.unsplash.com/photo-1584917865442-2d7b27f2a3e9?auto=format&fit=crop&w=600&q=80'}')`;
+                document.getElementById('banner-right-tag').innerText = rightBanner.tag || 'BAGS';
+                document.getElementById('banner-right-title').innerText = rightBanner.title || 'Leather';
+                document.getElementById('banner-right-text').innerText = rightBanner.text || 'wholesale price';
             });
-    }
-
-    function saveBanners() {
-        const data = {
-            left: {
-                tag: document.getElementById('leftBannerTag').value,
-                title: document.getElementById('leftBannerTitle').value,
-                text: document.getElementById('leftBannerText').value,
-                image: document.getElementById('leftBannerImage').value
-            },
-            right: {
-                tag: document.getElementById('rightBannerTag').value,
-                title: document.getElementById('rightBannerTitle').value,
-                text: document.getElementById('rightBannerText').value,
-                image: document.getElementById('rightBannerImage').value
-            }
-        };
-        
-        database.ref('sections/banners').set(data)
-            .then(() => alert('Banners saved successfully!'))
-            .catch(err => alert('Error saving banners'));
-    }
-
-    function saveServices() {
-        const data = {};
-        for (let i = 1; i <= 4; i++) {
-            data[`service_${i}`] = {
-                icon: document.getElementById(`service${i}Icon`).value,
-                title: document.getElementById(`service${i}Title`).value,
-                desc: document.getElementById(`service${i}Desc`).value
-            };
         }
-        
-        database.ref('sections/services').set(data)
-            .then(() => alert('Services saved successfully!'))
-            .catch(err => alert('Error saving services'));
-    }
 
-    function saveTrustBadges() {
-        const data = {};
-        for (let i = 1; i <= 4; i++) {
-            data[`trust_${i}`] = {
-                icon: document.getElementById(`trust${i}Icon`).value,
-                text: document.getElementById(`trust${i}Text`).value
-            };
+        // Load Service Section
+        function loadServiceSection() {
+            database.ref('sections/services').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                // Default icons mapping
+                const defaultIcons = ['fa-truck-fast', 'fa-hand-holding-dollar', 'fa-shield', 'fa-clock'];
+                
+                for (let i = 1; i <= 4; i++) {
+                    const service = data[`service_${i}`] || {};
+                    const serviceCard = document.getElementById(`service-${i}`);
+                    
+                    // Update icon
+                    const iconEl = document.getElementById(`service-${i}-icon`);
+                    if (service.icon) {
+                        iconEl.className = `fa-solid ${service.icon}`;
+                    }
+                    
+                    // Update title and description
+                    document.getElementById(`service-${i}-title`).innerText = service.title || defaultTitles[i-1];
+                    document.getElementById(`service-${i}-desc`).innerText = service.desc || defaultDescs[i-1];
+                }
+            });
         }
-        
-        database.ref('sections/trust').set(data)
-            .then(() => alert('Trust badges saved successfully!'))
-            .catch(err => alert('Error saving trust badges'));
-    }
 
-    function saveFooter() {
-        const data = {
-            about_text: document.getElementById('footerAbout').value,
-            social: {
-                facebook: document.getElementById('socialFb').value,
-                instagram: document.getElementById('socialIg').value,
-                whatsapp: document.getElementById('socialWa').value,
-                linkedin: document.getElementById('socialLi').value,
-                youtube: document.getElementById('socialYt').value
-            },
-            contact: {
-                address: document.getElementById('contactAddress').value,
-                phone: document.getElementById('contactPhone').value,
-                email: document.getElementById('contactEmail').value,
-                hours: document.getElementById('contactHours').value
-            },
-            copyright: document.getElementById('copyrightText').value
-        };
-        
-        database.ref('sections/footer').set(data)
-            .then(() => alert('Footer saved successfully!'))
-            .catch(err => alert('Error saving footer'));
-    }
+        const defaultTitles = ['Door-to-Door', 'Wholesale', 'Secure Payment', '24/7 Support'];
+        const defaultDescs = ['China-BD express', 'low MOQ', 'escrow available', 'chat with us'];
 
-    function deleteReview(reviewId) {
-        if (confirm('Delete this review?')) {
-            database.ref('reviews/' + reviewId).remove()
-                .then(() => {
-                    alert('Review deleted');
-                    loadReviewsList();
-                })
-                .catch(err => alert('Error deleting review'));
+        // Load Trust Badges
+        function loadTrustSection() {
+            database.ref('sections/trust').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                const defaultIcons = ['fa-circle-check', 'fa-gem', 'fa-credit-card', 'fa-clock'];
+                const defaultTexts = ['Verified', 'Premium', 'Secure', 'Fast'];
+                
+                for (let i = 1; i <= 4; i++) {
+                    const trust = data[`trust_${i}`] || {};
+                    const trustItem = document.getElementById(`trust-${i}`);
+                    
+                    const iconEl = trustItem.querySelector('i');
+                    iconEl.className = `fa-regular ${trust.icon || defaultIcons[i-1]}`;
+                    
+                    const spanEl = trustItem.querySelector('span');
+                    spanEl.innerText = trust.text || defaultTexts[i-1];
+                }
+            });
         }
-    }
 
-    // Live preview for hero
-    function updateHeroPreview() {
-        document.getElementById('previewTag').innerText = document.getElementById('heroTag').value || 'CHINA TO BANGLADESH';
-        document.getElementById('previewTitle').innerHTML = document.getElementById('heroTitle').value || 'Global<br>Wholesale';
-        document.getElementById('previewText').innerText = document.getElementById('heroText').value || 'Premium sourcing with door-to-door shipping';
-        document.getElementById('previewBtn').innerText = document.getElementById('heroBtnText').value || 'SHOP NOW';
-    }
+        // Load Footer Section
+        function loadFooterSection() {
+            database.ref('sections/footer').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                // About text
+                document.getElementById('footer-about-text').innerText = data.about_text || 'Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.';
+                
+                // Social links
+                const social = data.social || {};
+                document.getElementById('social-fb').href = social.facebook || '#';
+                document.getElementById('social-ig').href = social.instagram || '#';
+                document.getElementById('social-wa').href = social.whatsapp || '#';
+                document.getElementById('social-li').href = social.linkedin || '#';
+                document.getElementById('social-yt').href = social.youtube || '#';
+                
+                // Contact info
+                const contact = data.contact || {};
+                document.getElementById('contact-address').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${contact.address || 'Dhaka, Bangladesh'}`;
+                document.getElementById('contact-phone').innerHTML = `<i class="fas fa-phone-alt"></i> <a href="tel:${contact.phone || '+8801721383418'}">${contact.phone || '+880 1721-383418'}</a>`;
+                document.getElementById('contact-email').innerHTML = `<i class="fas fa-envelope"></i> <a href="mailto:${contact.email || 'esperamavro@gmail.com'}">${contact.email || 'esperamavro@gmail.com'}</a>`;
+                document.getElementById('contact-hours').innerHTML = `<i class="fas fa-clock"></i> ${contact.hours || 'Support: 24/7'}`;
+                
+                // Copyright
+                document.getElementById('copyright-text').innerHTML = data.copyright || '© 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform';
+            });
+        }
 
-    // Add event listeners for preview
-    document.getElementById('heroTag')?.addEventListener('input', updateHeroPreview);
-    document.getElementById('heroTitle')?.addEventListener('input', updateHeroPreview);
-    document.getElementById('heroText')?.addEventListener('input', updateHeroPreview);
-    document.getElementById('heroBtnText')?.addEventListener('input', updateHeroPreview);
+        // LOAD CATEGORIES
+        function loadCategories() {
+            database.ref('categories').once('value', (snapshot) => {
+                const sideCats = document.getElementById('sideCats');
+                const featGrid = document.getElementById('featuredCatGrid');
+                let sideHtml = '';
+                let gridHtml = '';
+                let count = 0;
+                
+                snapshot.forEach((child) => {
+                    const catId = child.key;
+                    const catData = child.val();
+                    const catName = catData.name || catData;
+                    
+                    if (catName && catName !== 'All') {
+                        const icon = getCategoryIcon(catName);
+                        sideHtml += `<a href="shop.html?category=${catId}"><i class="${icon}"></i> ${catName}</a>`;
+                        if (count < 6) {
+                            gridHtml += `
+                                <a href="shop.html?category=${catId}" class="cat-grid-item">
+                                    <i class="${icon}"></i>
+                                    <span>${catName}</span>
+                                </a>
+                            `;
+                        }
+                        count++;
+                    }
+                });
+                sideCats.innerHTML = sideHtml || '<a href="#">No categories</a>';
+                featGrid.innerHTML = gridHtml || '<div style="grid-column:span3">No categories</div>';
+            });
+        }
 
-    // ========== DASHBOARD FUNCTIONS ==========
-    
-    function loadDashboard() {
-        // Count products
-        database.ref('products').once('value', (snapshot) => {
-            document.getElementById('totalProducts').innerText = snapshot.numChildren();
-        });
-        
-        // Count orders
-        database.ref('orders').once('value', (snapshot) => {
-            document.getElementById('totalOrders').innerText = snapshot.numChildren();
-            
-            // Recent orders
-            let recentHtml = '';
-            let count = 0;
-            snapshot.forEach((child) => {
-                if (count < 5) {
-                    const order = child.val();
-                    recentHtml += `
-                        <tr>
-                            <td>${child.key}</td>
-                            <td>${order.customer?.name || 'N/A'}</td>
-                            <td>৳ ${order.total?.toFixed(0) || '0'}</td>
-                            <td>${order.status || 'pending'}</td>
-                            <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                        </tr>
+        // LOAD FEATURED PRODUCTS
+        function loadProducts() {
+            database.ref('products').limitToFirst(8).once('value', (snapshot) => {
+                const grid = document.getElementById('productGrid');
+                if (!snapshot.exists()) {
+                    grid.innerHTML = '<div class="loading">No products</div>';
+                    return;
+                }
+                let productsHtml = '';
+                snapshot.forEach((child) => {
+                    const product = child.val();
+                    const productId = child.key;
+                    let imgUrl = product.image;
+                    if (!imgUrl && product.images) {
+                        if (Array.isArray(product.images)) imgUrl = product.images[0]?.src || product.images[0];
+                        else if (typeof product.images === 'object') {
+                            const firstImg = Object.values(product.images)[0];
+                            imgUrl = firstImg?.src || firstImg;
+                        }
+                    }
+                    imgUrl = imgUrl || 'https://via.placeholder.com/300x300?text=MAVRO';
+                    let price = product.sale_price || product.price || product.regular_price || 0;
+                    if (price === "undefined" || price === "") price = 0;
+                    price = parseFloat(price) || 0;
+                    let priceDisplay = `৳${price}`;
+                    
+                    productsHtml += `
+                        <a href="single-product-details.html?id=${productId}" class="p-card">
+                            <span class="p-badge">${product.badge || 'NEW'}</span>
+                            <div class="image-container">
+                                <img src="${imgUrl}" alt="${product.name || product.title || 'Product'}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=MAVRO'">
+                            </div>
+                            <h3>${product.name || product.title || 'Mavro Product'}</h3>
+                            <div class="p-price"><span class="sale">${priceDisplay}</span></div>
+                            <div class="wholesale-info"><i class="fa-solid fa-check-circle"></i> Wholesale</div>
+                        </a>
                     `;
-                    count++;
-                }
+                });
+                grid.innerHTML = productsHtml;
             });
-            document.getElementById('recentOrdersList').innerHTML = recentHtml || '<tr><td colspan="5" class="text-center">No orders</td></tr>';
-        });
-        
-        // Count reviews
-        database.ref('reviews').once('value', (snapshot) => {
-            document.getElementById('totalReviews').innerText = snapshot.numChildren();
-        });
-        
-        // Count active coupons
-        database.ref('coupons').once('value', (snapshot) => {
-            let activeCount = 0;
-            const now = new Date();
-            snapshot.forEach((child) => {
-                const coupon = child.val();
-                const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
-                if (coupon.status === 'active' && (!validUntil || validUntil > now)) {
-                    activeCount++;
+        }
+
+        // LOAD REVIEWS FROM FIREBASE
+        function loadReviews() {
+            const reviewContainer = document.getElementById('reviewContainer');
+            database.ref('reviews').once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    reviewContainer.innerHTML = '<div class="loading">No reviews yet</div>';
+                    return;
                 }
+                let reviewsHtml = '';
+                let totalStars = 0;
+                let reviewCount = 0;
+                snapshot.forEach((child) => {
+                    const r = child.val();
+                    const stars = r.rating || 5;
+                    totalStars += stars;
+                    reviewCount++;
+                    const date = r.date ? new Date(r.date).toLocaleDateString() : 'just now';
+                    const img = r.avatar || 'https://i.pravatar.cc/40?u='+r.name;
+                    reviewsHtml += `
+                        <div class="review-card">
+                            <div class="review-stars">${'★'.repeat(stars)}${'☆'.repeat(5-stars)}</div>
+                            <div class="review-text">"${r.text || 'Amazing quality and fast shipping'}"</div>
+                            <div class="reviewer">
+                                <img src="${img}" alt="user">
+                                <strong>${r.name || 'Buyer'}</strong>
+                                <span class="review-date">${date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                const avg = reviewCount ? (totalStars/reviewCount).toFixed(1) : '4.8';
+                document.getElementById('averageRating').innerText = avg;
+                reviewContainer.innerHTML = reviewsHtml;
             });
-            document.getElementById('activeCoupons').innerText = activeCount;
-        });
-    }
+        }
 
-    // ========== EXISTING FUNCTIONS FROM YOUR ADMIN.HTML ==========
-    // [Keep all your existing product, category, coupon, order functions here]
-    
-    // Initialize
-    function init() {
-        loadDashboard();
-        // Default to sections view
-        showSection('sections', document.querySelector('[onclick*=\"sections\"]'));
-    }
+        // Load categories in footer
+        function loadFooterCategories() {
+            database.ref('categories').limitToFirst(6).once('value', (snapshot) => {
+                const footerCats = document.getElementById('footerCategories');
+                let html = '';
+                
+                snapshot.forEach((child) => {
+                    const catData = child.val();
+                    const catName = catData.name || catData;
+                    if (catName && catName !== 'All') {
+                        html += `<li><a href="shop.html?category=${child.key}"><i class="fas fa-chevron-right"></i> ${catName}</a></li>`;
+                    }
+                });
+                
+                footerCats.innerHTML = html || '<li><a href="shop.html"><i class="fas fa-chevron-right"></i> All Categories</a></li>';
+            });
+        }
 
-    init();
-</script>
+        // Newsletter subscription
+        function subscribeNewsletter() {
+            const email = document.getElementById('newsletterEmail').value.trim();
+            if (!email) return;
+            
+            database.ref('newsletter').push({
+                email: email,
+                subscribed_at: new Date().toISOString()
+            }).then(() => {
+                alert('Thank you for subscribing!');
+                document.getElementById('newsletterEmail').value = '';
+            }).catch(err => {
+                console.error('Newsletter subscription failed:', err);
+                alert('Subscription failed. Please try again.');
+            });
+        }
+
+        // Scroll to top button
+        window.onscroll = function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // search handlers
+        function handleSearch(e) { if(e.key === 'Enter') doSearch(); }
+        function doSearch() {
+            const q = document.getElementById('searchInput').value.trim();
+            if(q) window.location.href = `shop.html?search=${encodeURIComponent(q)}`;
+        }
+
+        // cart count
+        function updateCartCount() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+                document.getElementById('cartCount').innerText = cart.length;
+            } catch (e) {}
+        }
+
+        // intersection observer for fade-up
+        function observeFade() {
+            const faders = document.querySelectorAll('.fade-up');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('appeared');
+                    }
+                });
+            }, { threshold: 0.1 });
+            faders.forEach(el => observer.observe(el));
+        }
+
+        window.onload = () => {
+            // Load all sections from Firebase
+            loadHeroSection();
+            loadBannerSection();
+            loadServiceSection();
+            loadTrustSection();
+            loadFooterSection();
+            
+            // Load existing data
+            loadCategories();
+            loadProducts();
+            loadReviews();
+            loadFooterCategories();
+            
+            updateCartCount();
+            observeFade();
+        };
+        
+        window.addEventListener('storage', updateCartCount);
+    </script>
 </body>
-                        </html>
+</html>
