@@ -21,47 +21,95 @@
             --coupon: #9c27b0;
         }
         
-        body { background: var(--bg); font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
+        /* Hamburger Menu Styles */
+        .hamburger-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+
+        .hamburger-btn:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1002;
+            display: none;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
         .sidebar { 
-            background: #fff; 
-            height: 100vh; 
-            position: fixed; 
-            width: 280px; 
-            border-right: 1px solid #ddd; 
-            padding: 25px; 
-            z-index: 100; 
-            overflow-y: auto; 
-            box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            z-index: 1003;
+            transition: 0.3s;
+            padding: 80px 20px 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-        
-        .main { 
-            margin-left: 280px; 
-            padding: 30px; 
+
+        .sidebar.active { 
+            left: 0;
         }
-        
-        @media (max-width: 768px) { 
-            .sidebar { 
-                height: auto; 
-                width: 100%; 
-                position: relative; 
-            } 
-            .main { 
-                margin-left: 0; 
-                padding: 15px; 
-            } 
+
+        .sidebar-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: 0.2s;
         }
-        
-        .card-custom { 
-            background: #fff; 
-            padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-            margin-bottom: 25px; 
-            border: 1px solid #eee; 
+
+        .sidebar-close:hover {
+            color: var(--accent);
         }
-        
-        .nav-link { 
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .sidebar-logo span {
+            color: var(--accent);
+        }
+
+        .sidebar .nav-link { 
             color: #333; 
             padding: 12px 15px; 
             border-radius: 12px; 
@@ -74,20 +122,55 @@
             transition: 0.2s;
         }
         
-        .nav-link:hover { 
+        .sidebar .nav-link:hover { 
             background: #f5f5f5; 
         }
         
-        .nav-link.active { 
+        .sidebar .nav-link.active { 
             background: var(--primary); 
             color: #fff; 
         }
         
-        .nav-link i { 
+        .sidebar .nav-link i { 
             width: 24px; 
             font-size: 18px; 
         }
 
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 10px;
+            padding-left: 15px;
+        }
+        
+        .main { 
+            margin-left: 0;
+            padding: 80px 30px 30px;
+            transition: 0.3s;
+        }
+
+        @media (max-width: 768px) { 
+            .main { 
+                padding: 80px 15px 15px;
+            } 
+        }
+        
+        .card-custom { 
+            background: #fff; 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            margin-bottom: 25px; 
+            border: 1px solid #eee; 
+        }
+        
         .product-img { 
             width: 50px; 
             height: 65px; 
@@ -136,12 +219,18 @@
 
         .upload-trigger { 
             border: 2px dashed #000; 
-            padding: 15px; 
+            padding: 20px; 
             border-radius: 10px; 
             text-align: center; 
             cursor: pointer; 
             background: #fff; 
-            font-weight: bold; 
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .upload-trigger:hover {
+            background: #f5f5f5;
+            border-color: var(--accent);
         }
 
         #editor { 
@@ -303,41 +392,157 @@
             gap: 5px;
             margin: 2px;
         }
+
+        .section-group {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 24px;
+        }
+
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .live-preview {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            margin-top: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent);
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-area:hover {
+            background: #f0f0f0;
+            border-color: var(--primary);
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h4 class="mb-4 fw-bold text-center">ESPERA <span style="color: var(--accent);">MAVRO</span></h4>
-    <p class="text-center small text-muted mb-4">Master Admin Panel</p>
+<!-- Hamburger Button -->
+<button class="hamburger-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-close" onclick="toggleSidebar()">
+        <i class="fas fa-times"></i>
+    </div>
+    <div class="sidebar-logo">
+        ESPERA <span>MAVRO</span>
+    </div>
     
-    <nav class="nav flex-column">
-        <a class="nav-link active" onclick="showSection('dashboard', this)">
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Main</div>
+        <a class="nav-link active" onclick="showSection('dashboard', this); toggleSidebar()">
             <i class="fa fa-dashboard"></i> Dashboard
         </a>
-        <a class="nav-link" onclick="showSection('analytics', this)">
-            <i class="fa fa-chart-line"></i> Analytics
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Page Sections</div>
+        <a class="nav-link" onclick="showSection('sections', this); toggleSidebar()">
+            <i class="fa fa-layers"></i> All Sections
         </a>
-        <a class="nav-link" onclick="showSection('products', this)">
+        <a class="nav-link" onclick="showSection('hero', this); toggleSidebar()">
+            <i class="fa fa-image"></i> Hero Section
+        </a>
+        <a class="nav-link" onclick="showSection('banners', this); toggleSidebar()">
+            <i class="fa fa-images"></i> Banners
+        </a>
+        <a class="nav-link" onclick="showSection('services', this); toggleSidebar()">
+            <i class="fa fa-cubes"></i> Services
+        </a>
+        <a class="nav-link" onclick="showSection('trust', this); toggleSidebar()">
+            <i class="fa fa-shield-alt"></i> Trust Badges
+        </a>
+        <a class="nav-link" onclick="showSection('footer', this); toggleSidebar()">
+            <i class="fa fa-foot"></i> Footer
+        </a>
+        <a class="nav-link" onclick="showSection('reviews', this); toggleSidebar()">
+            <i class="fa fa-star"></i> Reviews
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Shop Management</div>
+        <a class="nav-link" onclick="showSection('products', this); toggleSidebar()">
             <i class="fa fa-box"></i> Products
         </a>
-        <a class="nav-link" onclick="showSection('categories', this)">
+        <a class="nav-link" onclick="showSection('categories', this); toggleSidebar()">
             <i class="fa fa-list"></i> Categories
         </a>
-        <a class="nav-link" onclick="showSection('coupons', this)">
+        <a class="nav-link" onclick="showSection('coupons', this); toggleSidebar()">
             <i class="fa fa-ticket"></i> Coupons
         </a>
-        <a class="nav-link" onclick="showSection('orders', this)">
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Orders</div>
+        <a class="nav-link" onclick="showSection('orders', this); toggleSidebar()">
             <i class="fa fa-shopping-cart"></i> Orders
         </a>
-        <a class="nav-link" onclick="showSection('payment-verification', this)">
+        <a class="nav-link" onclick="showSection('payment-verification', this); toggleSidebar()">
             <i class="fa fa-check-circle"></i> Payment Verification
             <span class="badge bg-danger ms-auto" id="pendingPaymentCount">0</span>
         </a>
-    </nav>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Analytics</div>
+        <a class="nav-link" onclick="showSection('analytics', this); toggleSidebar()">
+            <i class="fa fa-chart-line"></i> Analytics
+        </a>
+    </div>
 </div>
 
-<div class="main">
+<div class="main" id="main">
     <!-- Dashboard -->
     <div id="dashboard" class="section">
         <h3 class="mb-4">Dashboard Overview</h3>
@@ -396,6 +601,42 @@
         </div>
         
         <div class="card-custom mt-4">
+            <h5>Quick Actions</h5>
+            <div class="row g-3 mt-2">
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('hero', document.querySelector('[onclick*=\"hero\"]')); toggleSidebar()">
+                        <i class="fa fa-image"></i> Hero
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('banners', document.querySelector('[onclick*=\"banners\"]')); toggleSidebar()">
+                        <i class="fa fa-images"></i> Banners
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('services', document.querySelector('[onclick*=\"services\"]')); toggleSidebar()">
+                        <i class="fa fa-cubes"></i> Services
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('products', document.querySelector('[onclick*=\"products\"]')); toggleSidebar()">
+                        <i class="fa fa-box"></i> Products
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('orders', document.querySelector('[onclick*=\"orders\"]')); toggleSidebar()">
+                        <i class="fa fa-shopping-cart"></i> Orders
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('payment-verification', document.querySelector('[onclick*=\"payment-verification\"]')); toggleSidebar()">
+                        <i class="fa fa-check-circle"></i> Payments
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-custom mt-4">
             <h5>Recent Orders</h5>
             <div class="table-responsive">
                 <table class="table align-middle">
@@ -411,6 +652,483 @@
                         </tr>
                     </thead>
                     <tbody id="recentOrdersList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sections Overview -->
+    <div id="sections" class="section" style="display: none;">
+        <h3 class="mb-4">Page Sections Control</h3>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-image fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Hero Section</h5>
+                            <p class="text-muted small">Main banner with tagline and image</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('hero', document.querySelector('[onclick*=\"hero\"]'))">
+                        Edit Hero
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-images fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Banners</h5>
+                            <p class="text-muted small">Left and right promotional banners</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('banners', document.querySelector('[onclick*=\"banners\"]'))">
+                        Edit Banners
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-cubes fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Services</h5>
+                            <p class="text-muted small">4 service cards with icons</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('services', document.querySelector('[onclick*=\"services\"]'))">
+                        Edit Services
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-shield-alt fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Trust Badges</h5>
+                            <p class="text-muted small">4 trust indicators</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('trust', document.querySelector('[onclick*=\"trust\"]'))">
+                        Edit Trust Badges
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-foot fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Footer</h5>
+                            <p class="text-muted small">Footer content, social links, contact</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('footer', document.querySelector('[onclick*=\"footer\"]'))">
+                        Edit Footer
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-star fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Reviews</h5>
+                            <p class="text-muted small">Customer reviews management</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('reviews', document.querySelector('[onclick*=\"reviews\"]'))">
+                        Manage Reviews
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section Editor with Image Upload -->
+    <div id="hero" class="section" style="display: none;">
+        <h3 class="mb-4">Hero Section Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Tag Line</label>
+                    <input type="text" id="heroTag" class="form-control" placeholder="e.g., CHINA TO BANGLADESH" oninput="updateHeroPreview()">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Title (use &lt;br&gt; for line break)</label>
+                    <input type="text" id="heroTitle" class="form-control" placeholder="e.g., Global&lt;br&gt;Wholesale" oninput="updateHeroPreview()">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Description Text</label>
+                    <input type="text" id="heroText" class="form-control" placeholder="e.g., Premium sourcing with door-to-door shipping" oninput="updateHeroPreview()">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Button Text</label>
+                    <input type="text" id="heroBtnText" class="form-control" placeholder="SHOP NOW" oninput="updateHeroPreview()">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Button Link</label>
+                    <input type="text" id="heroBtnLink" class="form-control" value="shop.html">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Hero Image</label>
+                    <div class="upload-area" onclick="document.getElementById('heroImageUpload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload hero image</p>
+                        <small class="text-muted">PNG, JPG, GIF up to 5MB</small>
+                    </div>
+                    <input type="file" id="heroImageUpload" class="d-none" accept="image/*" onchange="handleHeroImageUpload(this)">
+                    <input type="hidden" id="heroImage" value="">
+                    <div id="heroImagePreview" class="mt-3 text-center"></div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="live-preview">
+                        <h6>Live Preview:</h6>
+                        <div style="background: #111; color: white; padding: 20px; border-radius: 10px; position: relative; min-height: 200px; background-size: cover; background-position: center;" id="heroPreviewBg">
+                            <div style="position: relative; z-index: 2;">
+                                <span id="previewTag" style="color: #c5a059; font-size: 12px;">CHINA TO BANGLADESH</span>
+                                <h3 id="previewTitle" style="font-size: 24px;">Global<br>Wholesale</h3>
+                                <p id="previewText" style="font-size: 14px;">Premium sourcing with door-to-door shipping</p>
+                                <span id="previewBtn" style="background: white; color: black; padding: 5px 15px; border-radius: 20px; font-size: 12px; display: inline-block;">SHOP NOW</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveHeroSection()">
+                        <i class="fas fa-save"></i> SAVE HERO SECTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banners Editor with Image Upload -->
+    <div id="banners" class="section" style="display: none;">
+        <h3 class="mb-4">Banners Editor</h3>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Left Banner</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Tag</label>
+                        <input type="text" id="leftBannerTag" class="form-control" placeholder="SUMMER 26">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Title</label>
+                        <input type="text" id="leftBannerTitle" class="form-control" placeholder="Essentials">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Text</label>
+                        <input type="text" id="leftBannerText" class="form-control" placeholder="up to 40% off">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Banner Image</label>
+                        <div class="upload-area" onclick="document.getElementById('leftBannerUpload').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload banner image</p>
+                        </div>
+                        <input type="file" id="leftBannerUpload" class="d-none" accept="image/*" onchange="handleBannerImageUpload(this, 'left')">
+                        <input type="hidden" id="leftBannerImage" value="">
+                        <div id="leftBannerPreview" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Right Banner</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Tag</label>
+                        <input type="text" id="rightBannerTag" class="form-control" placeholder="BAGS">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Title</label>
+                        <input type="text" id="rightBannerTitle" class="form-control" placeholder="Leather">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Text</label>
+                        <input type="text" id="rightBannerText" class="form-control" placeholder="wholesale price">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Banner Image</label>
+                        <div class="upload-area" onclick="document.getElementById('rightBannerUpload').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload banner image</p>
+                        </div>
+                        <input type="file" id="rightBannerUpload" class="d-none" accept="image/*" onchange="handleBannerImageUpload(this, 'right')">
+                        <input type="hidden" id="rightBannerImage" value="">
+                        <div id="rightBannerPreview" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <button class="btn btn-dark w-100 py-3" onclick="saveBanners()">
+                    <i class="fas fa-save"></i> SAVE BANNERS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Editor -->
+    <div id="services" class="section" style="display: none;">
+        <h3 class="mb-4">Services Editor</h3>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Service 1</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon (Font Awesome class)</label>
+                        <input type="text" id="service1Icon" class="form-control" value="fa-truck-fast">
+                        <small class="text-muted">e.g., fa-truck-fast, fa-hand-holding-dollar</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Title</label>
+                        <input type="text" id="service1Title" class="form-control" value="Door-to-Door">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Description</label>
+                        <input type="text" id="service1Desc" class="form-control" value="China-BD express">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Service 2</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="service2Icon" class="form-control" value="fa-hand-holding-dollar">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Title</label>
+                        <input type="text" id="service2Title" class="form-control" value="Wholesale">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Description</label>
+                        <input type="text" id="service2Desc" class="form-control" value="low MOQ">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Service 3</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="service3Icon" class="form-control" value="fa-shield">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Title</label>
+                        <input type="text" id="service3Title" class="form-control" value="Secure Payment">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Description</label>
+                        <input type="text" id="service3Desc" class="form-control" value="escrow available">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Service 4</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="service4Icon" class="form-control" value="fa-clock">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Title</label>
+                        <input type="text" id="service4Title" class="form-control" value="24/7 Support">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Description</label>
+                        <input type="text" id="service4Desc" class="form-control" value="chat with us">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <button class="btn btn-dark w-100 py-3" onclick="saveServices()">
+                    <i class="fas fa-save"></i> SAVE SERVICES
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Badges Editor -->
+    <div id="trust" class="section" style="display: none;">
+        <h3 class="mb-4">Trust Badges Editor</h3>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Badge 1</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="trust1Icon" class="form-control" value="fa-circle-check">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Text</label>
+                        <input type="text" id="trust1Text" class="form-control" value="Verified">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Badge 2</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="trust2Icon" class="form-control" value="fa-gem">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Text</label>
+                        <input type="text" id="trust2Text" class="form-control" value="Premium">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Badge 3</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="trust3Icon" class="form-control" value="fa-credit-card">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Text</label>
+                        <input type="text" id="trust3Text" class="form-control" value="Secure">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Badge 4</h5>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Icon</label>
+                        <input type="text" id="trust4Icon" class="form-control" value="fa-clock">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Text</label>
+                        <input type="text" id="trust4Text" class="form-control" value="Fast">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <button class="btn btn-dark w-100 py-3" onclick="saveTrustBadges()">
+                    <i class="fas fa-save"></i> SAVE TRUST BADGES
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Editor -->
+    <div id="footer" class="section" style="display: none;">
+        <h3 class="mb-4">Footer Editor</h3>
+        
+        <div class="card-custom">
+            <h5>About Text</h5>
+            <textarea id="footerAbout" class="form-control" rows="3">Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.</textarea>
+        </div>
+        
+        <div class="card-custom">
+            <h5>Social Links</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Facebook</label>
+                    <input type="text" id="socialFb" class="form-control" value="#">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Instagram</label>
+                    <input type="text" id="socialIg" class="form-control" value="#">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">WhatsApp</label>
+                    <input type="text" id="socialWa" class="form-control" value="#">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">LinkedIn</label>
+                    <input type="text" id="socialLi" class="form-control" value="#">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">YouTube</label>
+                    <input type="text" id="socialYt" class="form-control" value="#">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-custom">
+            <h5>Contact Information</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Address</label>
+                    <input type="text" id="contactAddress" class="form-control" value="Dhaka, Bangladesh">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Phone</label>
+                    <input type="text" id="contactPhone" class="form-control" value="+880 1721-383418">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Email</label>
+                    <input type="email" id="contactEmail" class="form-control" value="esperamavro@gmail.com">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Hours</label>
+                    <input type="text" id="contactHours" class="form-control" value="Support: 24/7">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-custom">
+            <h5>Copyright Text</h5>
+            <input type="text" id="copyrightText" class="form-control" value="© 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform">
+        </div>
+        
+        <button class="btn btn-dark w-100 py-3" onclick="saveFooter()">
+            <i class="fas fa-save"></i> SAVE FOOTER
+        </button>
+    </div>
+
+    <!-- Reviews Management -->
+    <div id="reviews" class="section" style="display: none;">
+        <h3 class="mb-4">Reviews Management</h3>
+        
+        <div class="card-custom">
+            <h5>All Customer Reviews</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Review</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewsList"></tbody>
                 </table>
             </div>
         </div>
@@ -740,7 +1458,6 @@
         databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "espera-mavro-6ddc5",
         storageBucket: "espera-mavro-6ddc5.appspot.com",
-        messagingSenderId: "137893255543",
         appId: "1:137893255543:web:a660bd412eb26ee322a972"
     };
     
@@ -759,6 +1476,12 @@
     let allProducts = [];
     let allCategories = [];
 
+    // Toggle Sidebar
+    window.toggleSidebar = () => {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    };
+
     // Navigation
     window.showSection = (id, el) => {
         document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
@@ -766,6 +1489,13 @@
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         el.classList.add('active');
         
+        // Load section data when opened
+        if (id === 'hero') loadHeroData();
+        if (id === 'banners') loadBannerData();
+        if (id === 'services') loadServicesData();
+        if (id === 'trust') loadTrustData();
+        if (id === 'footer') loadFooterData();
+        if (id === 'reviews') loadReviewsList();
         if (id === 'products') loadProducts();
         if (id === 'categories') loadCategories();
         if (id === 'coupons') {
@@ -779,15 +1509,60 @@
         if (id === 'dashboard') loadDashboard();
     };
 
-    // ========== IMAGE HANDLING ==========
-    const toBase64 = f => new Promise((resolve) => {
-        const reader = new FileReader(); 
-        reader.readAsDataURL(f); 
+    // ========== IMAGE UPLOAD FUNCTIONS ==========
+    const toBase64 = f => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(f);
         reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
     });
 
+    // Hero Image Upload
+    window.handleHeroImageUpload = async (input) => {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                return;
+            }
+            
+            const base64 = await toBase64(file);
+            document.getElementById('heroImage').value = base64;
+            
+            // Show preview
+            const previewDiv = document.getElementById('heroImagePreview');
+            previewDiv.innerHTML = `<img src="${base64}" class="image-preview">`;
+            
+            // Update live preview background
+            document.getElementById('heroPreviewBg').style.backgroundImage = `url('${base64}')`;
+        }
+    };
+
+    // Banner Image Upload
+    window.handleBannerImageUpload = async (input, position) => {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                return;
+            }
+            
+            const base64 = await toBase64(file);
+            document.getElementById(`${position}BannerImage`).value = base64;
+            
+            // Show preview
+            const previewDiv = document.getElementById(`${position}BannerPreview`);
+            previewDiv.innerHTML = `<img src="${base64}" class="image-preview">`;
+        }
+    };
+
+    // Gallery upload for products
     document.getElementById('galleryInput').onchange = async (e) => {
         for(let file of e.target.files) { 
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Each image should be less than 5MB');
+                continue;
+            }
             galleryArr.push(await toBase64(file)); 
         }
         renderGallery();
@@ -858,6 +1633,259 @@
         variations.splice(index, 1);
         renderVariations();
     };
+
+    // ========== SECTION LOAD FUNCTIONS ==========
+    
+    function loadHeroData() {
+        database.ref('sections/hero').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('heroTag').value = data.tag || 'CHINA TO BANGLADESH';
+            document.getElementById('heroTitle').value = data.title || 'Global<br>Wholesale';
+            document.getElementById('heroText').value = data.text || 'Premium sourcing with door-to-door shipping';
+            document.getElementById('heroBtnText').value = data.btn_text || 'SHOP NOW';
+            document.getElementById('heroBtnLink').value = data.btn_link || 'shop.html';
+            document.getElementById('heroImage').value = data.image || '';
+            
+            // Show image preview if exists
+            if (data.image) {
+                document.getElementById('heroImagePreview').innerHTML = `<img src="${data.image}" class="image-preview">`;
+                document.getElementById('heroPreviewBg').style.backgroundImage = `url('${data.image}')`;
+            }
+            
+            updateHeroPreview();
+        });
+    }
+
+    function loadBannerData() {
+        database.ref('sections/banners').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            // Left banner
+            const left = data.left || {};
+            document.getElementById('leftBannerTag').value = left.tag || 'SUMMER 26';
+            document.getElementById('leftBannerTitle').value = left.title || 'Essentials';
+            document.getElementById('leftBannerText').value = left.text || 'up to 40% off';
+            document.getElementById('leftBannerImage').value = left.image || '';
+            if (left.image) {
+                document.getElementById('leftBannerPreview').innerHTML = `<img src="${left.image}" class="image-preview">`;
+            }
+            
+            // Right banner
+            const right = data.right || {};
+            document.getElementById('rightBannerTag').value = right.tag || 'BAGS';
+            document.getElementById('rightBannerTitle').value = right.title || 'Leather';
+            document.getElementById('rightBannerText').value = right.text || 'wholesale price';
+            document.getElementById('rightBannerImage').value = right.image || '';
+            if (right.image) {
+                document.getElementById('rightBannerPreview').innerHTML = `<img src="${right.image}" class="image-preview">`;
+            }
+        });
+    }
+
+    function loadServicesData() {
+        database.ref('sections/services').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            for (let i = 1; i <= 4; i++) {
+                const service = data[`service_${i}`] || {};
+                document.getElementById(`service${i}Icon`).value = service.icon || ['fa-truck-fast', 'fa-hand-holding-dollar', 'fa-shield', 'fa-clock'][i-1];
+                document.getElementById(`service${i}Title`).value = service.title || ['Door-to-Door', 'Wholesale', 'Secure Payment', '24/7 Support'][i-1];
+                document.getElementById(`service${i}Desc`).value = service.desc || ['China-BD express', 'low MOQ', 'escrow available', 'chat with us'][i-1];
+            }
+        });
+    }
+
+    function loadTrustData() {
+        database.ref('sections/trust').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            const defaultIcons = ['fa-circle-check', 'fa-gem', 'fa-credit-card', 'fa-clock'];
+            const defaultTexts = ['Verified', 'Premium', 'Secure', 'Fast'];
+            
+            for (let i = 1; i <= 4; i++) {
+                const trust = data[`trust_${i}`] || {};
+                document.getElementById(`trust${i}Icon`).value = trust.icon || defaultIcons[i-1];
+                document.getElementById(`trust${i}Text`).value = trust.text || defaultTexts[i-1];
+            }
+        });
+    }
+
+    function loadFooterData() {
+        database.ref('sections/footer').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('footerAbout').value = data.about_text || 'Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.';
+            
+            const social = data.social || {};
+            document.getElementById('socialFb').value = social.facebook || '#';
+            document.getElementById('socialIg').value = social.instagram || '#';
+            document.getElementById('socialWa').value = social.whatsapp || '#';
+            document.getElementById('socialLi').value = social.linkedin || '#';
+            document.getElementById('socialYt').value = social.youtube || '#';
+            
+            const contact = data.contact || {};
+            document.getElementById('contactAddress').value = contact.address || 'Dhaka, Bangladesh';
+            document.getElementById('contactPhone').value = contact.phone || '+880 1721-383418';
+            document.getElementById('contactEmail').value = contact.email || 'esperamavro@gmail.com';
+            document.getElementById('contactHours').value = contact.hours || 'Support: 24/7';
+            
+            document.getElementById('copyrightText').value = data.copyright || '© 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform';
+        });
+    }
+
+    function loadReviewsList() {
+        const list = document.getElementById('reviewsList');
+        list.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
+        
+        database.ref('reviews').once('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                list.innerHTML = '<tr><td colspan="5" class="text-center py-4">No reviews yet</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach((child) => {
+                const review = child.val();
+                const date = review.date ? new Date(review.date).toLocaleDateString() : 'N/A';
+                
+                html += `
+                    <tr>
+                        <td>${review.name || 'Anonymous'}</td>
+                        <td>${'★'.repeat(review.rating || 5)}</td>
+                        <td>${review.text || ''}</td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReview('${child.key}')">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            list.innerHTML = html;
+        });
+    }
+
+    function deleteReview(reviewId) {
+        if (confirm('Delete this review?')) {
+            database.ref('reviews/' + reviewId).remove()
+                .then(() => {
+                    alert('Review deleted');
+                    loadReviewsList();
+                })
+                .catch(err => alert('Error deleting review'));
+        }
+    }
+
+    // ========== SAVE FUNCTIONS ==========
+
+    function saveHeroSection() {
+        const data = {
+            tag: document.getElementById('heroTag').value,
+            title: document.getElementById('heroTitle').value,
+            text: document.getElementById('heroText').value,
+            btn_text: document.getElementById('heroBtnText').value,
+            btn_link: document.getElementById('heroBtnLink').value,
+            image: document.getElementById('heroImage').value
+        };
+        
+        database.ref('sections/hero').set(data)
+            .then(() => {
+                alert('Hero section saved successfully!');
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error saving hero section');
+            });
+    }
+
+    function saveBanners() {
+        const data = {
+            left: {
+                tag: document.getElementById('leftBannerTag').value,
+                title: document.getElementById('leftBannerTitle').value,
+                text: document.getElementById('leftBannerText').value,
+                image: document.getElementById('leftBannerImage').value
+            },
+            right: {
+                tag: document.getElementById('rightBannerTag').value,
+                title: document.getElementById('rightBannerTitle').value,
+                text: document.getElementById('rightBannerText').value,
+                image: document.getElementById('rightBannerImage').value
+            }
+        };
+        
+        database.ref('sections/banners').set(data)
+            .then(() => alert('Banners saved successfully!'))
+            .catch(err => alert('Error saving banners'));
+    }
+
+    function saveServices() {
+        const data = {};
+        for (let i = 1; i <= 4; i++) {
+            data[`service_${i}`] = {
+                icon: document.getElementById(`service${i}Icon`).value,
+                title: document.getElementById(`service${i}Title`).value,
+                desc: document.getElementById(`service${i}Desc`).value
+            };
+        }
+        
+        database.ref('sections/services').set(data)
+            .then(() => alert('Services saved successfully!'))
+            .catch(err => alert('Error saving services'));
+    }
+
+    function saveTrustBadges() {
+        const data = {};
+        for (let i = 1; i <= 4; i++) {
+            data[`trust_${i}`] = {
+                icon: document.getElementById(`trust${i}Icon`).value,
+                text: document.getElementById(`trust${i}Text`).value
+            };
+        }
+        
+        database.ref('sections/trust').set(data)
+            .then(() => alert('Trust badges saved successfully!'))
+            .catch(err => alert('Error saving trust badges'));
+    }
+
+    function saveFooter() {
+        const data = {
+            about_text: document.getElementById('footerAbout').value,
+            social: {
+                facebook: document.getElementById('socialFb').value,
+                instagram: document.getElementById('socialIg').value,
+                whatsapp: document.getElementById('socialWa').value,
+                linkedin: document.getElementById('socialLi').value,
+                youtube: document.getElementById('socialYt').value
+            },
+            contact: {
+                address: document.getElementById('contactAddress').value,
+                phone: document.getElementById('contactPhone').value,
+                email: document.getElementById('contactEmail').value,
+                hours: document.getElementById('contactHours').value
+            },
+            copyright: document.getElementById('copyrightText').value
+        };
+        
+        database.ref('sections/footer').set(data)
+            .then(() => alert('Footer saved successfully!'))
+            .catch(err => alert('Error saving footer'));
+    }
+
+    // Live preview for hero
+    function updateHeroPreview() {
+        document.getElementById('previewTag').innerText = document.getElementById('heroTag').value || 'CHINA TO BANGLADESH';
+        document.getElementById('previewTitle').innerHTML = document.getElementById('heroTitle').value || 'Global<br>Wholesale';
+        document.getElementById('previewText').innerText = document.getElementById('heroText').value || 'Premium sourcing with door-to-door shipping';
+        document.getElementById('previewBtn').innerText = document.getElementById('heroBtnText').value || 'SHOP NOW';
+    }
+
+    // Add event listeners for preview
+    document.getElementById('heroTag')?.addEventListener('input', updateHeroPreview);
+    document.getElementById('heroTitle')?.addEventListener('input', updateHeroPreview);
+    document.getElementById('heroText')?.addEventListener('input', updateHeroPreview);
+    document.getElementById('heroBtnText')?.addEventListener('input', updateHeroPreview);
 
     // ========== CATEGORIES ==========
     document.getElementById('saveCatBtn').onclick = async () => {
@@ -982,8 +2010,10 @@
                 `;
             });
             
-            totalElement.innerText = count;
-            document.getElementById('analyticsProducts').innerText = count;
+            if (totalElement) totalElement.innerText = count;
+            if (document.getElementById('analyticsProducts')) {
+                document.getElementById('analyticsProducts').innerText = count;
+            }
         });
     }
 
@@ -1132,7 +2162,9 @@
                 `;
             });
             
-            document.getElementById('activeCoupons').innerText = activeCount;
+            if (document.getElementById('activeCoupons')) {
+                document.getElementById('activeCoupons').innerText = activeCount;
+            }
         });
     }
 
@@ -1306,8 +2338,12 @@
                 list.innerHTML = '<tr><td colspan="7" class="text-center py-4">No pending verifications</td></tr>';
             }
 
-            document.getElementById('pendingPaymentCount').innerText = pendingCount;
-            document.getElementById('pendingVerificationCount').innerText = pendingCount;
+            if (document.getElementById('pendingPaymentCount')) {
+                document.getElementById('pendingPaymentCount').innerText = pendingCount;
+            }
+            if (document.getElementById('pendingVerificationCount')) {
+                document.getElementById('pendingVerificationCount').innerText = pendingCount;
+            }
         });
     }
 
@@ -1386,10 +2422,8 @@
         database.ref('orders').once('value', (snapshot) => {
             let totalOrders = 0;
             let pendingVerification = 0;
-            let processingCount = 0;
             let completedCount = 0;
             let totalRevenue = 0;
-            let advancePaymentsCount = 0;
             let todayOrders = 0;
             let recentOrders = [];
             const today = new Date().toDateString();
@@ -1399,14 +2433,9 @@
                 const order = child.val();
                 
                 if (order.payment?.status === 'pending') pendingVerification++;
-                if (order.status === 'processing') processingCount++;
                 if (order.status === 'completed') {
                     completedCount++;
                     totalRevenue += order.total || 0;
-                }
-                
-                if (order.payment?.method === 'cod_advance') {
-                    advancePaymentsCount++;
                 }
                 
                 if (new Date(order.created_at).toDateString() === today) {
@@ -1420,7 +2449,6 @@
 
             document.getElementById('totalOrders').innerText = totalOrders;
             document.getElementById('pendingVerificationCount').innerText = pendingVerification;
-            document.getElementById('processingCount').innerText = processingCount;
             document.getElementById('completedCount').innerText = completedCount;
             document.getElementById('totalRevenue').innerText = `৳${totalRevenue.toFixed(0)}`;
             document.getElementById('todayOrders').innerText = todayOrders;
@@ -1443,6 +2471,25 @@
                 `;
             });
         });
+        
+        // Load products count
+        database.ref('products').once('value', (snapshot) => {
+            document.getElementById('totalProducts').innerText = snapshot.numChildren();
+        });
+        
+        // Load coupons count
+        database.ref('coupons').once('value', (snapshot) => {
+            let activeCount = 0;
+            const now = new Date();
+            snapshot.forEach((child) => {
+                const coupon = child.val();
+                const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
+                if (coupon.status === 'active' && (!validUntil || validUntil > now)) {
+                    activeCount++;
+                }
+            });
+            document.getElementById('activeCoupons').innerText = activeCount;
+        });
     }
 
     // ========== ANALYTICS ==========
@@ -1453,7 +2500,6 @@
             let paymentMethods = { cod_advance: 0, full_payment: 0 };
             let orderStatus = { pending: 0, placed: 0, processing: 0, shipping: 0, completed: 0, cancelled: 0 };
             let productSales = {};
-            let advancePaymentsCount = 0;
             let couponUsageCount = 0;
 
             snapshot.forEach(child => {
@@ -1466,10 +2512,6 @@
                 
                 const method = order.payment?.method || 'cod_advance';
                 paymentMethods[method] = (paymentMethods[method] || 0) + 1;
-                
-                if (method === 'cod_advance') {
-                    advancePaymentsCount++;
-                }
                 
                 if (order.coupon) {
                     couponUsageCount++;
@@ -1488,7 +2530,6 @@
 
             document.getElementById('analyticsRevenue').innerHTML = `৳${totalRevenue.toFixed(0)}`;
             document.getElementById('analyticsOrders').innerText = totalOrders;
-            document.getElementById('advancePaymentsCount').innerText = advancePaymentsCount;
             document.getElementById('couponUsageCount').innerText = couponUsageCount;
 
             // Payment Methods Stats
@@ -1608,16 +2649,12 @@
 
     // Initialize
     function init() {
-        loadCategories();
-        loadProducts();
-        loadOrders('all');
-        loadPaymentVerification();
         loadDashboard();
-        loadAnalytics();
-        toggleDiscountFields();
+        // Default to dashboard
+        showSection('dashboard', document.querySelector('.nav-link.active'));
     }
 
     init();
 </script>
 </body>
-</html>
+                        </html>
