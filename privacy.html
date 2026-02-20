@@ -1,502 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NWS3D4GQZ1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-NWS3D4GQZ1');
-</script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | Espera Mavro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        :root {
-            --primary: #000000;
-            --accent: #ff385c;
-            --bg: #ffffff;
-            --light-bg: #f8f9fa;
-            --border: #eaeaea;
-            --text: #333333;
-            --text-light: #666666;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: var(--bg);
-            padding: 15px 5%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 20px;
-            text-decoration: none;
-            color: var(--primary);
-            letter-spacing: 1.5px;
-        }
-
-        .logo span {
-            color: var(--accent);
-        }
-
-        .back-btn {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #fff; color: #111; line-height: 1.6; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        h1 { font-size: 32px; font-weight: 800; margin-bottom: 5px; }
+        h1 span { color: #ff385c; }
+        .updated { color: #666; font-size: 14px; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        h2 { font-size: 22px; font-weight: 700; margin: 30px 0 15px; color: #000; }
+        p { margin-bottom: 15px; color: #444; font-size: 15px; }
+        ul { margin: 10px 0 15px 25px; }
+        li { margin-bottom: 8px; color: #444; font-size: 15px; }
+        .box { background: #f8f8f8; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #ff385c; }
+        .contact { background: #000; color: #fff; padding: 25px; border-radius: 12px; margin-top: 30px; }
+        .contact p { color: #ddd; margin-bottom: 8px; }
+        .contact i { color: #ff385c; width: 24px; display: inline-block; }
+        hr { border: none; border-top: 2px solid #eee; margin: 30px 0; }
+        .back { display: inline-block; margin-top: 20px; color: #ff385c; text-decoration: none; font-weight: 600; }
+        
+        .admin-edit-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #ff385c;
+            color: white;
+            border: none;
             border-radius: 50%;
-            background: var(--light-bg);
-            color: var(--primary);
-            text-decoration: none;
-            transition: 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #e0e0e0;
-        }
-
-        /* Main Content */
-        .privacy-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 30px 5% 60px;
-        }
-
-        .privacy-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .privacy-header h1 {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-
-        .privacy-header .last-updated {
-            color: var(--text-light);
-            font-size: 14px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-
-        .privacy-header .last-updated i {
-            color: var(--accent);
-        }
-
-        .privacy-section {
-            background: var(--bg);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-        }
-
-        .privacy-section h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--primary);
-        }
-
-        .privacy-section h2 i {
-            color: var(--accent);
-            font-size: 24px;
-        }
-
-        .privacy-section h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 20px 0 10px;
-            color: var(--primary);
-        }
-
-        .privacy-section p {
-            margin-bottom: 15px;
-            color: var(--text);
-            font-size: 15px;
-        }
-
-        .privacy-section ul, .privacy-section ol {
-            margin: 15px 0 15px 25px;
-        }
-
-        .privacy-section li {
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .privacy-section .note-box {
-            background: var(--light-bg);
-            border-left: 4px solid var(--accent);
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-
-        .privacy-section .note-box i {
-            color: var(--accent);
-            margin-right: 8px;
-        }
-
-        .highlight {
-            background: #fff3e0;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        .badge {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 30px;
-            margin-left: 10px;
-        }
-
-        .footer-note {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            background: var(--light-bg);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-            color: var(--text-light);
-        }
-
-        .footer-note a {
-            color: var(--accent);
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(255, 56, 92, 0.3);
+            transition: all 0.3s;
+            z-index: 999;
             text-decoration: none;
-            font-weight: 600;
         }
-
-        .footer-note a:hover {
-            text-decoration: underline;
-        }
-
-        .contact-info {
-            background: var(--primary);
-            color: white;
-            padding: 25px;
-            border-radius: 16px;
-            margin-top: 30px;
-        }
-
-        .contact-info h3 {
-            color: white !important;
-            margin-top: 0 !important;
-        }
-
-        .contact-info p {
-            color: rgba(255,255,255,0.9) !important;
-        }
-
-        .contact-info i {
-            color: var(--accent);
-            width: 24px;
-            margin-right: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .privacy-header h1 {
-                font-size: 28px;
-            }
-            
-            .privacy-section {
-                padding: 20px;
-            }
-            
-            .privacy-section h2 {
-                font-size: 20px;
-            }
+        
+        .admin-edit-float:hover {
+            transform: scale(1.1);
+            background: #e62e4e;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <a href="index.html" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
-        <div style="width: 40px;"></div>
-    </header>
+    <a href="admin.html?page=privacy" class="admin-edit-float" title="Edit this page in admin">
+        <i class="fas fa-edit"></i>
+    </a>
 
-    <div class="privacy-container">
-        <div class="privacy-header">
-            <h1>Privacy Policy</h1>
-            <div class="last-updated">
-                <i class="fas fa-calendar-alt"></i>
-                Last Updated: February 16, 2026
-            </div>
+    <div class="container">
+        <h1>ESPERA <span>MAVRO.</span></h1>
+        <div class="updated" id="lastUpdated">Last Updated: <span id="lastUpdatedDate">February 16, 2026</span></div>
+
+        <div id="privacyContent">
+            <!-- Content will be loaded from Firebase -->
+            <p>Loading...</p>
         </div>
 
-        <!-- Introduction -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-shield-alt"></i> Our Commitment to Privacy</h2>
-            <p>At <strong>Espera Mavro</strong>, your privacy is our priority. This Privacy Policy explains how we collect, use, and protect your information when you use our global sourcing and wholesale platform. We are committed to ensuring your data is handled securely and transparently.</p>
-            
-            <div class="note-box">
-                <i class="fas fa-handshake"></i> 
-                <strong>Our Promise:</strong> We never sell your personal information. We only share necessary data with trusted partners to fulfill your orders, and always in compliance with applicable data protection laws.
-            </div>
-            
-            <p>By accessing or using Espera Mavro, you consent to the practices described in this policy. If you do not agree, please refrain from using our services.</p>
-        </div>
-
-        <!-- 1. Information We Collect -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-database"></i> 1. Information We Collect</h2>
-            
-            <h3>1.1 Account Information</h3>
-            <p>When you create an account with Espera Mavro, we collect:</p>
-            <ul>
-                <li><i class="fas fa-user" style="color: var(--accent); width: 20px;"></i> <strong>Full name</strong> – for order processing and shipping</li>
-                <li><i class="fas fa-envelope" style="color: var(--accent); width: 20px;"></i> <strong>Email address</strong> – for account communication and order updates</li>
-                <li><i class="fas fa-phone" style="color: var(--accent); width: 20px;"></i> <strong>Phone number</strong> – for shipping coordination and support</li>
-                <li><i class="fas fa-lock" style="color: var(--accent); width: 20px;"></i> <strong>Password</strong> – securely encrypted for account access</li>
-                <li><i class="fas fa-credit-card" style="color: var(--accent); width: 20px;"></i> <strong>Billing details</strong> – for payment processing</li>
-            </ul>
-
-            <h3>1.2 Shipping Information</h3>
-            <p>To deliver your orders, we collect:</p>
-            <ul>
-                <li><i class="fas fa-map-marker-alt" style="color: var(--accent);"></i> Shipping address (street, city, postal code, country)</li>
-                <li><i class="fas fa-phone-alt" style="color: var(--accent);"></i> Recipient phone number</li>
-                <li><i class="fas fa-clock" style="color: var(--accent);"></i> Preferred delivery time (if provided)</li>
-            </ul>
-
-            <h3>1.3 Order Information</h3>
-            <p>When you place an order through Espera Mavro, we collect:</p>
-            <ul>
-                <li><i class="fas fa-box" style="color: var(--accent);"></i> Products purchased and quantities</li>
-                <li><i class="fas fa-tag" style="color: var(--accent);"></i> Price and order value</li>
-                <li><i class="fas fa-truck" style="color: var(--accent);"></i> Shipping preferences</li>
-                <li><i class="fas fa-sticky-note" style="color: var(--accent);"></i> Special instructions or notes</li>
-            </ul>
-
-            <h3>1.4 Technical Data</h3>
-            <p>When you visit our website, we automatically collect:</p>
-            <ul>
-                <li><i class="fas fa-globe" style="color: var(--accent);"></i> IP address and location data</li>
-                <li><i class="fas fa-laptop" style="color: var(--accent);"></i> Browser type and device information</li>
-                <li><i class="fas fa-chart-line" style="color: var(--accent);"></i> Pages visited and time spent</li>
-                <li><i class="fas fa-cookie-bite" style="color: var(--accent);"></i> Cookie data and preferences</li>
-            </ul>
-        </div>
-
-        <!-- 2. How We Use Your Information -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-cogs"></i> 2. How We Use Your Information</h2>
-            <p>Your information helps us provide and improve our services:</p>
-            
-            <div style="display: grid; gap: 15px; margin-top: 15px;">
-                <div style="display: flex; gap: 12px;">
-                    <i class="fas fa-check-circle" style="color: #4BB543; font-size: 20px;"></i>
-                    <div><strong>Order Processing:</strong> To process, fulfill, and ship your orders through our global sourcing network</div>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <i class="fas fa-check-circle" style="color: #4BB543; font-size: 20px;"></i>
-                    <div><strong>Account Management:</strong> To create and maintain your account, provide customer support</div>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <i class="fas fa-check-circle" style="color: #4BB543; font-size: 20px;"></i>
-                    <div><strong>Communication:</strong> To send order updates, shipping notifications, and respond to inquiries</div>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <i class="fas fa-check-circle" style="color: #4BB543; font-size: 20px;"></i>
-                    <div><strong>Improvement:</strong> To analyze usage patterns and enhance our platform features</div>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <i class="fas fa-check-circle" style="color: #4BB543; font-size: 20px;"></i>
-                    <div><strong>Security:</strong> To protect against fraud, unauthorized access, and maintain platform integrity</div>
-                </div>
-            </div>
-
-            <div class="note-box" style="margin-top: 20px;">
-                <i class="fas fa-info-circle"></i>
-                <strong>Important:</strong> To deliver your orders, we share necessary shipping information with our <span class="highlight">global fulfillment partners</span> who handle logistics and delivery. These partners are contractually bound to protect your data and use it only for order fulfillment.
-            </div>
-        </div>
-
-        <!-- 3. Information Sharing -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-share-alt"></i> 3. Information Sharing</h2>
-            <p><strong>We do not sell, rent, or trade your personal information.</strong> We only share data in these specific circumstances:</p>
-
-            <h3>3.1 Fulfillment Partners</h3>
-            <p>We work with trusted global logistics and fulfillment partners to deliver your orders. These partners receive:</p>
-            <ul>
-                <li>Name and contact details</li>
-                <li>Shipping address</li>
-                <li>Order contents</li>
-                <li>Tracking information</li>
-            </ul>
-            <p>Our partners are contractually required to use this information solely for order fulfillment and cannot use it for any other purpose.</p>
-
-            <h3>3.2 Payment Processors</h3>
-            <p>Payment transactions are handled by secure third-party payment processors. We do not store your complete payment card details. Payment processors are PCI-DSS compliant and follow strict security standards.</p>
-
-            <h3>3.3 Legal Compliance</h3>
-            <p>We may disclose information if required by law, regulation, or valid legal process (such as a court order or subpoena).</p>
-
-            <h3>3.4 Business Transfers</h3>
-            <p>In the event of a merger, acquisition, or sale of assets, your information may be transferred as part of the business transaction. You will be notified of any such change.</p>
-
-            <div class="note-box" style="background: #fff3e0; border-left-color: #ff9800;">
-                <i class="fas fa-shield"></i>
-                <strong>Note:</strong> We only share the minimum information necessary to fulfill your orders and provide our services.
-            </div>
-        </div>
-
-        <!-- 4. Data Security -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-lock"></i> 4. Data Security</h2>
-            <p>We implement robust security measures to protect your information:</p>
-            
-            <ul>
-                <li><i class="fas fa-shield-alt" style="color: var(--accent);"></i> <strong>Encryption:</strong> All data transmitted between your browser and our servers is encrypted using SSL/TLS technology</li>
-                <li><i class="fas fa-key" style="color: var(--accent);"></i> <strong>Access Control:</strong> Strict access controls ensure only authorized personnel can access personal data</li>
-                <li><i class="fas fa-server" style="color: var(--accent);"></i> <strong>Secure Storage:</strong> Data is stored in secure, monitored servers with firewall protection</li>
-                <li><i class="fas fa-sync-alt" style="color: var(--accent);"></i> <strong>Regular Audits:</strong> We regularly review and update our security practices</li>
-            </ul>
-
-            <p>While we take every precaution, no method of internet transmission is 100% secure. We strive to protect your data but cannot guarantee absolute security.</p>
-        </div>
-
-        <!-- 5. Your Rights -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-gavel"></i> 5. Your Rights</h2>
-            <p>Depending on your location, you may have the following rights:</p>
-
-            <div style="display: grid; gap: 12px;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <i class="fas fa-eye" style="color: var(--accent); width: 24px;"></i>
-                    <span><strong>Right to Access:</strong> Request a copy of your personal data</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <i class="fas fa-edit" style="color: var(--accent); width: 24px;"></i>
-                    <span><strong>Right to Rectification:</strong> Correct inaccurate or incomplete data</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <i class="fas fa-trash-alt" style="color: var(--accent); width: 24px;"></i>
-                    <span><strong>Right to Deletion:</strong> Request deletion of your data</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <i class="fas fa-ban" style="color: var(--accent); width: 24px;"></i>
-                    <span><strong>Right to Restrict:</strong> Limit how we use your data</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <i class="fas fa-download" style="color: var(--accent); width: 24px;"></i>
-                    <span><strong>Right to Portability:</strong> Receive your data in a portable format</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <i class="fas fa-times-circle" style="color: var(--accent); width: 24px;"></i>
-                    <span><strong>Right to Object:</strong> Object to certain data processing</span>
-                </div>
-            </div>
-
-            <p style="margin-top: 20px;">To exercise any of these rights, please contact us using the information below. We will respond within 30 days.</p>
-        </div>
-
-        <!-- 6. Cookies -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-cookie-bite"></i> 6. Cookies & Tracking</h2>
-            <p>Espera Mavro uses cookies and similar technologies to:</p>
-            <ul>
-                <li>Remember your login and preferences</li>
-                <li>Understand how you use our site</li>
-                <li>Improve site performance and user experience</li>
-                <li>Provide relevant product recommendations</li>
-            </ul>
-            <p>You can control cookie settings through your browser preferences. Disabling cookies may affect certain site functionality.</p>
-        </div>
-
-        <!-- 7. Children's Privacy -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-child"></i> 7. Children's Privacy</h2>
-            <p>Espera Mavro is not intended for users under 18. We do not knowingly collect information from minors. If you believe a minor has provided us with personal information, please contact us immediately.</p>
-        </div>
-
-        <!-- 8. International Data Transfers -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-globe-asia"></i> 8. International Data Transfers</h2>
-            <p>As a global sourcing platform, your information may be transferred and processed in countries where our fulfillment partners operate. These countries may have different data protection laws. By using Espera Mavro, you consent to such transfers.</p>
-            <p>We ensure appropriate safeguards are in place through contractual agreements with our partners.</p>
-        </div>
-
-        <!-- 9. Policy Updates -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-history"></i> 9. Policy Updates</h2>
-            <p>We may update this Privacy Policy periodically. Changes will be posted here with an updated "Last Updated" date. Significant changes will be notified via email or site notice. Continued use of Espera Mavro constitutes acceptance of the updated policy.</p>
-        </div>
-
-        <!-- 10. Contact Us -->
-        <div class="privacy-section">
-            <h2><i class="fas fa-headset"></i> 10. Contact Us</h2>
-            <p>If you have questions about this Privacy Policy or your data, please contact us:</p>
-            
-            <div class="contact-info">
-                <h3 style="color: white !important;"><i class="fas fa-envelope"></i> Email</h3>
-                <p><i class="fas fa-arrow-right"></i> support@esperamavro.com</p>
-                
-                <h3 style="color: white !important; margin-top: 15px;"><i class="fas fa-phone"></i> Phone</h3>
-                <p><i class="fas fa-arrow-right"></i> +880 1234-567890</p>
-                
-                <h3 style="color: white !important; margin-top: 15px;"><i class="fas fa-map-marker-alt"></i> Address</h3>
-                <p><i class="fas fa-arrow-right"></i> House 12, Road 5, Banani<br>Dhaka 1213, Bangladesh</p>
-                
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
-                    <p><i class="fas fa-clock"></i> Response Time: Within 48 hours</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Note -->
-        <div class="footer-note">
-            <i class="fas fa-heart" style="color: var(--accent);"></i> 
-            Thank you for trusting <strong>Espera Mavro</strong> with your business. We're committed to protecting your privacy.
-            <br><br>
-            <a href="index.html"><i class="fas fa-home"></i> Return to Home</a> &nbsp;|&nbsp; 
-            <a href="terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a>
-        </div>
+        <hr>
+        <p style="text-align:center; color:#888; font-size:13px;" id="copyright">© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.</p>
+        <a href="index.html" class="back">← Back to Home</a>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
+            authDomain: "espera-mavro-6ddc5.firebaseapp.com",
+            databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "espera-mavro-6ddc5",
+            storageBucket: "espera-mavro-6ddc5.appspot.com",
+            appId: "1:137893255543:web:a660bd412eb26ee322a972"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function loadPrivacy() {
+            database.ref('pages/privacy').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('lastUpdatedDate').innerText = data.lastUpdated || 'February 16, 2026';
+                document.getElementById('copyright').innerHTML = data.copyright || '© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.';
+                
+                const content = data.content || getDefaultContent();
+                document.getElementById('privacyContent').innerHTML = marked.parse(content);
+            });
+        }
+
+        function getDefaultContent() {
+            return `# Privacy Policy
+
+## Our Commitment to Privacy
+
+At **Espera Mavro**, your privacy is our priority. This Privacy Policy explains how we collect, use, and protect your information when you use our global sourcing and wholesale platform. We are committed to ensuring your data is handled securely and transparently.
+
+<div class="box">
+<strong>Our Promise:</strong> We never sell your personal information. We only share necessary data with trusted partners to fulfill your orders, and always in compliance with applicable data protection laws.
+</div>
+
+## 1. Information We Collect
+
+### 1.1 Account Information
+
+When you create an account with Espera Mavro, we collect:
+
+- **Full name** – for order processing and shipping
+- **Email address** – for account communication and order updates
+- **Phone number** – for shipping coordination and support
+- **Password** – securely encrypted for account access
+- **Billing details** – for payment processing
+
+### 1.2 Shipping Information
+
+To deliver your orders, we collect:
+
+- Shipping address (street, city, postal code, country)
+- Recipient phone number
+- Preferred delivery time (if provided)
+
+### 1.3 Order Information
+
+When you place an order through Espera Mavro, we collect:
+
+- Products purchased and quantities
+- Price and order value
+- Shipping preferences
+- Special instructions or notes
+
+## 2. How We Use Your Information
+
+Your information helps us provide and improve our services:
+
+- **Order Processing:** To process, fulfill, and ship your orders through our global sourcing network
+- **Account Management:** To create and maintain your account, provide customer support
+- **Communication:** To send order updates, shipping notifications, and respond to inquiries
+- **Improvement:** To analyze usage patterns and enhance our platform features
+- **Security:** To protect against fraud, unauthorized access, and maintain platform integrity
+
+## 3. Information Sharing
+
+**We do not sell, rent, or trade your personal information.** We only share data in these specific circumstances:
+
+- **Fulfillment Partners:** We share necessary shipping information with logistics partners who handle delivery
+- **Payment Processors:** Payment transactions are handled by secure third-party processors
+- **Legal Compliance:** We may disclose information if required by law
+
+## 4. Data Security
+
+We implement robust security measures to protect your information:
+
+- **Encryption:** All data transmitted is encrypted using SSL/TLS technology
+- **Access Control:** Strict access controls ensure only authorized personnel can access personal data
+- **Secure Storage:** Data is stored in secure, monitored servers with firewall protection
+
+## 5. Your Rights
+
+Depending on your location, you may have the following rights:
+
+- **Right to Access:** Request a copy of your personal data
+- **Right to Rectification:** Correct inaccurate or incomplete data
+- **Right to Deletion:** Request deletion of your data
+- **Right to Portability:** Receive your data in a portable format
+
+## 6. Contact Us
+
+<div class="contact">
+<p><span style="color:#ff385c;">✉️</span> <strong>Email:</strong> esperamavro@gmail.com</p>
+<p><span style="color:#ff385c;">📱</span> <strong>Phone:</strong> 01721383418</p>
+<p><span style="color:#ff385c;">🏠</span> <strong>Address:</strong> Dhaka, Bangladesh</p>
+</div>`;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+        script.onload = loadPrivacy;
+        document.head.appendChild(script);
+    </script>
 </body>
 </html>
