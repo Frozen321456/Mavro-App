@@ -2,817 +2,2684 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | ESPERA MAVRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ESPERA MAVRO | Premium Global Sourcing</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
         :root {
             --primary: #000000;
             --accent: #ff385c;
-            --bg: #f8f9fa;
-            --white: #ffffff;
-            --border: #eaeaea;
-            --text-light: #666666;
-            --success: #2e7d32;
-            --warning: #ed6c02;
-            --danger: #d32f2f;
-            --info: #0288d1;
+            --bg: #ffffff;
+            --secondary-bg: #f8f8f8;
+            --text-muted: #666;
+            --border: #e2e2e2;
+            --gold: #c5a059;
+            --soft-shadow: 0 8px 20px rgba(0,0,0,0.02);
         }
 
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--primary); overflow-x: hidden; }
+
+        /* Smooth scrolling for the whole page */
+        html {
+            scroll-behavior: smooth;
         }
 
-        /* Animated Background */
-        .bg-bubbles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+        /* fade-up animation */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
-
-        .bg-bubbles span {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            animation: animate 25s linear infinite;
-            bottom: -150px;
-            border-radius: 50%;
-        }
-
-        @keyframes animate {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-1000px) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
-        .login-container {
-            max-width: 450px;
-            width: 100%;
-            position: relative;
-            z-index: 2;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 50px 40px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo h1 {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -1px;
-            margin-bottom: 5px;
-        }
-
-        .logo span {
-            color: var(--accent);
-            position: relative;
-            display: inline-block;
-        }
-
-        .logo span::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--accent);
-            border-radius: 5px;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                width: 0;
-            }
-            to {
-                width: 100%;
-            }
-        }
-
-        .logo p {
-            color: var(--text-light);
-            font-size: 15px;
-            margin-top: 15px;
-            font-weight: 400;
-        }
-
-        .input-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 18px;
-            transition: 0.3s;
-            z-index: 1;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 18px 20px 18px 55px;
-            border: 2px solid var(--border);
-            border-radius: 50px;
-            font-size: 15px;
-            transition: 0.3s;
-            background: var(--white);
-            color: #333;
-            font-weight: 500;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(255, 56, 92, 0.1);
-        }
-
-        .input-group input:focus + .input-icon {
-            color: var(--accent);
-        }
-
-        .input-group input::placeholder {
-            color: #aaa;
-            font-weight: 400;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #999;
-            font-size: 18px;
-            transition: 0.3s;
-            z-index: 1;
-        }
-
-        .toggle-password:hover {
-            color: var(--accent);
-        }
-
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .remember input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--accent);
-        }
-
-        .remember label {
-            color: var(--text-light);
-            font-size: 14px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .forgot-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .forgot-link:hover {
-            color: #e62e4c;
-            text-decoration: underline;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
-        }
-
-        .login-btn:hover::before {
-            left: 100%;
-        }
-
-        .login-btn:hover {
-            background: #e62e4c;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 56, 92, 0.4);
-        }
-
-        .login-btn:active {
+        .fade-up.appeared {
+            opacity: 1;
             transform: translateY(0);
         }
 
-        .login-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        /* Section visibility */
+        .section-hidden {
+            display: none !important;
         }
 
-        .login-btn:disabled::before {
-            display: none;
-        }
+        /* --- Header --- */
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 4%; }
+        .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; text-decoration: none; color: #000; }
+        .logo span { color: var(--accent); }
+        
+        .nav-actions { display: flex; align-items: center; gap: 15px; }
+        .nav-icon { font-size: 18px; color: #000; cursor: pointer; position: relative; }
+        .cart-count { position: absolute; top: -8px; right: -10px; background: var(--accent); color: #fff; font-size: 8px; font-weight: 800; padding: 2px 5px; border-radius: 50px; }
 
-        .message {
-            padding: 15px 20px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 25px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            animation: slideDown 0.3s ease;
-        }
+        /* --- Search Bar --- */
+        .search-wrapper { width: 100%; padding: 75px 4% 10px; background: #fff; }
+        .search-inner { position: relative; }
+        .search-inner input { width: 100%; padding: 10px 40px 10px 15px; border-radius: 25px; border: 1px solid var(--border); font-size: 13px; background: var(--secondary-bg); }
+        .search-inner input:focus { border-color: var(--primary); background: #fff; outline: none; }
+        .search-inner button { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); background: var(--primary); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 12px; }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* --- Hero --- */
+        .hero { position: relative; height: 200px; background: #111; display: flex; align-items: center; overflow: hidden; }
+        .hero-content { padding: 0 4%; color: #fff; z-index: 2; width: 100%; }
+        .hero-tag { color: var(--gold); font-weight: 600; font-size: 9px; margin-bottom: 5px; display: block; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 28px; line-height: 1.1; margin-bottom: 5px; }
+        .hero p { font-size: 12px; opacity: 0.7; margin-bottom: 10px; width: 70%; }
+        .hero-btn { padding: 8px 20px; background: #fff; color: #000; text-decoration: none; font-weight: 600; border-radius: 25px; font-size: 11px; display: inline-block; }
+        .hero-img { position: absolute; right: 0; bottom: 0; width: 55%; height: 100%; object-fit: cover; opacity: 0.4; }
 
-        .message.show {
+        /* ===== BLACK & WHITE CATEGORY CARDS ===== */
+        .section-header { 
+            padding: 25px 4% 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .section-header h2 { 
+            font-size: 18px; 
+            font-weight: 800; 
             display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-header a { 
+            font-size: 10px; 
+            font-weight: 600; 
+            color: #666; 
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .section-header a:hover {
+            color: var(--accent);
+        }
+        
+        /* Category Grid - Black & White */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 0 4% 20px;
+        }
+        
+        .cat-grid-item {
+            background: #fff;
+            border-radius: 16px;
+            padding: 14px 4px 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #000;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid #eaeaea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cat-grid-item i { 
+            font-size: 28px; 
+            color: #333; 
+            margin-bottom: 6px; 
+            display: block;
+            transition: all 0.3s ease;
+            filter: grayscale(100%);
+        }
+        
+        .cat-grid-item span { 
+            font-size: 10px; 
+            font-weight: 600;
+            display: block;
+            color: #444;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+        
+        .cat-grid-item:hover {
+            border-color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+        }
+        
+        .cat-grid-item:hover i {
+            filter: grayscale(0%);
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+        
+        .cat-grid-item:hover span {
+            color: #000;
+            font-weight: 700;
+        }
+        
+        .cat-grid-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #000;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .cat-grid-item:hover::after {
+            width: 30px;
         }
 
-        .message.error {
-            background: #ffebee;
-            color: var(--danger);
-            border-left: 4px solid var(--danger);
+        /* ===== PROFESSIONAL FEATURED PRODUCTS SLIDER ===== */
+        .products-section {
+            position: relative;
+            padding: 10px 4% 30px;
+            background: #fafafa;
+            margin: 20px 4% 10px;
+            border-radius: 28px;
+            overflow: hidden;
         }
-
-        .message.success {
-            background: #e8f5e9;
-            color: var(--success);
-            border-left: 4px solid var(--success);
+        
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0 15px;
         }
-
-        .message.info {
-            background: #e3f2fd;
-            color: var(--info);
-            border-left: 4px solid var(--info);
-        }
-
-        .message i {
+        
+        .products-header h2 {
             font-size: 18px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+        
+        .products-header h2 i {
+            color: var(--accent);
+            font-size: 16px;
+        }
+        
+        .slider-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .slider-btn {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .security-badge {
+            background: white;
+            border: 1px solid #eaeaea;
+            color: #333;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            color: var(--text-light);
-            font-size: 13px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-
-        .security-badge i {
-            color: var(--success);
-            font-size: 16px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 25px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 13px;
-        }
-
-        .footer a {
+        
+        .slider-btn:hover {
+            background: #000;
             color: white;
-            text-decoration: none;
-            font-weight: 600;
-            transition: 0.3s;
+            border-color: #000;
+            transform: scale(1.05);
+        }
+        
+        .slider-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .slider-btn i {
+            font-size: 14px;
+        }
+        
+        .slider-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
-        .footer a:hover {
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            margin: 5px 0 15px;
+        }
+
+        .product-slider {
+            display: flex;
+            gap: 12px;
+            transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.15, 1.05);
+            will-change: transform;
+        }
+
+        .p-card { 
+            flex: 0 0 calc(33.333% - 8px);
+            max-width: calc(33.333% - 8px);
+            background: #fff; 
+            border-radius: 20px;
+            border: 1px solid #f0f0f0;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .p-card .p-price,
+        .p-card .sale,
+        .p-card .original,
+        .p-card .wholesale-info {
+            display: none;
+        }
+        
+        .p-card .image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #f8f8f8;
+            position: relative;
+        }
+
+        .p-card .image-container img { 
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .p-card .product-info {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            width: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(5px);
+            padding: 10px 8px;
+            transition: bottom 0.3s ease;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .p-card:hover .product-info {
+            bottom: 0;
+        }
+        
+        .p-card h3 { 
+            font-size: 11px; 
+            font-weight: 600; 
+            margin-bottom: 2px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            line-height: 1.3;
+            color: #333;
+            text-align: center;
+        }
+        
+        .p-card .product-badge {
+            display: inline-block;
+            background: #000;
+            color: white;
+            font-size: 7px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+        
+        .p-badge { 
+            position: absolute; 
+            top: 8px; 
+            left: 8px; 
+            background: #000; 
+            color: #fff; 
+            font-size: 7px; 
+            font-weight: 700; 
+            padding: 2px 8px; 
+            border-radius: 20px; 
+            z-index: 10; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            letter-spacing: 0.3px;
+        }
+        
+        .p-card:hover .image-container img {
+            transform: scale(1.08);
+        }
+        
+        .p-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.06);
+            border-color: #e0e0e0;
+        }
+
+        /* ===== FLASH SALE ===== */
+        .flash-sale {
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+            margin: 20px 4%;
+            border-radius: 28px;
+            padding: 25px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .flash-sale-content h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .flash-sale-content p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 10px;
+        }
+
+        .countdown-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            padding: 8px 12px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .countdown-item span {
+            display: block;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .countdown-item small {
+            font-size: 8px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        /* ===== BRAND STRIP ===== */
+        .brand-strip {
+            padding: 30px 4%;
+            background: #fafafa;
+            margin: 20px 0;
+        }
+
+        .brand-strip h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .brand-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .brand-item {
+            background: white;
+            padding: 15px 5px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .brand-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+        }
+
+        .brand-item i {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .brand-item span {
+            font-size: 11px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        /* ===== DEAL OF THE DAY ===== */
+        .deal-section {
+            padding: 0 4% 20px;
+        }
+
+        .deal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .deal-card {
+            background: #fafafa;
+            border-radius: 20px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deal-card.large {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .deal-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--accent);
+            color: white;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .deal-content h4 {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .deal-content p {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .deal-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .deal-price small {
+            font-size: 11px;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 5px;
+            font-weight: 400;
+        }
+
+        .deal-progress {
+            background: #ddd;
+            height: 4px;
+            border-radius: 10px;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .deal-progress-bar {
+            width: 75%;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .deal-stock {
+            font-size: 9px;
+            color: #666;
+        }
+
+        .deal-product-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        /* ===== BANNER ROW ===== */
+        .banner-row {
+            display: flex;
+            gap: 8px;
+            padding: 0 4% 20px;
+        }
+        .banner-half {
+            flex: 1;
+            background: #f1f0f0;
+            border-radius: 20px;
+            padding: 18px 12px;
+            min-height: 100px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--soft-shadow);
+        }
+        .banner-half::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 80%);
+            z-index: 1;
+        }
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .banner-content .tag {
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 50px;
+            width: fit-content;
+            margin-bottom: 4px;
+        }
+        .banner-content h4 { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+        .banner-content p { font-size: 9px; opacity: 0.9; }
+
+        /* ===== WHY CHOOSE US ===== */
+        .why-choose {
+            padding: 40px 4%;
+            background: #fafafa;
+            margin: 30px 0;
+        }
+
+        .why-choose h3 {
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .feature-item {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+        }
+
+        .feature-icon i {
+            font-size: 24px;
             color: var(--accent);
         }
 
-        /* Quick Access Demo Credentials */
-        .demo-credentials {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+        .feature-item h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 5px;
         }
 
-        .demo-credentials p {
-            color: white;
-            font-size: 13px;
-            margin-bottom: 8px;
+        .feature-item p {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* ===== SERVICE STRIP ===== */
+        .service-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 0 4% 25px;
+        }
+        .service-card {
+            background: var(--secondary-bg);
+            border-radius: 20px;
+            padding: 18px 4px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--soft-shadow);
+        }
+        .service-card i { font-size: 22px; color: #000; margin-bottom: 6px; }
+        .service-card h5 { font-size: 11px; font-weight: 800; margin-bottom: 4px; }
+        .service-card p { font-size: 7px; color: #555; }
+
+        /* ===== BLOG SECTION ===== */
+        .blog-section {
+            padding: 30px 4%;
+            background: #fafafa;
+            margin: 20px 0;
+        }
+
+        .blog-section h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .blog-image {
+            height: 120px;
+            background: #ddd;
+            position: relative;
+        }
+
+        .blog-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blog-date {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        .blog-content {
+            padding: 15px;
+        }
+
+        .blog-content h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .blog-content p {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .blog-link {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ===== TRUST BADGES ===== */
+        .trust-badge-row {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 4% 25px;
+            background: #fafafa;
+            margin: 0 4% 20px;
+            border-radius: 40px;
+        }
+        .trust-item {
+            text-align: center;
+        }
+        .trust-item i { font-size: 22px; color: #2e7d32; }
+        .trust-item span { display: block; font-size: 9px; font-weight: 600; margin-top: 4px; }
+
+        /* ===== INSTAGRAM FEED ===== */
+        .instagram-feed {
+            padding: 30px 4%;
+        }
+
+        .instagram-feed h3 {
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .insta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .insta-item {
+            aspect-ratio: 1;
+            background: #f0f0f0;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .insta-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .insta-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .demo-credentials small {
-            color: rgba(255, 255, 255, 0.7);
+        .insta-item:hover .insta-overlay {
+            opacity: 1;
+        }
+
+        .insta-overlay i {
+            color: white;
+            font-size: 20px;
+        }
+
+        /* ===== REVIEW FORM ===== */
+        .review-form-section {
+            padding: 20px 4% 30px;
+            background: #fafafa;
+            margin: 10px 4% 20px;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+        }
+        .review-form-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .review-form-group {
+            margin-bottom: 14px;
+        }
+        .review-form-group label {
+            font-size: 11px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+            color: #333;
+        }
+        .review-form-group input, 
+        .review-form-group textarea,
+        .review-form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            background: white;
+        }
+        .review-form-group textarea {
+            border-radius: 20px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .rating-stars {
+            display: flex;
+            gap: 10px;
+            font-size: 28px;
+            color: #ccc;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        .rating-stars i {
+            transition: color 0.2s;
+        }
+        .rating-stars i.selected {
+            color: #f5b342;
+        }
+        .rating-stars i:hover {
+            color: #f5b342;
+        }
+        .submit-review-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 13px;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        /* ===== REVIEWS DISPLAY ===== */
+        .review-scroll {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding: 0 4% 25px;
+            scrollbar-width: none;
+        }
+        .review-scroll::-webkit-scrollbar { display: none; }
+        .review-card {
+            flex: 0 0 70%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 22px 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        }
+        .review-stars { color: #f5b342; font-size: 14px; margin-bottom: 8px; }
+        .review-text { font-size: 12px; font-weight: 400; margin-bottom: 16px; line-height: 1.5; }
+        .reviewer { display: flex; align-items: center; gap: 10px; }
+        .reviewer img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
+        .reviewer strong { font-size: 12px; }
+        .review-date { font-size: 8px; color: #aaa; margin-left: auto; }
+
+        /* ===== APP DOWNLOAD BANNER ===== */
+        .app-banner {
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+            margin: 20px 4%;
+            border-radius: 28px;
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .app-content h3 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .app-content p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .app-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .app-btn {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .app-btn i {
+            font-size: 16px;
+        }
+
+        .app-qr {
+            background: white;
+            padding: 10px;
+            border-radius: 16px;
+        }
+
+        .app-qr img {
+            width: 60px;
+            height: 60px;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1999; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: all; }
+        .sidebar { position: fixed; top: 0; left: -100%; width: 260px; height: 100%; background: #fff; z-index: 2000; transition: 0.3s; padding: 35px 20px; overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar-close { position: absolute; right: 12px; top: 12px; font-size: 18px; cursor: pointer; }
+        .side-links { margin-top: 35px; }
+        .side-links a { display: block; font-size: 16px; font-weight: 700; color: #000; text-decoration: none; margin-bottom: 15px; }
+        .side-cats-title { margin-top: 25px; font-size: 10px; font-weight: 700; color: #888; letter-spacing: 1px; margin-bottom: 12px; }
+        .side-cat-list a { display: block; font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #444; text-decoration: none; }
+        .side-cat-list a i { width: 18px; margin-right: 6px; color: var(--accent); font-size: 12px; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #0a0a0a;
+            color: #fff;
+            margin-top: 60px;
+            position: relative;
+            border-top: 1px solid #222;
+        }
+
+        .footer-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 5% 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer-col h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #ff385c;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .footer-logo span {
+            color: #ff385c;
+        }
+
+        .footer-about {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-social a {
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .footer-social a:hover {
+            background: #ff385c;
+            transform: translateY(-3px);
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a i {
+            font-size: 10px;
+            color: #ff385c;
+        }
+
+        .footer-links a:hover {
+            color: #ff385c;
+            transform: translateX(5px);
+        }
+
+        .footer-contact {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .footer-contact li i {
+            color: #ff385c;
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .footer-contact a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-contact a:hover {
+            color: #ff385c;
+        }
+
+        .footer-payment {
+            margin-top: 20px;
+        }
+
+        .footer-payment h5 {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .payment-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .payment-icons i {
+            font-size: 28px;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .payment-icons i:hover {
+            color: #ff385c;
+        }
+
+        /* Newsletter Section */
+        .footer-newsletter {
+            background: #111;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .newsletter-content h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .newsletter-content p {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: #ff385c;
+        }
+
+        .newsletter-form button {
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: none;
+            background: #ff385c;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .newsletter-form button:hover {
+            background: #e62e4e;
+            transform: translateY(-2px);
+        }
+
+        /* Bottom Footer */
+        .footer-bottom {
+            border-top: 1px solid #222;
+            padding: 20px 5%;
+            background: #050505;
+        }
+
+        .footer-bottom-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .footer-copyright {
+            color: #666;
             font-size: 12px;
         }
 
+        .footer-legal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-legal a {
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+
+        .footer-legal a:hover {
+            color: #ff385c;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: #ff385c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(255, 56, 92, 0.3);
+            transition: all 0.3s;
+            z-index: 99;
+        }
+
+        .scroll-top:hover {
+            background: #e62e4e;
+            transform: translateY(-3px);
+        }
+
+        .scroll-top.show {
+            display: flex;
+        }
+
+        .loading { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+
         /* Responsive */
+        @media (min-width: 768px) {
+            .p-card { 
+                flex: 0 0 calc(25% - 9px);
+                max-width: calc(25% - 9px);
+            }
+            .cat-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        
+        @media (max-width: 767px) and (min-width: 481px) {
+            .p-card { 
+                flex: 0 0 calc(50% - 6px);
+                max-width: calc(50% - 6px);
+            }
+            .features-grid,
+            .brand-grid,
+            .insta-grid,
+            .blog-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .cat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         @media (max-width: 480px) {
-            .login-card {
-                padding: 40px 25px;
+            .p-card { 
+                flex: 0 0 100%;
+                max-width: 100%;
             }
-
-            .logo h1 {
-                font-size: 30px;
+            .features-grid,
+            .brand-grid,
+            .insta-grid,
+            .blog-grid,
+            .deal-grid,
+            .service-strip {
+                grid-template-columns: 1fr;
             }
-
-            .remember-forgot {
+            .deal-card.large {
+                grid-column: span 1;
                 flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
             }
+            .cat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .slider-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 15px;
+        }
+
+        .pagination-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 10px;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .pagination-dot.active {
+            background: #000;
+            width: 20px;
+        }
+
+        .pagination-dot:hover {
+            background: #999;
         }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-bubbles">
-        <span style="width: 20px; height: 20px; left: 10%; animation-duration: 15s;"></span>
-        <span style="width: 40px; height: 40px; left: 20%; animation-duration: 20s; animation-delay: 2s;"></span>
-        <span style="width: 60px; height: 60px; left: 35%; animation-duration: 25s; animation-delay: 4s;"></span>
-        <span style="width: 30px; height: 30px; left: 50%; animation-duration: 18s; animation-delay: 1s;"></span>
-        <span style="width: 80px; height: 80px; left: 70%; animation-duration: 22s; animation-delay: 3s;"></span>
-        <span style="width: 25px; height: 25px; left: 85%; animation-duration: 16s; animation-delay: 5s;"></span>
+
+    <header class="header">
+        <div class="nav-icon" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></div>
+        <a href="index.html" class="logo">ESPERA <span>MAVRO.</span></a>
+        <div class="nav-actions">
+            <i class="fa-solid fa-magnifying-glass nav-icon" onclick="document.getElementById('searchInput').focus()"></i>
+            <a href="cart.html" class="nav-icon">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-close" onclick="toggleMenu()"><i class="fa-solid fa-xmark"></i></div>
+        <div class="side-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="track-order.html">Track Order</a>
+            <a href="cart.html">Cart</a>
+            <a href="#deals">Hot Deals</a>
+            <a href="#new">New Arrivals</a>
+        </div>
+        <div class="side-cats-title">CATEGORIES</div>
+        <div class="side-cat-list" id="sideCats"></div>
     </div>
 
-    <div class="login-container">
-        <div class="login-card">
-            <div class="logo">
-                <h1>ESPERA <span>MAVRO</span></h1>
-                <p>Admin Panel Login</p>
+    <div class="search-wrapper">
+        <div class="search-inner">
+            <input type="text" id="searchInput" placeholder="Search products..." onkeyup="handleSearch(event)">
+            <button onclick="doSearch()"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- hero section -->
+    <section class="hero fade-up" id="hero-section">
+        <div class="hero-content">
+            <span class="hero-tag" id="hero-tag">CHINA TO BANGLADESH</span>
+            <h1 id="hero-title">Global<br>Wholesale</h1>
+            <p id="hero-text">Premium sourcing with door-to-door shipping</p>
+            <a href="shop.html" class="hero-btn" id="hero-btn-text">SHOP NOW</a>
+        </div>
+        <img src="" class="hero-img" id="hero-image" alt="hero" loading="lazy">
+    </section>
+
+    <!-- Category Grid -->
+    <section class="section-header fade-up" id="category-header">
+        <h2><i class="fa-regular fa-grid-2"></i> Shop by Category</h2>
+        <a href="shop.html">View All →</a>
+    </section>
+    <div class="cat-grid fade-up" id="featuredCatGrid"></div>
+
+    <!-- Flash Sale Banner -->
+    <div class="flash-sale fade-up" id="flash-sale-section">
+        <div class="flash-sale-content">
+            <h3 id="flash-sale-title">⚡ FLASH SALE</h3>
+            <p id="flash-sale-text">Up to 70% off on selected items</p>
+        </div>
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <span id="hours">12</span>
+                <small>Hours</small>
             </div>
-
-            <!-- Error Message -->
-            <div id="errorMessage" class="message error">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText"></span>
+            <div class="countdown-item">
+                <span id="minutes">30</span>
+                <small>Mins</small>
             </div>
-
-            <!-- Success Message -->
-            <div id="successMessage" class="message success">
-                <i class="fas fa-check-circle"></i>
-                <span id="successText"></span>
-            </div>
-
-            <!-- Info Message -->
-            <div id="infoMessage" class="message info">
-                <i class="fas fa-info-circle"></i>
-                <span id="infoText"></span>
-            </div>
-
-            <!-- Demo Credentials (Optional - can remove in production) -->
-            <div class="demo-credentials">
-                <p><i class="fas fa-info-circle"></i> Demo Credentials:</p>
-                <small>Email: admin@espera.com</small><br>
-                <small>Password: admin123</small>
-            </div>
-
-            <!-- Login Form -->
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <i class="fas fa-envelope input-icon"></i>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        placeholder="Email Address" 
-                        required 
-                        autocomplete="email"
-                        value="admin@espera.com"
-                    >
-                </div>
-
-                <div class="input-group">
-                    <i class="fas fa-lock input-icon"></i>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder="Password" 
-                        required 
-                        autocomplete="current-password"
-                        value="admin123"
-                    >
-                    <i class="fas fa-eye toggle-password" onclick="togglePassword()" id="togglePassword"></i>
-                </div>
-
-                <div class="remember-forgot">
-                    <label class="remember">
-                        <input type="checkbox" id="rememberMe" checked>
-                        <label for="rememberMe">Remember me</label>
-                    </label>
-                    <a href="#" class="forgot-link" onclick="forgotPassword(event)">
-                        <i class="fas fa-key"></i> Forgot Password?
-                    </a>
-                </div>
-
-                <button type="submit" class="login-btn" id="loginBtn">
-                    <span>Login to Dashboard</span>
-                </button>
-
-                <div class="security-badge">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Secured by Firebase Authentication</span>
-                    <i class="fas fa-lock"></i>
-                </div>
-            </form>
-
-            <div class="footer">
-                &copy; 2024 ESPERA MAVRO. All rights reserved.
-                <br>
-                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+            <div class="countdown-item">
+                <span id="seconds">45</span>
+                <small>Secs</small>
             </div>
         </div>
     </div>
 
+    <!-- Featured Products Slider -->
+    <section class="products-section fade-up" id="featured-products-section">
+        <div class="products-header">
+            <h2>
+                <i class="fa-regular fa-star"></i>
+                <span id="featured-title">Featured Products</span>
+            </h2>
+            <div class="slider-controls">
+                <button class="slider-btn" id="prevSlide" onclick="slideProducts('prev')" aria-label="Previous products">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="slider-btn" id="nextSlide" onclick="slideProducts('next')" aria-label="Next products">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="slider-container">
+            <div class="product-slider" id="productSlider">
+                <div class="loading">Loading products...</div>
+            </div>
+        </div>
+        
+        <div class="slider-pagination" id="sliderPagination"></div>
+    </section>
+
+    <!-- Deal of the Day -->
+    <section class="deal-section fade-up" id="deals-section">
+        <div class="section-header">
+            <h2><i class="fa-regular fa-clock"></i> <span id="deal-title">Deal of the Day</span></h2>
+            <a href="#" id="deal-view-all">View All →</a>
+        </div>
+        <div class="deal-grid" id="deal-grid">
+            <!-- Deals will be loaded here -->
+        </div>
+    </section>
+
+    <!-- Brand Strip -->
+    <div class="brand-strip fade-up" id="brand-section">
+        <h3 id="brand-title">Top Brands</h3>
+        <div class="brand-grid" id="brand-grid">
+            <!-- Brands will be loaded here -->
+        </div>
+    </div>
+
+    <!-- banner row -->
+    <div class="banner-row fade-up" id="banner-section">
+        <div class="banner-half" id="banner-left" style="background-image: url('');">
+            <div class="banner-content">
+                <span class="tag" id="banner-left-tag">SUMMER 26</span>
+                <h4 id="banner-left-title">Essentials</h4>
+                <p id="banner-left-text">up to 40% off</p>
+            </div>
+        </div>
+        <div class="banner-half" id="banner-right" style="background-image: url('');">
+            <div class="banner-content">
+                <span class="tag" id="banner-right-tag">BAGS</span>
+                <h4 id="banner-right-title">Leather</h4>
+                <p id="banner-right-text">wholesale price</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Choose Us -->
+    <div class="why-choose fade-up" id="why-choose-section">
+        <h3 id="why-choose-title">Why Choose Espera Mavro?</h3>
+        <div class="features-grid" id="features-grid">
+            <!-- Features will be loaded here -->
+        </div>
+    </div>
+
+    <!-- service strip -->
+    <div class="service-strip fade-up" id="service-section">
+        <div class="service-card" id="service-1">
+            <i class="fa-solid fa-truck-fast" id="service-1-icon"></i>
+            <h5 id="service-1-title">Door-to-Door</h5>
+            <p id="service-1-desc">China-BD express</p>
+        </div>
+        <div class="service-card" id="service-2">
+            <i class="fa-solid fa-hand-holding-dollar" id="service-2-icon"></i>
+            <h5 id="service-2-title">Wholesale</h5>
+            <p id="service-2-desc">low MOQ</p>
+        </div>
+        <div class="service-card" id="service-3">
+            <i class="fa-solid fa-shield" id="service-3-icon"></i>
+            <h5 id="service-3-title">Secure Payment</h5>
+            <p id="service-3-desc">escrow available</p>
+        </div>
+        <div class="service-card" id="service-4">
+            <i class="fa-solid fa-clock" id="service-4-icon"></i>
+            <h5 id="service-4-title">24/7 Support</h5>
+            <p id="service-4-desc">chat with us</p>
+        </div>
+    </div>
+
+    <!-- Blog Section -->
+    <section class="blog-section fade-up" id="blog-section">
+        <div class="section-header">
+            <h2><i class="fa-regular fa-newspaper"></i> <span id="blog-title">Latest from Blog</span></h2>
+            <a href="#" id="blog-view-all">Read All →</a>
+        </div>
+        <div class="blog-grid" id="blog-grid">
+            <!-- Blog posts will be loaded here -->
+        </div>
+    </section>
+
+    <!-- Trust badges -->
+    <div class="trust-badge-row fade-up" id="trust-section">
+        <div class="trust-item" id="trust-1"><i class="fa-regular fa-circle-check"></i><span>Verified</span></div>
+        <div class="trust-item" id="trust-2"><i class="fa-regular fa-gem"></i><span>Premium</span></div>
+        <div class="trust-item" id="trust-3"><i class="fa-regular fa-credit-card"></i><span>Secure</span></div>
+        <div class="trust-item" id="trust-4"><i class="fa-regular fa-clock"></i><span>Fast</span></div>
+    </div>
+
+    <!-- Instagram Feed -->
+    <div class="instagram-feed fade-up" id="instagram-section">
+        <h3 id="instagram-title">Follow Us @esperamavro</h3>
+        <div class="insta-grid" id="insta-grid">
+            <!-- Instagram posts will be loaded here -->
+        </div>
+    </div>
+
+    <!-- REVIEW FORM -->
+    <div class="review-form-section fade-up" id="review-form-section">
+        <div class="review-form-title">✨ Share your experience</div>
+        <div class="success-message" id="reviewSuccess">Thank you! Your review has been posted.</div>
+        
+        <div class="review-form-group">
+            <label>Your name *</label>
+            <input type="text" id="reviewerName" placeholder="e.g. Tanvir Ahmed" required>
+        </div>
+
+        <div class="review-form-group">
+            <label>Rating *</label>
+            <div class="rating-stars" id="starRatingWidget">
+                <i class="fa-regular fa-star" data-value="1"></i>
+                <i class="fa-regular fa-star" data-value="2"></i>
+                <i class="fa-regular fa-star" data-value="3"></i>
+                <i class="fa-regular fa-star" data-value="4"></i>
+                <i class="fa-regular fa-star" data-value="5"></i>
+            </div>
+            <input type="hidden" id="ratingValue" value="0">
+        </div>
+
+        <div class="review-form-group">
+            <label>Your review *</label>
+            <textarea id="reviewText" placeholder="What did you like or dislike?"></textarea>
+        </div>
+
+        <button class="submit-review-btn" onclick="submitReview()">POST REVIEW</button>
+    </div>
+
+    <!-- Customer Reviews Display -->
+    <section class="section-header fade-up" id="reviews-header">
+        <h2>Customer reviews</h2>
+        <span><i class="fa-solid fa-star" style="color: var(--gold);"></i> <span id="averageRating">4.8</span></span>
+    </section>
+    <div class="review-scroll fade-up" id="reviewContainer">
+        <div class="loading">Loading reviews...</div>
+    </div>
+
+    <!-- App Download Banner -->
+    <div class="app-banner fade-up" id="app-section">
+        <div class="app-content">
+            <h3 id="app-title">Download Our App</h3>
+            <p id="app-text">Get exclusive app-only deals and faster checkout</p>
+            <div class="app-buttons" id="app-buttons">
+                <a href="#" class="app-btn" id="app-store-btn">
+                    <i class="fab fa-apple"></i>
+                    App Store
+                </a>
+                <a href="#" class="app-btn" id="play-store-btn">
+                    <i class="fab fa-google-play"></i>
+                    Google Play
+                </a>
+            </div>
+        </div>
+        <div class="app-qr" id="app-qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=esperamavro.com" alt="QR Code">
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-main">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">ESPERA <span>MAVRO.</span></div>
+                    <p class="footer-about" id="footer-about-text">Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.</p>
+                    <div class="footer-social" id="footer-social">
+                        <a href="#" aria-label="Facebook" id="social-fb"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram" id="social-ig"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="WhatsApp" id="social-wa"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" aria-label="LinkedIn" id="social-li"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="YouTube" id="social-yt"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links" id="footer-quick-links">
+                        <li><a href="index.html"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="shop.html"><i class="fas fa-chevron-right"></i> Shop</a></li>
+                        <li><a href="track-order.html"><i class="fas fa-chevron-right"></i> Track Order</a></li>
+                        <li><a href="cart.html"><i class="fas fa-chevron-right"></i> Cart</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Wholesale</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul class="footer-links" id="footerCategories">
+                        <li><i class="fas fa-spinner fa-spin"></i> Loading...</li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-contact" id="footer-contact">
+                        <li id="contact-address"><i class="fas fa-map-marker-alt"></i> Dhaka, Bangladesh</li>
+                        <li id="contact-phone"><i class="fas fa-phone-alt"></i> <a href="tel:+8801721383418">+880 1721-383418</a></li>
+                        <li id="contact-email"><i class="fas fa-envelope"></i> <a href="mailto:esperamavro@gmail.com">esperamavro@gmail.com</a></li>
+                        <li id="contact-hours"><i class="fas fa-clock"></i> Support: 24/7</li>
+                    </ul>
+                    
+                    <div class="footer-payment">
+                        <h5>We Accept</h5>
+                        <div class="payment-icons" id="payment-icons">
+                            <i class="fab fa-cc-visa" title="Visa"></i>
+                            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                            <i class="fab fa-cc-amex" title="American Express"></i>
+                            <i class="fab fa-cc-paypal" title="PayPal"></i>
+                            <i class="fab fa-bkash" title="bKash"></i>
+                            <i class="fas fa-credit-card" title="Nagad"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-newsletter">
+                <div class="newsletter-content">
+                    <h4>Subscribe to Our Newsletter</h4>
+                    <p>Get updates on new collections, exclusive deals, and wholesale offers</p>
+                </div>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); subscribeNewsletter()">
+                    <input type="email" id="newsletterEmail" placeholder="Your email address" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <div class="footer-copyright" id="copyright-text">
+                    © 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform
+                </div>
+                <div class="footer-legal" id="footer-legal">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="refund.html">Refund Policy</a>
+                    <a href="#">Shipping Info</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="scrollToTop()" id="scrollTopBtn" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase Configuration
+        // FIREBASE INIT
         const firebaseConfig = {
             apiKey: "AIzaSyAB7dyaJwkadV7asGOhj6TCN5it5pCWg10",
             authDomain: "espera-mavro-6ddc5.firebaseapp.com",
             databaseURL: "https://espera-mavro-6ddc5-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "espera-mavro-6ddc5",
             storageBucket: "espera-mavro-6ddc5.appspot.com",
-            messagingSenderId: "137893255543",
             appId: "1:137893255543:web:a660bd412eb26ee322a972"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        const database = firebase.database();
 
-        // Check if user is already logged in
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // Check if user is admin
-                try {
-                    const idToken = await user.getIdTokenResult();
-                    if (idToken.claims.admin === true) {
-                        // Show success message and redirect
-                        showSuccess('Login successful! Redirecting to dashboard...');
-                        setTimeout(() => {
-                            window.location.href = 'admin.html';
-                        }, 1500);
-                    } else {
-                        // Not admin, sign out
-                        await auth.signOut();
-                        showError('You are not authorized as admin');
+        // Category Icons
+        const categoryIcons = {
+            'fashion': 'fa-solid fa-shirt',
+            'womens fashion': 'fa-solid fa-person-dress',
+            'mens fashion': 'fa-solid fa-person',
+            'clothes': 'fa-solid fa-shirt',
+            'clothing': 'fa-solid fa-tshirt',
+            'kids': 'fa-solid fa-child',
+            'baby': 'fa-solid fa-baby',
+            'infant': 'fa-solid fa-baby',
+            'toy': 'fa-solid fa-gamepad',
+            'gadget': 'fa-solid fa-microchip',
+            'electronics': 'fa-solid fa-laptop',
+            'mobile': 'fa-solid fa-mobile-screen',
+            'phone': 'fa-solid fa-mobile-screen',
+            'phone cover': 'fa-solid fa-mobile-screen',
+            'cover': 'fa-solid fa-mobile-screen',
+            'case': 'fa-solid fa-mobile-screen',
+            'accessories': 'fa-solid fa-head-side-vr',
+            'bag': 'fa-solid fa-bag-shopping',
+            'handbag': 'fa-solid fa-bag-shopping',
+            'purse': 'fa-solid fa-bag-shopping',
+            'backpack': 'fa-solid fa-bag-shopping',
+            'luggage': 'fa-solid fa-suitcase',
+            'household': 'fa-solid fa-couch',
+            'home': 'fa-solid fa-house',
+            'kitchen': 'fa-solid fa-utensils',
+            'cosmetics': 'fa-solid fa-spray-can-sparkles',
+            'beauty': 'fa-solid fa-star',
+            'makeup': 'fa-solid fa-paint-brush',
+            'skin': 'fa-solid fa-face-smile',
+            'jewelry': 'fa-solid fa-gem',
+            'watch': 'fa-regular fa-clock',
+            'shoe': 'fa-solid fa-shoe-prints',
+            'sneaker': 'fa-solid fa-shoe-prints',
+            'sport': 'fa-solid fa-futbol',
+            'book': 'fa-solid fa-book',
+            'stationery': 'fa-solid fa-pen',
+            'food': 'fa-solid fa-bowl-food',
+            'drink': 'fa-solid fa-mug-hot',
+            'pet': 'fa-solid fa-dog',
+            'default': 'fa-regular fa-cube'
+        };
+        
+        function getCategoryIcon(catName) {
+            if (!catName) return categoryIcons.default;
+            const key = catName.toLowerCase();
+            
+            for (const [keyword, icon] of Object.entries(categoryIcons)) {
+                if (key.includes(keyword)) {
+                    return icon;
+                }
+            }
+            
+            return categoryIcons.default;
+        }
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // ========== SECTION VISIBILITY CONTROL ==========
+        function applySectionVisibility() {
+            database.ref('sections/visibility').once('value', (snapshot) => {
+                const visibility = snapshot.val() || {};
+                
+                // Apply visibility to each section
+                const sections = [
+                    'hero-section', 'category-header', 'featuredCatGrid', 'flash-sale-section',
+                    'featured-products-section', 'deals-section', 'brand-section', 'banner-section',
+                    'why-choose-section', 'service-section', 'blog-section', 'trust-section',
+                    'instagram-section', 'review-form-section', 'reviews-header', 'reviewContainer',
+                    'app-section', 'footer'
+                ];
+                
+                sections.forEach(sectionId => {
+                    const element = document.getElementById(sectionId);
+                    if (element && visibility[sectionId] === false) {
+                        element.classList.add('section-hidden');
+                    } else if (element) {
+                        element.classList.remove('section-hidden');
                     }
-                } catch (error) {
-                    console.error('Error checking admin status:', error);
-                    await auth.signOut();
-                }
-            }
-        });
-
-        // Handle Login
-        window.handleLogin = async (event) => {
-            event.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            const loginBtn = document.getElementById('loginBtn');
-
-            // Clear previous messages
-            hideAllMessages();
-
-            // Validation
-            if (!email || !password) {
-                showError('Please enter both email and password');
-                return;
-            }
-
-            if (!isValidEmail(email)) {
-                showError('Please enter a valid email address');
-                return;
-            }
-
-            // Show loading
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
-
-            try {
-                // Set persistence
-                const persistence = rememberMe 
-                    ? firebase.auth.Auth.Persistence.LOCAL 
-                    : firebase.auth.Auth.Persistence.SESSION;
-                
-                await auth.setPersistence(persistence);
-
-                // Sign in
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // Get ID token and check admin claim
-                const idToken = await user.getIdTokenResult();
-                
-                if (idToken.claims.admin === true) {
-                    // Show success message
-                    showSuccess('Login successful! Redirecting to dashboard...');
-                    
-                    // Redirect to admin panel
-                    setTimeout(() => {
-                        window.location.href = 'admin.html';
-                    }, 1500);
-                } else {
-                    // Not admin, sign out
-                    await auth.signOut();
-                    showError('You are not authorized as admin. Please contact the super admin.');
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = '<span>Login to Dashboard</span>';
-                }
-
-            } catch (error) {
-                console.error('Login error:', error);
-                
-                // Handle specific errors
-                let errorMessage = 'Login failed. Please try again.';
-                
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMessage = 'No account found with this email address';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Incorrect password. Please try again';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address format';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'This account has been disabled. Contact support';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Too many failed attempts. Please try again later';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage = 'Network error. Please check your internet connection';
-                        break;
-                    case 'auth/invalid-credential':
-                        errorMessage = 'Invalid email or password';
-                        break;
-                    default:
-                        errorMessage = 'Login failed: ' + error.message;
-                }
-                
-                showError(errorMessage);
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<span>Login to Dashboard</span>';
-            }
-        };
-
-        // Email validation
-        function isValidEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        // Toggle Password Visibility
-        window.togglePassword = function() {
-            const password = document.getElementById('password');
-            const toggle = document.getElementById('togglePassword');
-            
-            if (password.type === 'password') {
-                password.type = 'text';
-                toggle.className = 'fas fa-eye-slash toggle-password';
-            } else {
-                password.type = 'password';
-                toggle.className = 'fas fa-eye toggle-password';
-            }
-        };
-
-        // Forgot Password
-        window.forgotPassword = async (event) => {
-            event.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            
-            if (!email) {
-                showError('Please enter your email address first');
-                document.getElementById('email').focus();
-                return;
-            }
-
-            if (!isValidEmail(email)) {
-                showError('Please enter a valid email address');
-                document.getElementById('email').focus();
-                return;
-            }
-
-            // Show loading
-            const loginBtn = document.getElementById('loginBtn');
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="loading-spinner"></span> Sending...';
-
-            try {
-                await auth.sendPasswordResetEmail(email);
-                showSuccess('Password reset email sent! Please check your inbox.');
-                
-                // Clear password field
-                document.getElementById('password').value = '';
-            } catch (error) {
-                let errorMessage = 'Failed to send reset email';
-                
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMessage = 'No account found with this email address';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                
-                showError(errorMessage);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<span>Login to Dashboard</span>';
-            }
-        };
-
-        // Show Error Message
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            errorText.innerText = message;
-            errorDiv.classList.add('show');
-            
-            // Hide other messages
-            document.getElementById('successMessage').classList.remove('show');
-            document.getElementById('infoMessage').classList.remove('show');
-        }
-
-        // Show Success Message
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            successText.innerText = message;
-            successDiv.classList.add('show');
-            
-            // Hide other messages
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('infoMessage').classList.remove('show');
-        }
-
-        // Show Info Message
-        function showInfo(message) {
-            const infoDiv = document.getElementById('infoMessage');
-            const infoText = document.getElementById('infoText');
-            infoText.innerText = message;
-            infoDiv.classList.add('show');
-            
-            // Hide other messages
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('successMessage').classList.remove('show');
-        }
-
-        // Hide All Messages
-        function hideAllMessages() {
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('successMessage').classList.remove('show');
-            document.getElementById('infoMessage').classList.remove('show');
-        }
-
-        // Add enter key support
-        document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleLogin(e);
-            }
-        });
-
-        // Auto-focus email field
-        window.onload = function() {
-            document.getElementById('email').focus();
-            
-            // Add floating animation to bubbles
-            const bubbles = document.querySelectorAll('.bg-bubbles span');
-            bubbles.forEach((bubble, index) => {
-                bubble.style.left = Math.random() * 100 + '%';
-                bubble.style.animationDuration = Math.floor(Math.random() * 20 + 10) + 's';
-                bubble.style.animationDelay = Math.random() * 5 + 's';
+                });
             });
+        }
+
+        // ========== LOAD ALL SECTIONS ==========
+        function loadHeroSection() {
+            database.ref('sections/hero').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                document.getElementById('hero-tag').innerText = data.tag || 'CHINA TO BANGLADESH';
+                document.getElementById('hero-title').innerHTML = data.title || 'Global<br>Wholesale';
+                document.getElementById('hero-text').innerText = data.text || 'Premium sourcing with door-to-door shipping';
+                document.getElementById('hero-btn-text').innerText = data.btn_text || 'SHOP NOW';
+                
+                const heroImg = document.getElementById('hero-image');
+                heroImg.src = data.image || 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1000&q=80';
+            });
+        }
+
+        function loadBannerSection() {
+            database.ref('sections/banners').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                const leftBanner = data.left || {};
+                document.getElementById('banner-left').style.backgroundImage = `url('${leftBanner.image || 'https://images.unsplash.com/photo-1555529771-122e5d9f2341?auto=format&fit=crop&w=600&q=80'}')`;
+                document.getElementById('banner-left-tag').innerText = leftBanner.tag || 'SUMMER 26';
+                document.getElementById('banner-left-title').innerText = leftBanner.title || 'Essentials';
+                document.getElementById('banner-left-text').innerText = leftBanner.text || 'up to 40% off';
+                
+                const rightBanner = data.right || {};
+                document.getElementById('banner-right').style.backgroundImage = `url('${rightBanner.image || 'https://images.unsplash.com/photo-1584917865442-2d7b27f2a3e9?auto=format&fit=crop&w=600&q=80'}')`;
+                document.getElementById('banner-right-tag').innerText = rightBanner.tag || 'BAGS';
+                document.getElementById('banner-right-title').innerText = rightBanner.title || 'Leather';
+                document.getElementById('banner-right-text').innerText = rightBanner.text || 'wholesale price';
+            });
+        }
+
+        function loadServiceSection() {
+            database.ref('sections/services').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                const defaultTitles = ['Door-to-Door', 'Wholesale', 'Secure Payment', '24/7 Support'];
+                const defaultDescs = ['China-BD express', 'low MOQ', 'escrow available', 'chat with us'];
+                const defaultIcons = ['fa-truck-fast', 'fa-hand-holding-dollar', 'fa-shield', 'fa-clock'];
+                
+                for (let i = 1; i <= 4; i++) {
+                    const service = data[`service_${i}`] || {};
+                    
+                    const iconEl = document.getElementById(`service-${i}-icon`);
+                    if (service.icon) {
+                        iconEl.className = `fa-solid ${service.icon}`;
+                    } else {
+                        iconEl.className = `fa-solid ${defaultIcons[i-1]}`;
+                    }
+                    
+                    document.getElementById(`service-${i}-title`).innerText = service.title || defaultTitles[i-1];
+                    document.getElementById(`service-${i}-desc`).innerText = service.desc || defaultDescs[i-1];
+                }
+            });
+        }
+
+        function loadTrustSection() {
+            database.ref('sections/trust').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                const defaultIcons = ['fa-circle-check', 'fa-gem', 'fa-credit-card', 'fa-clock'];
+                const defaultTexts = ['Verified', 'Premium', 'Secure', 'Fast'];
+                
+                for (let i = 1; i <= 4; i++) {
+                    const trust = data[`trust_${i}`] || {};
+                    const trustItem = document.getElementById(`trust-${i}`);
+                    
+                    const iconEl = trustItem.querySelector('i');
+                    iconEl.className = `fa-regular ${trust.icon || defaultIcons[i-1]}`;
+                    
+                    const spanEl = trustItem.querySelector('span');
+                    spanEl.innerText = trust.text || defaultTexts[i-1];
+                }
+            });
+        }
+
+        function loadFooterSection() {
+            database.ref('sections/footer').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('footer-about-text').innerText = data.about_text || 'Premium global sourcing platform connecting Bangladesh businesses with international suppliers. Door-to-door delivery, wholesale pricing, and reliable fulfillment.';
+                
+                const social = data.social || {};
+                document.getElementById('social-fb').href = social.facebook || '#';
+                document.getElementById('social-ig').href = social.instagram || '#';
+                document.getElementById('social-wa').href = social.whatsapp || '#';
+                document.getElementById('social-li').href = social.linkedin || '#';
+                document.getElementById('social-yt').href = social.youtube || '#';
+                
+                const contact = data.contact || {};
+                document.getElementById('contact-address').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${contact.address || 'Dhaka, Bangladesh'}`;
+                document.getElementById('contact-phone').innerHTML = `<i class="fas fa-phone-alt"></i> <a href="tel:${contact.phone || '+8801721383418'}">${contact.phone || '+880 1721-383418'}</a>`;
+                document.getElementById('contact-email').innerHTML = `<i class="fas fa-envelope"></i> <a href="mailto:${contact.email || 'esperamavro@gmail.com'}">${contact.email || 'esperamavro@gmail.com'}</a>`;
+                document.getElementById('contact-hours').innerHTML = `<i class="fas fa-clock"></i> ${contact.hours || 'Support: 24/7'}`;
+                
+                document.getElementById('copyright-text').innerHTML = data.copyright || '© 2026 <strong>Espera Mavro</strong>. All rights reserved. Global Sourcing Platform';
+            });
+        }
+
+        // ========== LOAD FLASH SALE ==========
+        function loadFlashSale() {
+            database.ref('sections/flashSale').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('flash-sale-title').innerText = data.title || '⚡ FLASH SALE';
+                document.getElementById('flash-sale-text').innerText = data.text || 'Up to 70% off on selected items';
+                
+                // Start countdown if end time is set
+                if (data.end_time) {
+                    startCountdown(data.end_time);
+                }
+            });
+        }
+
+        // ========== LOAD BRANDS ==========
+        function loadBrands() {
+            database.ref('sections/brands').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('brand-title').innerText = data.title || 'Top Brands';
+                
+                const brandGrid = document.getElementById('brand-grid');
+                let html = '';
+                
+                if (data.brands && data.brands.length > 0) {
+                    data.brands.forEach(brand => {
+                        html += `
+                            <div class="brand-item">
+                                <i class="${brand.icon || 'fab fa-apple'}"></i>
+                                <span>${brand.name || 'Brand'}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Default brands
+                    const defaultBrands = [
+                        { icon: 'fab fa-apple', name: 'Apple' },
+                        { icon: 'fab fa-samsung', name: 'Samsung' },
+                        { icon: 'fab fa-xiaomi', name: 'Xiaomi' },
+                        { icon: 'fab fa-adidas', name: 'Adidas' },
+                        { icon: 'fab fa-nike', name: 'Nike' },
+                        { icon: 'fab fa-huawei', name: 'Huawei' },
+                        { icon: 'fab fa-google', name: 'Google' },
+                        { icon: 'fab fa-sony', name: 'Sony' }
+                    ];
+                    
+                    defaultBrands.forEach(brand => {
+                        html += `
+                            <div class="brand-item">
+                                <i class="${brand.icon}"></i>
+                                <span>${brand.name}</span>
+                            </div>
+                        `;
+                    });
+                }
+                
+                brandGrid.innerHTML = html;
+            });
+        }
+
+        // ========== LOAD DEALS ==========
+        function loadDeals() {
+            database.ref('sections/deals').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('deal-title').innerText = data.title || 'Deal of the Day';
+                document.getElementById('deal-view-all').href = data.view_all_link || '#';
+                
+                const dealGrid = document.getElementById('deal-grid');
+                let html = '';
+                
+                if (data.deals && data.deals.length > 0) {
+                    data.deals.forEach((deal, index) => {
+                        if (index === 0) {
+                            // First deal is large
+                            html += `
+                                <div class="deal-card large">
+                                    <span class="deal-tag">-${deal.discount}%</span>
+                                    <div class="deal-content">
+                                        <h4>${deal.title}</h4>
+                                        <p>${deal.description}</p>
+                                        <div class="deal-price">
+                                            ৳${deal.price} <small>৳${deal.original_price}</small>
+                                        </div>
+                                        <div class="deal-progress">
+                                            <div class="deal-progress-bar" style="width: ${deal.sold_percentage}%"></div>
+                                        </div>
+                                        <div class="deal-stock">🔥 ${deal.sold_count} sold in last hour</div>
+                                    </div>
+                                    <img src="${deal.image}" class="deal-product-img" alt="${deal.title}">
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="deal-card">
+                                    <span class="deal-tag">-${deal.discount}%</span>
+                                    <div class="deal-content">
+                                        <h4>${deal.title}</h4>
+                                        <p>${deal.description}</p>
+                                        <div class="deal-price">৳${deal.price}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                }
+                
+                dealGrid.innerHTML = html;
+            });
+        }
+
+        // ========== LOAD WHY CHOOSE FEATURES ==========
+        function loadWhyChoose() {
+            database.ref('sections/whyChoose').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('why-choose-title').innerText = data.title || 'Why Choose Espera Mavro?';
+                
+                const featuresGrid = document.getElementById('features-grid');
+                let html = '';
+                
+                if (data.features && data.features.length > 0) {
+                    data.features.forEach(feature => {
+                        html += `
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="${feature.icon}"></i>
+                                </div>
+                                <h4>${feature.title}</h4>
+                                <p>${feature.description}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Default features
+                    const defaultFeatures = [
+                        { icon: 'fa-solid fa-truck-fast', title: 'Fast Delivery', description: '7-15 days door-to-door' },
+                        { icon: 'fa-solid fa-shield-hal', title: 'Secure Payment', description: '100% protected' },
+                        { icon: 'fa-solid fa-rotate-left', title: 'Easy Returns', description: '7 days return policy' },
+                        { icon: 'fa-solid fa-headset', title: '24/7 Support', description: 'Dedicated help' }
+                    ];
+                    
+                    defaultFeatures.forEach(feature => {
+                        html += `
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="${feature.icon}"></i>
+                                </div>
+                                <h4>${feature.title}</h4>
+                                <p>${feature.description}</p>
+                            </div>
+                        `;
+                    });
+                }
+                
+                featuresGrid.innerHTML = html;
+            });
+        }
+
+        // ========== LOAD BLOG POSTS ==========
+        function loadBlogPosts() {
+            database.ref('sections/blog').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('blog-title').innerText = data.title || 'Latest from Blog';
+                document.getElementById('blog-view-all').href = data.view_all_link || '#';
+                
+                const blogGrid = document.getElementById('blog-grid');
+                let html = '';
+                
+                if (data.posts && data.posts.length > 0) {
+                    data.posts.forEach(post => {
+                        html += `
+                            <div class="blog-card">
+                                <div class="blog-image">
+                                    <img src="${post.image}" alt="${post.title}">
+                                    <span class="blog-date">${post.date}</span>
+                                </div>
+                                <div class="blog-content">
+                                    <h4>${post.title}</h4>
+                                    <p>${post.excerpt}</p>
+                                    <a href="${post.link}" class="blog-link">Read More →</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Default blog posts from Unsplash
+                    const defaultPosts = [
+                        {
+                            image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400',
+                            date: 'Mar 15, 2026',
+                            title: 'Sourcing Tips from China',
+                            excerpt: 'Learn how to find the best suppliers and negotiate prices...',
+                            link: '#'
+                        },
+                        {
+                            image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
+                            date: 'Mar 10, 2026',
+                            title: 'Wholesale Market Guide',
+                            excerpt: 'Top wholesale markets in Guangzhou and Yiwu for 2026...',
+                            link: '#'
+                        },
+                        {
+                            image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=400',
+                            date: 'Mar 5, 2026',
+                            title: 'Shipping & Logistics',
+                            excerpt: 'Complete guide to shipping from China to Bangladesh...',
+                            link: '#'
+                        }
+                    ];
+                    
+                    defaultPosts.forEach(post => {
+                        html += `
+                            <div class="blog-card">
+                                <div class="blog-image">
+                                    <img src="${post.image}" alt="${post.title}">
+                                    <span class="blog-date">${post.date}</span>
+                                </div>
+                                <div class="blog-content">
+                                    <h4>${post.title}</h4>
+                                    <p>${post.excerpt}</p>
+                                    <a href="${post.link}" class="blog-link">Read More →</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                blogGrid.innerHTML = html;
+            });
+        }
+
+        // ========== LOAD INSTAGRAM FEED ==========
+        function loadInstagramFeed() {
+            database.ref('sections/instagram').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('instagram-title').innerText = data.title || 'Follow Us @esperamavro';
+                
+                const instaGrid = document.getElementById('insta-grid');
+                let html = '';
+                
+                if (data.posts && data.posts.length > 0) {
+                    data.posts.forEach(post => {
+                        html += `
+                            <div class="insta-item">
+                                <img src="${post.image}" alt="Instagram">
+                                <div class="insta-overlay">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Default Instagram posts
+                    const defaultPosts = [
+                        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200',
+                        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
+                        'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200',
+                        'https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?w=200'
+                    ];
+                    
+                    defaultPosts.forEach(image => {
+                        html += `
+                            <div class="insta-item">
+                                <img src="${image}" alt="Instagram">
+                                <div class="insta-overlay">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                instaGrid.innerHTML = html;
+            });
+        }
+
+        // ========== LOAD APP SECTION ==========
+        function loadAppSection() {
+            database.ref('sections/app').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('app-title').innerText = data.title || 'Download Our App';
+                document.getElementById('app-text').innerText = data.text || 'Get exclusive app-only deals and faster checkout';
+                
+                if (data.app_store_link) {
+                    document.getElementById('app-store-btn').href = data.app_store_link;
+                }
+                if (data.play_store_link) {
+                    document.getElementById('play-store-btn').href = data.play_store_link;
+                }
+                if (data.qr_code) {
+                    document.getElementById('app-qr').innerHTML = `<img src="${data.qr_code}" alt="QR Code">`;
+                }
+            });
+        }
+
+        // ========== LOAD CATEGORIES ==========
+        function loadCategories() {
+            database.ref('categories').once('value', (snapshot) => {
+                const sideCats = document.getElementById('sideCats');
+                const featGrid = document.getElementById('featuredCatGrid');
+                const footerCats = document.getElementById('footerCategories');
+                let sideHtml = '';
+                let gridHtml = '';
+                let footerHtml = '';
+                let count = 0;
+                
+                snapshot.forEach((child) => {
+                    const catId = child.key;
+                    const catData = child.val();
+                    const catName = catData.name || catData;
+                    
+                    if (catName && catName !== 'All') {
+                        const icon = getCategoryIcon(catName);
+                        sideHtml += `<a href="shop.html?category=${catId}"><i class="${icon}"></i> ${catName}</a>`;
+                        
+                        if (count < 6) {
+                            gridHtml += `
+                                <a href="shop.html?category=${catId}" class="cat-grid-item">
+                                    <i class="${icon}"></i>
+                                    <span>${catName}</span>
+                                </a>
+                            `;
+                        }
+                        
+                        footerHtml += `<li><a href="shop.html?category=${catId}"><i class="fas fa-chevron-right"></i> ${catName}</a></li>`;
+                        count++;
+                    }
+                });
+                
+                sideCats.innerHTML = sideHtml || '<a href="#">No categories</a>';
+                featGrid.innerHTML = gridHtml || '<div style="grid-column:span3">No categories</div>';
+                footerCats.innerHTML = footerHtml || '<li><a href="shop.html"><i class="fas fa-chevron-right"></i> All Categories</a></li>';
+            });
+        }
+
+        // ========== FEATURED PRODUCTS SLIDER ==========
+        let allProducts = [];
+        let currentSlide = 0;
+        let slideInterval;
+        let productsPerView = 4;
+        let maxSlide = 0;
+
+        function getProductsPerView() {
+            if (window.innerWidth >= 768) {
+                return 4;
+            } else if (window.innerWidth >= 481) {
+                return 2;
+            } else {
+                return 1;
+            }
+        }
+
+        window.addEventListener('resize', function() {
+            productsPerView = getProductsPerView();
+            if (allProducts.length > 0) {
+                maxSlide = Math.max(0, allProducts.length - productsPerView);
+                if (currentSlide > maxSlide) {
+                    currentSlide = maxSlide;
+                }
+                renderProductSlider();
+                updatePagination();
+                updateSliderButtons();
+            }
+        });
+
+        function loadFeaturedProducts() {
+            database.ref('sections/featuredProducts').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                document.getElementById('featured-title').innerText = data.title || 'Featured Products';
+                
+                // Get product IDs from featured section
+                const productIds = data.product_ids || [];
+                
+                if (productIds.length > 0) {
+                    // Load specific featured products
+                    let products = [];
+                    let loadedCount = 0;
+                    
+                    productIds.forEach(id => {
+                        database.ref('products/' + id).once('value', (snapshot) => {
+                            if (snapshot.exists()) {
+                                const product = snapshot.val();
+                                product.id = id;
+                                products.push(product);
+                            }
+                            loadedCount++;
+                            
+                            if (loadedCount === productIds.length) {
+                                allProducts = products;
+                                productsPerView = getProductsPerView();
+                                maxSlide = Math.max(0, allProducts.length - productsPerView);
+                                currentSlide = 0;
+                                
+                                renderProductSlider();
+                                createPagination();
+                                startAutoSlide();
+                            }
+                        });
+                    });
+                } else {
+                    // Load random products as featured
+                    database.ref('products').limitToFirst(8).once('value', (snapshot) => {
+                        if (!snapshot.exists()) {
+                            document.getElementById('productSlider').innerHTML = '<div class="loading">No products</div>';
+                            return;
+                        }
+                        
+                        allProducts = [];
+                        snapshot.forEach((child) => {
+                            const product = child.val();
+                            product.id = child.key;
+                            allProducts.push(product);
+                        });
+                        
+                        productsPerView = getProductsPerView();
+                        maxSlide = Math.max(0, allProducts.length - productsPerView);
+                        currentSlide = 0;
+                        
+                        renderProductSlider();
+                        createPagination();
+                        startAutoSlide();
+                    });
+                }
+            });
+        }
+
+        function renderProductSlider() {
+            const slider = document.getElementById('productSlider');
+            let productsHtml = '';
+            
+            allProducts.forEach((product) => {
+                let imgUrl = product.image;
+                if (!imgUrl && product.images) {
+                    if (Array.isArray(product.images)) imgUrl = product.images[0]?.src || product.images[0];
+                    else if (typeof product.images === 'object') {
+                        const firstImg = Object.values(product.images)[0];
+                        imgUrl = firstImg?.src || firstImg;
+                    }
+                }
+                imgUrl = imgUrl || 'https://via.placeholder.com/300x300?text=MAVRO';
+                
+                productsHtml += `
+                    <a href="single-product-details.html?id=${product.id}" class="p-card">
+                        <span class="p-badge">${product.badge || 'NEW'}</span>
+                        <div class="image-container">
+                            <img src="${imgUrl}" alt="${product.name || product.title || 'Product'}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=MAVRO'">
+                        </div>
+                        <div class="product-info">
+                            <h3>${(product.name || product.title || 'Mavro Product').substring(0, 25)}${(product.name || '').length > 25 ? '...' : ''}</h3>
+                            <span class="product-badge">View Details</span>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            slider.innerHTML = productsHtml;
+            
+            const slideWidth = 100 / productsPerView;
+            slider.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+        }
+
+        function createPagination() {
+            const pagination = document.getElementById('sliderPagination');
+            const totalSlides = maxSlide + 1;
+            
+            let dotsHtml = '';
+            for (let i = 0; i < totalSlides; i++) {
+                dotsHtml += `<div class="pagination-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>`;
+            }
+            
+            pagination.innerHTML = dotsHtml;
+        }
+
+        function updatePagination() {
+            const dots = document.querySelectorAll('.pagination-dot');
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function updateSliderButtons() {
+            const prevBtn = document.getElementById('prevSlide');
+            const nextBtn = document.getElementById('nextSlide');
+            
+            if (currentSlide <= 0) {
+                prevBtn.classList.add('disabled');
+            } else {
+                prevBtn.classList.remove('disabled');
+            }
+            
+            if (currentSlide >= maxSlide) {
+                nextBtn.classList.add('disabled');
+            } else {
+                nextBtn.classList.remove('disabled');
+            }
+        }
+
+        window.slideProducts = (direction) => {
+            if (direction === 'prev' && currentSlide > 0) {
+                currentSlide--;
+            } else if (direction === 'next' && currentSlide < maxSlide) {
+                currentSlide++;
+            }
+            
+            const slideWidth = 100 / productsPerView;
+            document.getElementById('productSlider').style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+            
+            updatePagination();
+            updateSliderButtons();
+            
+            resetAutoSlide();
         };
+
+        window.goToSlide = (index) => {
+            if (index >= 0 && index <= maxSlide) {
+                currentSlide = index;
+                const slideWidth = 100 / productsPerView;
+                document.getElementById('productSlider').style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+                
+                updatePagination();
+                updateSliderButtons();
+                
+                resetAutoSlide();
+            }
+        };
+
+        function startAutoSlide() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+            }
+            
+            slideInterval = setInterval(() => {
+                if (currentSlide < maxSlide) {
+                    currentSlide++;
+                } else {
+                    currentSlide = 0;
+                }
+                
+                const slideWidth = 100 / productsPerView;
+                document.getElementById('productSlider').style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+                
+                updatePagination();
+                updateSliderButtons();
+            }, 5000);
+        }
+
+        function resetAutoSlide() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+                startAutoSlide();
+            }
+        }
+
+        // Countdown Timer
+        function startCountdown(endTime) {
+            const end = new Date(endTime).getTime();
+            
+            const timer = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = end - now;
+                
+                if (distance < 0) {
+                    clearInterval(timer);
+                    document.getElementById('hours').innerText = '00';
+                    document.getElementById('minutes').innerText = '00';
+                    document.getElementById('seconds').innerText = '00';
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('hours').innerText = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').innerText = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').innerText = seconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        // ========== REVIEW FUNCTIONS ==========
+        const stars = document.querySelectorAll('#starRatingWidget i');
+        const ratingInput = document.getElementById('ratingValue');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const val = this.dataset.value;
+                ratingInput.value = val;
+                stars.forEach(s => {
+                    if (s.dataset.value <= val) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid', 'selected');
+                    } else {
+                        s.classList.add('fa-regular');
+                        s.classList.remove('fa-solid', 'selected');
+                    }
+                });
+            });
+        });
+
+        function submitReview() {
+            const name = document.getElementById('reviewerName').value.trim();
+            const rating = parseInt(document.getElementById('ratingValue').value);
+            const text = document.getElementById('reviewText').value.trim();
+            
+            if (!name) { alert('Please enter your name'); return; }
+            if (rating === 0) { alert('Please select a rating'); return; }
+            if (!text) { alert('Please write your review'); return; }
+
+            const newReviewRef = database.ref('reviews').push();
+            newReviewRef.set({
+                name: name,
+                rating: rating,
+                text: text,
+                date: new Date().toISOString(),
+                avatar: `https://i.pravatar.cc/40?u=${name.replace(/\s/g,'')}`
+            }).then(() => {
+                document.getElementById('reviewSuccess').style.display = 'block';
+                document.getElementById('reviewerName').value = '';
+                document.getElementById('ratingValue').value = '0';
+                document.getElementById('reviewText').value = '';
+                stars.forEach(s => {
+                    s.classList.add('fa-regular');
+                    s.classList.remove('fa-solid', 'selected');
+                });
+                setTimeout(() => {
+                    document.getElementById('reviewSuccess').style.display = 'none';
+                }, 3000);
+                loadReviews();
+            }).catch(err => console.error(err));
+        }
+
+        function loadReviews() {
+            database.ref('reviews').once('value', (snapshot) => {
+                const reviewContainer = document.getElementById('reviewContainer');
+                if (!snapshot.exists()) {
+                    reviewContainer.innerHTML = '<div class="loading">No reviews yet — be the first!</div>';
+                    return;
+                }
+                let reviewsHtml = '';
+                let totalStars = 0;
+                let reviewCount = 0;
+                snapshot.forEach((child) => {
+                    const r = child.val();
+                    const stars = r.rating || 5;
+                    totalStars += stars;
+                    reviewCount++;
+                    const date = r.date ? new Date(r.date).toLocaleDateString() : 'just now';
+                    const img = r.avatar || 'https://i.pravatar.cc/40?u='+r.name;
+                    reviewsHtml += `
+                        <div class="review-card">
+                            <div class="review-stars">${'★'.repeat(stars)}${'☆'.repeat(5-stars)}</div>
+                            <div class="review-text">"${r.text || 'Amazing quality and fast shipping'}"</div>
+                            <div class="reviewer">
+                                <img src="${img}" alt="user">
+                                <strong>${r.name || 'Buyer'}</strong>
+                                <span class="review-date">${date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                const avg = reviewCount ? (totalStars/reviewCount).toFixed(1) : '4.8';
+                document.getElementById('averageRating').innerText = avg;
+                reviewContainer.innerHTML = reviewsHtml;
+            });
+        }
+
+        function subscribeNewsletter() {
+            const email = document.getElementById('newsletterEmail').value.trim();
+            if (!email) return;
+            
+            database.ref('newsletter').push({
+                email: email,
+                subscribed_at: new Date().toISOString()
+            }).then(() => {
+                alert('Thank you for subscribing!');
+                document.getElementById('newsletterEmail').value = '';
+            }).catch(err => {
+                console.error('Newsletter subscription failed:', err);
+                alert('Subscription failed. Please try again.');
+            });
+        }
+
+        // Scroll to top button
+        window.onscroll = function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function handleSearch(e) { if(e.key === 'Enter') doSearch(); }
+        function doSearch() {
+            const q = document.getElementById('searchInput').value.trim();
+            if(q) window.location.href = `shop.html?search=${encodeURIComponent(q)}`;
+        }
+
+        function updateCartCount() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('essence_cart') || "[]");
+                document.getElementById('cartCount').innerText = cart.length;
+            } catch (e) {}
+        }
+
+        function observeFade() {
+            const faders = document.querySelectorAll('.fade-up');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('appeared');
+                    }
+                });
+            }, { threshold: 0.1 });
+            faders.forEach(el => observer.observe(el));
+        }
+
+        // Initialize all sections
+        window.onload = () => {
+            // Load section visibility first
+            applySectionVisibility();
+            
+            // Load all sections from Firebase
+            loadHeroSection();
+            loadBannerSection();
+            loadServiceSection();
+            loadTrustSection();
+            loadFooterSection();
+            loadFlashSale();
+            loadBrands();
+            loadDeals();
+            loadWhyChoose();
+            loadBlogPosts();
+            loadInstagramFeed();
+            loadAppSection();
+            
+            // Load categories and products
+            loadCategories();
+            loadFeaturedProducts();
+            loadReviews();
+            
+            updateCartCount();
+            observeFade();
+        };
+        
+        window.addEventListener('storage', updateCartCount);
     </script>
 </body>
-</html>
+            </html>
