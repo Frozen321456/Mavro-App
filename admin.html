@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Espera Mavro</title>
+    <title>Master Admin | Espera Mavro - Full Control</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -19,6 +19,7 @@
             --info: #0288d1;
             --danger: #d32f2f;
             --coupon: #9c27b0;
+            --best-deal: #ff385c;
         }
         
         body { background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -457,6 +458,187 @@
             color: var(--accent);
             margin-bottom: 10px;
         }
+
+        /* Visibility Toggle */
+        .visibility-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .visibility-status {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .feature-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+
+        /* Icon Picker */
+        .icon-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .icon-option {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .icon-option:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .icon-option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .icon-option i {
+            font-size: 20px;
+        }
+
+        /* Page Editor */
+        .page-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .page-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .page-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .page-btn.active:hover {
+            background: #e62e4e;
+        }
+
+        /* Category Subcategories */
+        .subcategory-item {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subcategory-input {
+            flex: 1;
+        }
+        
+        .add-subcategory-btn {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        /* Best Deals Preview */
+        .best-deal-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .preview-card {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
@@ -490,6 +672,9 @@
         <a class="nav-link" onclick="showSection('sections', this); toggleSidebar()">
             <i class="fa fa-layers"></i> All Sections
         </a>
+        <a class="nav-link" onclick="showSection('visibility', this); toggleSidebar()">
+            <i class="fa fa-eye"></i> Section Visibility
+        </a>
         <a class="nav-link" onclick="showSection('hero', this); toggleSidebar()">
             <i class="fa fa-image"></i> Hero Section
         </a>
@@ -502,11 +687,54 @@
         <a class="nav-link" onclick="showSection('trust', this); toggleSidebar()">
             <i class="fa fa-shield-alt"></i> Trust Badges
         </a>
+        <a class="nav-link" onclick="showSection('flashSale', this); toggleSidebar()">
+            <i class="fa fa-bolt"></i> Flash Sale
+        </a>
+        <a class="nav-link" onclick="showSection('brands', this); toggleSidebar()">
+            <i class="fa fa-trademark"></i> Brands
+        </a>
+        <a class="nav-link" onclick="showSection('deals', this); toggleSidebar()">
+            <i class="fa fa-clock"></i> Deal of Day
+        </a>
+        <a class="nav-link" onclick="showSection('whyChoose', this); toggleSidebar()">
+            <i class="fa fa-question-circle"></i> Why Choose Us
+        </a>
+        <a class="nav-link" onclick="showSection('blog', this); toggleSidebar()">
+            <i class="fa fa-blog"></i> Blog
+        </a>
+        <a class="nav-link" onclick="showSection('instagram', this); toggleSidebar()">
+            <i class="fa fa-instagram"></i> Instagram Feed
+        </a>
+        <a class="nav-link" onclick="showSection('app', this); toggleSidebar()">
+            <i class="fa fa-mobile-alt"></i> App Section
+        </a>
+        <a class="nav-link" onclick="showSection('topCategories', this); toggleSidebar()">
+            <i class="fa fa-star"></i> Top Categories
+        </a>
+        <a class="nav-link" onclick="showSection('bestDeals', this); toggleSidebar()">
+            <i class="fa fa-tag"></i> Best Deals
+        </a>
+        <a class="nav-link" onclick="showSection('featuredProducts', this); toggleSidebar()">
+            <i class="fa fa-star"></i> Featured Products
+        </a>
         <a class="nav-link" onclick="showSection('footer', this); toggleSidebar()">
             <i class="fa fa-foot"></i> Footer
         </a>
-        <a class="nav-link" onclick="showSection('reviews', this); toggleSidebar()">
-            <i class="fa fa-star"></i> Reviews
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Legal Pages</div>
+        <a class="nav-link" onclick="showSection('pageEditor', this); toggleSidebar()">
+            <i class="fa fa-file-alt"></i> Page Editor
+        </a>
+        <a class="nav-link" onclick="showSection('terms', this); toggleSidebar()">
+            <i class="fa fa-file-contract"></i> Terms of Service
+        </a>
+        <a class="nav-link" onclick="showSection('privacy', this); toggleSidebar()">
+            <i class="fa fa-shield-alt"></i> Privacy Policy
+        </a>
+        <a class="nav-link" onclick="showSection('refund', this); toggleSidebar()">
+            <i class="fa fa-undo-alt"></i> Refund Policy
         </a>
     </div>
 
@@ -538,6 +766,9 @@
         <div class="sidebar-section-title">Analytics</div>
         <a class="nav-link" onclick="showSection('analytics', this); toggleSidebar()">
             <i class="fa fa-chart-line"></i> Analytics
+        </a>
+        <a class="nav-link" onclick="showSection('reviews', this); toggleSidebar()">
+            <i class="fa fa-star"></i> Reviews
         </a>
     </div>
 </div>
@@ -614,8 +845,23 @@
                     </button>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('services', document.querySelector('[onclick*=\"services\"]')); toggleSidebar()">
-                        <i class="fa fa-cubes"></i> Services
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('flashSale', document.querySelector('[onclick*=\"flashSale\"]')); toggleSidebar()">
+                        <i class="fa fa-bolt"></i> Flash Sale
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('deals', document.querySelector('[onclick*=\"deals\"]')); toggleSidebar()">
+                        <i class="fa fa-clock"></i> Deals
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('bestDeals', document.querySelector('[onclick*=\"bestDeals\"]')); toggleSidebar()">
+                        <i class="fa fa-tag"></i> Best Deals
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('topCategories', document.querySelector('[onclick*=\"topCategories\"]')); toggleSidebar()">
+                        <i class="fa fa-star"></i> Top Cats
                     </button>
                 </div>
                 <div class="col-md-2">
@@ -626,11 +872,6 @@
                 <div class="col-md-2">
                     <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('orders', document.querySelector('[onclick*=\"orders\"]')); toggleSidebar()">
                         <i class="fa fa-shopping-cart"></i> Orders
-                    </button>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-outline-dark w-100 py-2" onclick="showSection('payment-verification', document.querySelector('[onclick*=\"payment-verification\"]')); toggleSidebar()">
-                        <i class="fa fa-check-circle"></i> Payments
                     </button>
                 </div>
             </div>
@@ -725,6 +966,36 @@
             <div class="col-md-4">
                 <div class="card-custom">
                     <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-tag fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Best Deals</h5>
+                            <p class="text-muted small">Manage best deal products</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('bestDeals', document.querySelector('[onclick*=\"bestDeals\"]'))">
+                        Edit Best Deals
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-star fa-2x me-3" style="color: var(--accent);"></i>
+                        <div>
+                            <h5 class="mb-1">Top Categories</h5>
+                            <p class="text-muted small">Control which categories appear in top section</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="showSection('topCategories', document.querySelector('[onclick*=\"topCategories\"]'))">
+                        Edit Top Categories
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="d-flex align-items-center mb-3">
                         <i class="fa fa-foot fa-2x me-3" style="color: var(--accent);"></i>
                         <div>
                             <h5 class="mb-1">Footer</h5>
@@ -754,7 +1025,299 @@
         </div>
     </div>
 
-    <!-- Hero Section Editor with Image Upload -->
+    <!-- Section Visibility Control -->
+    <div id="visibility" class="section" style="display: none;">
+        <h3 class="mb-4">Section Visibility Control</h3>
+        <p class="text-muted mb-4">Toggle sections on/off without breaking the design</p>
+        
+        <div class="card-custom">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Main Sections</h5>
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Hero Section</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-hero-section" checked onchange="toggleSection('hero-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-hero-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Category Grid</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-category-header" checked onchange="toggleSection('category-header', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-category-header">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Flash Sale Banner</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-flash-sale-section" checked onchange="toggleSection('flash-sale-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-flash-sale-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Featured Products</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-featured-products-section" checked onchange="toggleSection('featured-products-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-featured-products-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Deal of the Day</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-deals-section" checked onchange="toggleSection('deals-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-deals-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Brand Strip</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-brand-section" checked onchange="toggleSection('brand-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-brand-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Banners</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-banner-section" checked onchange="toggleSection('banner-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-banner-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Why Choose Us</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-why-choose-section" checked onchange="toggleSection('why-choose-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-why-choose-section">Visible</span>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h5>Additional Sections</h5>
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Service Strip</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-service-section" checked onchange="toggleSection('service-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-service-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Blog Section</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-blog-section" checked onchange="toggleSection('blog-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-blog-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Top Categories</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-top-categories-section" checked onchange="toggleSection('top-categories-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-top-categories-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Best Deals</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-best-deals-section" checked onchange="toggleSection('best-deals-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-best-deals-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Trust Badges</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-trust-section" checked onchange="toggleSection('trust-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-trust-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Instagram Feed</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-instagram-section" checked onchange="toggleSection('instagram-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-instagram-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Review Form</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-review-form-section" checked onchange="toggleSection('review-form-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-review-form-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Reviews Display</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-reviews-header" checked onchange="toggleSection('reviews-header', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-reviews-header">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">App Download</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-app-section" checked onchange="toggleSection('app-section', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-app-section">Visible</span>
+                    </div>
+                    
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Footer</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-footer" checked onchange="toggleSection('footer', this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-footer">Visible</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button class="btn btn-dark" onclick="saveVisibilitySettings()">
+                    <i class="fas fa-save"></i> Save Visibility Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Editor -->
+    <div id="pageEditor" class="section" style="display: none;">
+        <h3 class="mb-4">Legal Pages Editor</h3>
+        
+        <div class="page-selector">
+            <button class="page-btn active" onclick="selectPage('terms')">Terms of Service</button>
+            <button class="page-btn" onclick="selectPage('privacy')">Privacy Policy</button>
+            <button class="page-btn" onclick="selectPage('refund')">Refund Policy</button>
+        </div>
+
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Last Updated Date</label>
+                    <input type="date" id="pageLastUpdated" class="form-control">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Copyright Text</label>
+                    <input type="text" id="pageCopyright" class="form-control" value="© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.">
+                </div>
+                
+                <div class="col-12">
+                    <label class="small fw-bold">Page Content (Rich Text)</label>
+                    <div id="pageEditorQuill" style="height: 400px;"></div>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="savePage()">
+                        <i class="fas fa-save"></i> SAVE PAGE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Editor (Individual) -->
+    <div id="terms" class="section" style="display: none;">
+        <h3 class="mb-4">Terms of Service Editor</h3>
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Last Updated Date</label>
+                    <input type="date" id="termsLastUpdated" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Copyright Text</label>
+                    <input type="text" id="termsCopyright" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label class="small fw-bold">Content</label>
+                    <div id="termsEditor" style="height: 400px;"></div>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-dark w-100" onclick="saveTerms()">Save Terms of Service</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Editor (Individual) -->
+    <div id="privacy" class="section" style="display: none;">
+        <h3 class="mb-4">Privacy Policy Editor</h3>
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Last Updated Date</label>
+                    <input type="date" id="privacyLastUpdated" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Copyright Text</label>
+                    <input type="text" id="privacyCopyright" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label class="small fw-bold">Content</label>
+                    <div id="privacyEditor" style="height: 400px;"></div>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-dark w-100" onclick="savePrivacy()">Save Privacy Policy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Policy Editor (Individual) -->
+    <div id="refund" class="section" style="display: none;">
+        <h3 class="mb-4">Refund Policy Editor</h3>
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Last Updated Date</label>
+                    <input type="date" id="refundLastUpdated" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="small fw-bold">Copyright Text</label>
+                    <input type="text" id="refundCopyright" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label class="small fw-bold">Content</label>
+                    <div id="refundEditor" style="height: 400px;"></div>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-dark w-100" onclick="saveRefund()">Save Refund Policy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section Editor -->
     <div id="hero" class="section" style="display: none;">
         <h3 class="mb-4">Hero Section Editor</h3>
         
@@ -820,7 +1383,506 @@
         </div>
     </div>
 
-    <!-- Banners Editor with Image Upload -->
+    <!-- Flash Sale Editor -->
+    <div id="flashSale" class="section" style="display: none;">
+        <h3 class="mb-4">Flash Sale Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Title</label>
+                    <input type="text" id="flashSaleTitle" class="form-control" value="⚡ FLASH SALE">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Description</label>
+                    <input type="text" id="flashSaleText" class="form-control" value="Up to 70% off on selected items">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">End Date/Time</label>
+                    <input type="datetime-local" id="flashSaleEndTime" class="form-control">
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveFlashSale()">
+                        <i class="fas fa-save"></i> SAVE FLASH SALE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brands Editor -->
+    <div id="brands" class="section" style="display: none;">
+        <h3 class="mb-4">Brands Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="brandsTitle" class="form-control" value="Top Brands">
+                </div>
+                
+                <div class="col-12">
+                    <h5>Brands</h5>
+                    <div id="brandsList"></div>
+                    <button class="btn btn-outline-dark mt-2" onclick="addBrand()">
+                        <i class="fas fa-plus"></i> Add Brand
+                    </button>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveBrands()">
+                        <i class="fas fa-save"></i> SAVE BRANDS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deals Editor -->
+    <div id="deals" class="section" style="display: none;">
+        <h3 class="mb-4">Deal of the Day Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="dealsTitle" class="form-control" value="Deal of the Day">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">View All Link</label>
+                    <input type="text" id="dealsViewAllLink" class="form-control" value="#">
+                </div>
+                
+                <div class="col-12">
+                    <h5>Deals</h5>
+                    <div id="dealsList"></div>
+                    <button class="btn btn-outline-dark mt-2" onclick="addDeal()">
+                        <i class="fas fa-plus"></i> Add Deal
+                    </button>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveDeals()">
+                        <i class="fas fa-save"></i> SAVE DEALS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Choose Us Editor (FIXED with Icon Picker) -->
+    <div id="whyChoose" class="section" style="display: none;">
+        <h3 class="mb-4">Why Choose Us Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="whyChooseTitle" class="form-control" value="Why Choose Espera Mavro?">
+                </div>
+                
+                <div class="col-12">
+                    <h5>Features</h5>
+                    <div id="featuresList"></div>
+                    <button class="btn btn-outline-dark mt-2" onclick="addFeature()">
+                        <i class="fas fa-plus"></i> Add Feature
+                    </button>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveWhyChoose()">
+                        <i class="fas fa-save"></i> SAVE FEATURES
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Editor -->
+    <div id="blog" class="section" style="display: none;">
+        <h3 class="mb-4">Blog Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="blogTitle" class="form-control" value="Latest from Blog">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">View All Link</label>
+                    <input type="text" id="blogViewAllLink" class="form-control" value="#">
+                </div>
+                
+                <div class="col-12">
+                    <h5>Blog Posts</h5>
+                    <div id="blogPostsList"></div>
+                    <button class="btn btn-outline-dark mt-2" onclick="addBlogPost()">
+                        <i class="fas fa-plus"></i> Add Blog Post
+                    </button>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveBlog()">
+                        <i class="fas fa-save"></i> SAVE BLOG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instagram Editor -->
+    <div id="instagram" class="section" style="display: none;">
+        <h3 class="mb-4">Instagram Feed Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="instagramTitle" class="form-control" value="Follow Us @esperamavro">
+                </div>
+                
+                <div class="col-12">
+                    <h5>Instagram Posts</h5>
+                    <div id="instagramPostsList"></div>
+                    <button class="btn btn-outline-dark mt-2" onclick="addInstagramPost()">
+                        <i class="fas fa-plus"></i> Add Instagram Post
+                    </button>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveInstagram()">
+                        <i class="fas fa-save"></i> SAVE INSTAGRAM FEED
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Section Editor -->
+    <div id="app" class="section" style="display: none;">
+        <h3 class="mb-4">App Download Section Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Title</label>
+                    <input type="text" id="appTitle" class="form-control" value="Download Our App">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Description</label>
+                    <input type="text" id="appText" class="form-control" value="Get exclusive app-only deals and faster checkout">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">App Store Link</label>
+                    <input type="text" id="appStoreLink" class="form-control" value="#">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Google Play Link</label>
+                    <input type="text" id="playStoreLink" class="form-control" value="#">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">QR Code Image</label>
+                    <div class="upload-area" onclick="document.getElementById('qrUpload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload QR code</p>
+                    </div>
+                    <input type="file" id="qrUpload" class="d-none" accept="image/*" onchange="handleQRUpload(this)">
+                    <input type="hidden" id="qrImage" value="">
+                    <div id="qrPreview" class="mt-2"></div>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveAppSection()">
+                        <i class="fas fa-save"></i> SAVE APP SECTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Categories Editor -->
+    <div id="topCategories" class="section" style="display: none;">
+        <h3 class="mb-4">Top Categories Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="topCategoriesTitle" class="form-control" value="Top Categories">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Subtitle</label>
+                    <input type="text" id="topCategoriesSubtitle" class="form-control" value="Most popular categories this week">
+                </div>
+                
+                <div class="col-12">
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Show Top Categories Section</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-top-categories" checked onchange="toggleTopCategoriesVisibility(this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-top-categories">Visible</span>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <h5>Select Categories to Display</h5>
+                    <select id="topCategoriesSelect" class="form-select" multiple size="8">
+                        <!-- Categories will be loaded here -->
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple categories</small>
+                </div>
+                
+                <div class="col-12">
+                    <h5>Layout Settings</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Number of Columns (Desktop)</label>
+                            <select id="topCategoriesColumns" class="form-select">
+                                <option value="3">3 Columns</option>
+                                <option value="4" selected>4 Columns</option>
+                                <option value="5">5 Columns</option>
+                                <option value="6">6 Columns</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Show Subcategories</label>
+                            <select id="topCategoriesShowSubs" class="form-select">
+                                <option value="yes" selected>Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveTopCategories()">
+                        <i class="fas fa-save"></i> SAVE TOP CATEGORIES
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Deals Section -->
+    <div id="bestDeals" class="section" style="display: none;">
+        <h3 class="mb-4">Best Deals Management</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="bestDealsTitle" class="form-control" value="🔥 Best Deals">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Subtitle</label>
+                    <input type="text" id="bestDealsSubtitle" class="form-control" value="Limited time offers">
+                </div>
+                
+                <div class="col-12">
+                    <div class="visibility-toggle">
+                        <span style="flex:1;">Show Best Deals Section</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-best-deals" checked onchange="toggleBestDealsVisibility(this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="visibility-status" id="status-best-deals">Visible</span>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Layout Style</label>
+                    <select id="bestDealsLayout" class="form-select">
+                        <option value="grid">Grid View</option>
+                        <option value="slider" selected>Slider/Carousel</option>
+                        <option value="list">List View</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="small fw-bold">Number of Deals to Show</label>
+                    <select id="bestDealsCount" class="form-select">
+                        <option value="4">4 Products</option>
+                        <option value="6" selected>6 Products</option>
+                        <option value="8">8 Products</option>
+                        <option value="10">10 Products</option>
+                        <option value="12">12 Products</option>
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <h5>Select Best Deal Products</h5>
+                    <p class="text-muted small">Choose products to display in the Best Deals section. Hold Ctrl/Cmd to select multiple.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <select id="bestDealsProductSelect" class="form-select" multiple size="12">
+                                <!-- Products will be loaded here dynamically -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="bg-light p-3 rounded">
+                                <h6>Quick Actions</h6>
+                                <button class="btn btn-sm btn-outline-dark w-100 mb-2" onclick="selectAllBestDeals()">
+                                    <i class="fas fa-check-double"></i> Select All
+                                </button>
+                                <button class="btn btn-sm btn-outline-dark w-100 mb-2" onclick="deselectAllBestDeals()">
+                                    <i class="fas fa-times"></i> Deselect All
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="filterBestDealsByCategory()">
+                                    <i class="fas fa-filter"></i> Filter by Category
+                                </button>
+                                <hr>
+                                <h6>Statistics</h6>
+                                <div id="bestDealsStats">
+                                    <p class="small mb-1">Selected: <span id="selectedBestDealsCount">0</span></p>
+                                    <p class="small mb-1">Total Products: <span id="totalBestDealsProducts">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <h5>Display Settings</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Show Badge</label>
+                            <select id="bestDealsShowBadge" class="form-select">
+                                <option value="yes" selected>Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Badge Text</label>
+                            <input type="text" id="bestDealsBadgeText" class="form-control" value="Best Deal">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Badge Color</label>
+                            <select id="bestDealsBadgeColor" class="form-select">
+                                <option value="#ff385c" selected>Red (Default)</option>
+                                <option value="#28a745">Green</option>
+                                <option value="#ffc107">Yellow</option>
+                                <option value="#17a2b8">Blue</option>
+                                <option value="#6f42c1">Purple</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Auto-rotate (seconds)</label>
+                            <input type="number" id="bestDealsAutoRotate" class="form-control" value="5" min="0" max="15">
+                            <small class="text-muted">0 = no auto-rotate</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <h5>Discount Display</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Show Discount Percentage</label>
+                            <select id="bestDealsShowDiscount" class="form-select">
+                                <option value="yes" selected>Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Show Original Price</label>
+                            <select id="bestDealsShowOriginal" class="form-select">
+                                <option value="yes" selected>Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Show Countdown Timer</label>
+                            <select id="bestDealsShowTimer" class="form-select">
+                                <option value="yes">Yes</option>
+                                <option value="no" selected>No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <h5>Preview</h5>
+                    <div class="live-preview" id="bestDealsPreview">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span id="previewBestDealsTitle">🔥 Best Deals</span>
+                            <span id="previewBestDealsSubtitle" class="text-muted">Limited time offers</span>
+                        </div>
+                        <div class="row g-3" id="bestDealsPreviewGrid">
+                            <!-- Preview will show here -->
+                            <div class="col-4">
+                                <div class="bg-white p-3 rounded text-center">
+                                    <i class="fas fa-box fa-3x text-muted mb-2"></i>
+                                    <p class="small">Selected products will appear here</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-white p-3 rounded text-center">
+                                    <i class="fas fa-box fa-3x text-muted mb-2"></i>
+                                    <p class="small">With your chosen settings</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-white p-3 rounded text-center">
+                                    <i class="fas fa-box fa-3x text-muted mb-2"></i>
+                                    <p class="small">And special badges</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveBestDeals()">
+                        <i class="fas fa-save"></i> SAVE BEST DEALS SECTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products Editor -->
+    <div id="featuredProducts" class="section" style="display: none;">
+        <h3 class="mb-4">Featured Products Editor</h3>
+        
+        <div class="card-custom">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="small fw-bold">Section Title</label>
+                    <input type="text" id="featuredTitle" class="form-control" value="Featured Products">
+                </div>
+                
+                <div class="col-12">
+                    <h5>Select Featured Products</h5>
+                    <select id="featuredProductsSelect" class="form-select" multiple size="8">
+                        <!-- Products will be loaded here -->
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple products</small>
+                </div>
+                
+                <div class="col-12">
+                    <button class="btn btn-dark w-100 py-3" onclick="saveFeaturedProducts()">
+                        <i class="fas fa-save"></i> SAVE FEATURED PRODUCTS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banners Editor -->
     <div id="banners" class="section" style="display: none;">
         <h3 class="mb-4">Banners Editor</h3>
         
@@ -1225,6 +2287,17 @@
                         <option value="">Select Category</option>
                     </select>
                 </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Best Deal?</label>
+                    <select id="pBestDeal" class="form-select">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="small fw-bold">Subcategory</label>
+                    <input type="text" id="pSubcategory" class="form-control" placeholder="e.g., Men's Wear">
+                </div>
                 <div class="col-md-6">
                     <label class="small fw-bold">Main Image *</label>
                     <input type="file" id="pImg" class="form-control" accept="image/*">
@@ -1260,6 +2333,7 @@
                             <th>Product</th>
                             <th>SKU</th>
                             <th>Price</th>
+                            <th>Best Deal</th>
                             <th>Variations</th>
                             <th>Action</th>
                         </tr>
@@ -1270,7 +2344,7 @@
         </div>
     </div>
 
-    <!-- Categories Section -->
+    <!-- Categories Section with Subcategories -->
     <div id="categories" class="section" style="display: none;">
         <div class="card-custom">
             <h5>Manage Categories</h5>
@@ -1279,6 +2353,12 @@
                 <button id="saveCatBtn" class="btn btn-dark">Add Category</button>
             </div>
             <div id="catList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+        
+        <div class="card-custom">
+            <h5>Manage Subcategories</h5>
+            <p class="text-muted small">Click on any category to manage its subcategories</p>
+            <div id="subcategoryManager"></div>
         </div>
     </div>
 
@@ -1445,10 +2525,50 @@
     </div>
 </div>
 
+<!-- Icon Picker Modal -->
+<div class="modal fade" id="iconPickerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Choose an Icon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="icon-picker-grid" id="iconPickerGrid">
+                    <!-- Icons will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subcategories Modal -->
+<div class="modal fade" id="subcategoriesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Subcategories for <span id="currentCategoryName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="small fw-bold">Add New Subcategory</label>
+                    <div class="input-group">
+                        <input type="text" id="newSubcategoryName" class="form-control" placeholder="Subcategory name">
+                        <button class="btn btn-dark" onclick="addSubcategory()">Add</button>
+                    </div>
+                </div>
+                <div id="subcategoriesList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // Firebase Configuration
@@ -1464,10 +2584,15 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Initialize Quill
+    // Initialize Quill editors
     const quill = new Quill('#editor', { theme: 'snow' });
-    
+    const pageQuill = new Quill('#pageEditorQuill', { theme: 'snow' });
+    const termsQuill = new Quill('#termsEditor', { theme: 'snow' });
+    const privacyQuill = new Quill('#privacyEditor', { theme: 'snow' });
+    const refundQuill = new Quill('#refundEditor', { theme: 'snow' });
+
     // State
+    let currentPage = 'terms';
     let galleryArr = [];
     let variations = [];
     let currentFilter = 'all';
@@ -1475,6 +2600,39 @@
     let ordersChart, revenueChart, paymentChart, statusChart;
     let allProducts = [];
     let allCategories = [];
+    let brands = [];
+    let deals = [];
+    let features = [];
+    let blogPosts = [];
+    let instagramPosts = [];
+    let currentCategoryId = null;
+
+    // Available Icons for picker
+    const availableIcons = [
+        'fa-truck-fast', 'fa-truck', 'fa-globe', 'fa-box', 'fa-ship', 'fa-plane',
+        'fa-shield-hal', 'fa-shield', 'fa-lock', 'fa-credit-card', 'fa-wallet', 'fa-money-bill',
+        'fa-rotate-left', 'fa-arrows-rotate', 'fa-undo', 'fa-repeat',
+        'fa-headset', 'fa-headphones', 'fa-message', 'fa-phone', 'fa-envelope',
+        'fa-medal', 'fa-award', 'fa-trophy', 'fa-star', 'fa-circle-check',
+        'fa-handshake', 'fa-thumbs-up', 'fa-heart', 'fa-check-circle',
+        'fa-tags', 'fa-percent', 'fa-bolt', 'fa-cart-shopping', 'fa-bag-shopping',
+        'fa-clock', 'fa-gauge-high', 'fa-hourglass', 'fa-stopwatch',
+        'fa-store', 'fa-warehouse', 'fa-industry', 'fa-users', 'fa-chart-line',
+        'fa-earth-asia', 'fa-map-pin', 'fa-location-dot', 'fa-calendar',
+        'fa-gem', 'fa-crown', 'fa-certificate', 'fa-ribbon'
+    ];
+
+    // Load icon picker
+    const iconGrid = document.getElementById('iconPickerGrid');
+    if (iconGrid) {
+        availableIcons.forEach(icon => {
+            const div = document.createElement('div');
+            div.className = 'icon-option';
+            div.innerHTML = `<i class="fas ${icon}"></i>`;
+            div.onclick = () => selectIcon(icon);
+            iconGrid.appendChild(div);
+        });
+    }
 
     // Toggle Sidebar
     window.toggleSidebar = () => {
@@ -1495,6 +2653,24 @@
         if (id === 'services') loadServicesData();
         if (id === 'trust') loadTrustData();
         if (id === 'footer') loadFooterData();
+        if (id === 'flashSale') loadFlashSaleData();
+        if (id === 'brands') loadBrandsData();
+        if (id === 'deals') loadDealsData();
+        if (id === 'whyChoose') loadWhyChooseData();
+        if (id === 'blog') loadBlogData();
+        if (id === 'instagram') loadInstagramData();
+        if (id === 'app') loadAppData();
+        if (id === 'topCategories') {
+            loadCategoriesForTop();
+            loadTopCategoriesData();
+        }
+        if (id === 'bestDeals') {
+            loadProductsForBestDeals();
+        }
+        if (id === 'featuredProducts') {
+            loadProductsForSelect();
+            loadFeaturedProductsData();
+        }
         if (id === 'reviews') loadReviewsList();
         if (id === 'products') loadProducts();
         if (id === 'categories') loadCategories();
@@ -1507,7 +2683,173 @@
         if (id === 'orders') loadOrders('all');
         if (id === 'analytics') loadAnalytics();
         if (id === 'dashboard') loadDashboard();
+        if (id === 'visibility') loadVisibilitySettings();
+        if (id === 'pageEditor') loadPageData(currentPage);
+        if (id === 'terms') loadTermsData();
+        if (id === 'privacy') loadPrivacyData();
+        if (id === 'refund') loadRefundData();
     };
+
+    // ========== PAGE EDITOR FUNCTIONS ==========
+    window.selectPage = (page) => {
+        currentPage = page;
+        document.querySelectorAll('.page-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        loadPageData(page);
+    };
+
+    function loadPageData(page) {
+        database.ref(`pages/${page}`).once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('pageLastUpdated').value = data.lastUpdated || '';
+            document.getElementById('pageCopyright').value = data.copyright || '© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.';
+            
+            pageQuill.root.innerHTML = data.content || getDefaultPageContent(page);
+        });
+    }
+
+    function loadTermsData() {
+        database.ref('pages/terms').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('termsLastUpdated').value = data.lastUpdated || '';
+            document.getElementById('termsCopyright').value = data.copyright || '© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.';
+            termsQuill.root.innerHTML = data.content || '';
+        });
+    }
+
+    function loadPrivacyData() {
+        database.ref('pages/privacy').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('privacyLastUpdated').value = data.lastUpdated || '';
+            document.getElementById('privacyCopyright').value = data.copyright || '© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.';
+            privacyQuill.root.innerHTML = data.content || '';
+        });
+    }
+
+    function loadRefundData() {
+        database.ref('pages/refund').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('refundLastUpdated').value = data.lastUpdated || '';
+            document.getElementById('refundCopyright').value = data.copyright || '© 2026 Espera Mavro — Global Sourcing Platform. All rights reserved.';
+            refundQuill.root.innerHTML = data.content || '';
+        });
+    }
+
+    function savePage() {
+        const data = {
+            lastUpdated: document.getElementById('pageLastUpdated').value,
+            copyright: document.getElementById('pageCopyright').value,
+            content: pageQuill.root.innerHTML
+        };
+        
+        database.ref(`pages/${currentPage}`).set(data)
+            .then(() => alert(`${getPageName(currentPage)} saved successfully!`))
+            .catch(err => alert('Error saving page: ' + err));
+    }
+
+    function saveTerms() {
+        const data = {
+            lastUpdated: document.getElementById('termsLastUpdated').value,
+            copyright: document.getElementById('termsCopyright').value,
+            content: termsQuill.root.innerHTML
+        };
+        database.ref('pages/terms').set(data).then(() => alert('Terms of Service saved!'));
+    }
+
+    function savePrivacy() {
+        const data = {
+            lastUpdated: document.getElementById('privacyLastUpdated').value,
+            copyright: document.getElementById('privacyCopyright').value,
+            content: privacyQuill.root.innerHTML
+        };
+        database.ref('pages/privacy').set(data).then(() => alert('Privacy Policy saved!'));
+    }
+
+    function saveRefund() {
+        const data = {
+            lastUpdated: document.getElementById('refundLastUpdated').value,
+            copyright: document.getElementById('refundCopyright').value,
+            content: refundQuill.root.innerHTML
+        };
+        database.ref('pages/refund').set(data).then(() => alert('Refund Policy saved!'));
+    }
+
+    function getPageName(page) {
+        const names = {
+            'terms': 'Terms of Service',
+            'privacy': 'Privacy Policy',
+            'refund': 'Refund Policy'
+        };
+        return names[page] || page;
+    }
+
+    function getDefaultPageContent(page) {
+        if (page === 'terms') {
+            return `<h1>Terms of Service</h1><p>Welcome to Espera Mavro...</p>`;
+        } else if (page === 'privacy') {
+            return `<h1>Privacy Policy</h1><p>At Espera Mavro, your privacy is our priority...</p>`;
+        } else {
+            return `<h1>Refund Policy</h1><p>At Espera Mavro, we strive to ensure your complete satisfaction...</p>`;
+        }
+    }
+
+    // ========== VISIBILITY FUNCTIONS ==========
+    function loadVisibilitySettings() {
+        database.ref('sections/visibility').once('value', (snapshot) => {
+            const visibility = snapshot.val() || {};
+            
+            const sections = [
+                'hero-section', 'category-header', 'flash-sale-section', 'featured-products-section',
+                'deals-section', 'brand-section', 'banner-section', 'why-choose-section',
+                'service-section', 'blog-section', 'trust-section', 'instagram-section',
+                'review-form-section', 'reviews-header', 'app-section', 'footer', 'top-categories-section',
+                'best-deals-section'
+            ];
+            
+            sections.forEach(sectionId => {
+                const checkbox = document.getElementById(`toggle-${sectionId}`);
+                const statusSpan = document.getElementById(`status-${sectionId}`);
+                if (checkbox) {
+                    const isVisible = visibility[sectionId] !== false;
+                    checkbox.checked = isVisible;
+                    if (statusSpan) {
+                        statusSpan.innerText = isVisible ? 'Visible' : 'Hidden';
+                    }
+                }
+            });
+        });
+    }
+
+    window.toggleSection = (sectionId, checkbox) => {
+        const statusSpan = document.getElementById(`status-${sectionId}`);
+        if (statusSpan) {
+            statusSpan.innerText = checkbox.checked ? 'Visible' : 'Hidden';
+        }
+    };
+
+    function saveVisibilitySettings() {
+        const visibility = {};
+        
+        const sections = [
+            'hero-section', 'category-header', 'flash-sale-section', 'featured-products-section',
+            'deals-section', 'brand-section', 'banner-section', 'why-choose-section',
+            'service-section', 'blog-section', 'trust-section', 'instagram-section',
+            'review-form-section', 'reviews-header', 'app-section', 'footer', 'top-categories-section',
+            'best-deals-section'
+        ];
+        
+        sections.forEach(sectionId => {
+            const checkbox = document.getElementById(`toggle-${sectionId}`);
+            if (checkbox) {
+                visibility[sectionId] = checkbox.checked;
+            }
+        });
+        
+        database.ref('sections/visibility').set(visibility)
+            .then(() => alert('Visibility settings saved successfully!'))
+            .catch(err => alert('Error saving visibility settings'));
+    }
 
     // ========== IMAGE UPLOAD FUNCTIONS ==========
     const toBase64 = f => new Promise((resolve, reject) => {
@@ -1517,8 +2859,7 @@
         reader.onerror = error => reject(error);
     });
 
-    // Hero Image Upload
-    window.handleHeroImageUpload = async (input) => {
+    function handleHeroImageUpload(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
             if (file.size > 5 * 1024 * 1024) {
@@ -1526,20 +2867,17 @@
                 return;
             }
             
-            const base64 = await toBase64(file);
-            document.getElementById('heroImage').value = base64;
-            
-            // Show preview
-            const previewDiv = document.getElementById('heroImagePreview');
-            previewDiv.innerHTML = `<img src="${base64}" class="image-preview">`;
-            
-            // Update live preview background
-            document.getElementById('heroPreviewBg').style.backgroundImage = `url('${base64}')`;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('heroImage').value = e.target.result;
+                document.getElementById('heroImagePreview').innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                document.getElementById('heroPreviewBg').style.backgroundImage = `url('${e.target.result}')`;
+            };
+            reader.readAsDataURL(file);
         }
-    };
+    }
 
-    // Banner Image Upload
-    window.handleBannerImageUpload = async (input, position) => {
+    function handleBannerImageUpload(input, position) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
             if (file.size > 5 * 1024 * 1024) {
@@ -1547,16 +2885,32 @@
                 return;
             }
             
-            const base64 = await toBase64(file);
-            document.getElementById(`${position}BannerImage`).value = base64;
-            
-            // Show preview
-            const previewDiv = document.getElementById(`${position}BannerPreview`);
-            previewDiv.innerHTML = `<img src="${base64}" class="image-preview">`;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById(`${position}BannerImage`).value = e.target.result;
+                document.getElementById(`${position}BannerPreview`).innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+            };
+            reader.readAsDataURL(file);
         }
-    };
+    }
 
-    // Gallery upload for products
+    function handleQRUpload(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('qrImage').value = e.target.result;
+                document.getElementById('qrPreview').innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     document.getElementById('galleryInput').onchange = async (e) => {
         for(let file of e.target.files) { 
             if (file.size > 5 * 1024 * 1024) {
@@ -1578,64 +2932,162 @@
         `).join('');
     }
 
-    // ========== VARIATIONS ==========
-    window.addVariation = () => {
-        variations.push({ 
-            name: '', 
-            value: '', 
-            price: '', 
-            image: null,
-            imagePreview: null 
-        });
-        renderVariations();
-    };
-
-    function renderVariations() {
-        const container = document.getElementById('variationsContainer');
-        container.innerHTML = variations.map((v, i) => `
-            <div class="variation-row">
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" placeholder="Type (e.g., Color)" value="${v.name}" onchange="updateVariation(${i}, 'name', this.value)">
+    // ========== WHY CHOOSE US FUNCTIONS ==========
+    window.addFeature = () => {
+        const featuresList = document.getElementById('featuresList');
+        const index = features.length;
+        
+        const featureDiv = document.createElement('div');
+        featureDiv.className = 'feature-item';
+        featureDiv.id = `feature-${index}`;
+        featureDiv.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Icon" id="feature-icon-${index}" value="fa-truck-fast" readonly>
+                        <button class="btn btn-outline-dark" type="button" onclick="openIconPicker(${index})">
+                            <i class="fas fa-icons"></i>
+                        </button>
                     </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" placeholder="Value (e.g., Red)" value="${v.value}" onchange="updateVariation(${i}, 'value', this.value)">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control" placeholder="Price" value="${v.price}" onchange="updateVariation(${i}, 'price', this.value)">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="file" class="form-control" accept="image/*" onchange="uploadVariationImage(${i}, this)">
-                        ${v.imagePreview ? `<img src="${v.imagePreview}" class="variant-image-preview">` : ''}
-                    </div>
-                    <div class="col-md-1">
-                        <button class="btn btn-outline-danger" onclick="removeVariation(${i})">×</button>
+                    <div class="mt-1" id="feature-icon-preview-${index}">
+                        <i class="fas fa-truck-fast" style="font-size: 24px; color: var(--accent);"></i>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Title" id="feature-title-${index}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Description" id="feature-desc-${index}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-danger" onclick="removeFeature(${index})">×</button>
+                </div>
             </div>
-        `).join('');
-    }
-
-    window.updateVariation = (index, field, value) => {
-        variations[index][field] = value;
+        `;
+        featuresList.appendChild(featureDiv);
+        features.push({ index, icon: 'fa-truck-fast' });
     };
 
-    window.uploadVariationImage = async (index, input) => {
-        if (input.files && input.files[0]) {
-            const base64 = await toBase64(input.files[0]);
-            variations[index].image = base64;
-            variations[index].imagePreview = base64;
-            renderVariations();
+    window.openIconPicker = (featureIndex) => {
+        window.currentFeatureIndex = featureIndex;
+        const modal = new bootstrap.Modal(document.getElementById('iconPickerModal'));
+        modal.show();
+    };
+
+    window.selectIcon = (icon) => {
+        const index = window.currentFeatureIndex;
+        document.getElementById(`feature-icon-${index}`).value = icon;
+        document.getElementById(`feature-icon-preview-${index}`).innerHTML = `<i class="fas ${icon}" style="font-size: 24px; color: var(--accent);"></i>`;
+        
+        const feature = features.find(f => f.index === index);
+        if (feature) feature.icon = icon;
+        
+        bootstrap.Modal.getInstance(document.getElementById('iconPickerModal')).hide();
+    };
+
+    window.removeFeature = (index) => {
+        const featureDiv = document.getElementById(`feature-${index}`);
+        if (featureDiv) {
+            featureDiv.remove();
+            features = features.filter(f => f.index !== index);
         }
     };
 
-    window.removeVariation = (index) => {
-        variations.splice(index, 1);
-        renderVariations();
+    function loadWhyChooseData() {
+        database.ref('sections/whyChoose').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('whyChooseTitle').value = data.title || 'Why Choose Espera Mavro?';
+            
+            const featuresList = document.getElementById('featuresList');
+            featuresList.innerHTML = '';
+            features = [];
+            
+            if (data.features && data.features.length > 0) {
+                data.features.forEach((feature, index) => {
+                    const featureDiv = document.createElement('div');
+                    featureDiv.className = 'feature-item';
+                    featureDiv.id = `feature-${index}`;
+                    featureDiv.innerHTML = `
+                        <div class="row g-2">
+                            <div class="col-md-2">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Icon" id="feature-icon-${index}" value="${feature.icon || 'fa-truck-fast'}" readonly>
+                                    <button class="btn btn-outline-dark" type="button" onclick="openIconPicker(${index})">
+                                        <i class="fas fa-icons"></i>
+                                    </button>
+                                </div>
+                                <div class="mt-1" id="feature-icon-preview-${index}">
+                                    <i class="fas ${feature.icon || 'fa-truck-fast'}" style="font-size: 24px; color: var(--accent);"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Title" id="feature-title-${index}" value="${feature.title || ''}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Description" id="feature-desc-${index}" value="${feature.description || ''}">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger" onclick="removeFeature(${index})">×</button>
+                            </div>
+                        </div>
+                    `;
+                    featuresList.appendChild(featureDiv);
+                    features.push({ index, icon: feature.icon || 'fa-truck-fast' });
+                });
+            } else {
+                addDefaultFeatures();
+            }
+        });
+    }
+
+    function addDefaultFeatures() {
+        const defaultFeatures = [
+            { icon: 'fa-truck-fast', title: 'Fast Delivery', description: '7-15 days door-to-door' },
+            { icon: 'fa-shield-hal', title: 'Secure Payment', description: '100% protected' },
+            { icon: 'fa-rotate-left', title: 'Easy Returns', description: '7 days return policy' },
+            { icon: 'fa-headset', title: '24/7 Support', description: 'Dedicated help' }
+        ];
+        
+        defaultFeatures.forEach(f => {
+            addFeature();
+            const index = features.length - 1;
+            document.getElementById(`feature-icon-${index}`).value = f.icon;
+            document.getElementById(`feature-icon-preview-${index}`).innerHTML = `<i class="fas ${f.icon}" style="font-size: 24px; color: var(--accent);"></i>`;
+            document.getElementById(`feature-title-${index}`).value = f.title;
+            document.getElementById(`feature-desc-${index}`).value = f.description;
+            
+            const feature = features.find(feat => feat.index === index);
+            if (feature) feature.icon = f.icon;
+        });
+    }
+
+    window.saveWhyChoose = () => {
+        const title = document.getElementById('whyChooseTitle').value;
+        const featuresData = [];
+        
+        features.forEach(f => {
+            const icon = document.getElementById(`feature-icon-${f.index}`)?.value;
+            const title = document.getElementById(`feature-title-${f.index}`)?.value;
+            const description = document.getElementById(`feature-desc-${f.index}`)?.value;
+            
+            if (title) {
+                featuresData.push({ icon, title, description });
+            }
+        });
+        
+        database.ref('sections/whyChoose').set({
+            title: title,
+            features: featuresData
+        }).then(() => {
+            alert('Why Choose Us section saved successfully!');
+        }).catch(err => {
+            console.error(err);
+            alert('Error saving: ' + err.message);
+        });
     };
 
     // ========== SECTION LOAD FUNCTIONS ==========
-    
     function loadHeroData() {
         database.ref('sections/hero').once('value', (snapshot) => {
             const data = snapshot.val() || {};
@@ -1646,7 +3098,6 @@
             document.getElementById('heroBtnLink').value = data.btn_link || 'shop.html';
             document.getElementById('heroImage').value = data.image || '';
             
-            // Show image preview if exists
             if (data.image) {
                 document.getElementById('heroImagePreview').innerHTML = `<img src="${data.image}" class="image-preview">`;
                 document.getElementById('heroPreviewBg').style.backgroundImage = `url('${data.image}')`;
@@ -1656,11 +3107,34 @@
         });
     }
 
+    function loadFlashSaleData() {
+        database.ref('sections/flashSale').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('flashSaleTitle').value = data.title || '⚡ FLASH SALE';
+            document.getElementById('flashSaleText').value = data.text || 'Up to 70% off on selected items';
+            document.getElementById('flashSaleEndTime').value = data.end_time || '';
+        });
+    }
+
+    function loadAppData() {
+        database.ref('sections/app').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('appTitle').value = data.title || 'Download Our App';
+            document.getElementById('appText').value = data.text || 'Get exclusive app-only deals and faster checkout';
+            document.getElementById('appStoreLink').value = data.app_store_link || '#';
+            document.getElementById('playStoreLink').value = data.play_store_link || '#';
+            document.getElementById('qrImage').value = data.qr_code || '';
+            
+            if (data.qr_code) {
+                document.getElementById('qrPreview').innerHTML = `<img src="${data.qr_code}" class="image-preview">`;
+            }
+        });
+    }
+
     function loadBannerData() {
         database.ref('sections/banners').once('value', (snapshot) => {
             const data = snapshot.val() || {};
             
-            // Left banner
             const left = data.left || {};
             document.getElementById('leftBannerTag').value = left.tag || 'SUMMER 26';
             document.getElementById('leftBannerTitle').value = left.title || 'Essentials';
@@ -1670,7 +3144,6 @@
                 document.getElementById('leftBannerPreview').innerHTML = `<img src="${left.image}" class="image-preview">`;
             }
             
-            // Right banner
             const right = data.right || {};
             document.getElementById('rightBannerTag').value = right.tag || 'BAGS';
             document.getElementById('rightBannerTitle').value = right.title || 'Leather';
@@ -1733,52 +3206,846 @@
         });
     }
 
-    function loadReviewsList() {
-        const list = document.getElementById('reviewsList');
-        list.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
-        
-        database.ref('reviews').once('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                list.innerHTML = '<tr><td colspan="5" class="text-center py-4">No reviews yet</td></tr>';
-                return;
-            }
+    // ========== TOP CATEGORIES FUNCTIONS ==========
+    function loadCategoriesForTop() {
+        database.ref('categories').once('value', (snapshot) => {
+            const select = document.getElementById('topCategoriesSelect');
+            select.innerHTML = '';
             
-            let html = '';
             snapshot.forEach((child) => {
-                const review = child.val();
-                const date = review.date ? new Date(review.date).toLocaleDateString() : 'N/A';
-                
-                html += `
-                    <tr>
-                        <td>${review.name || 'Anonymous'}</td>
-                        <td>${'★'.repeat(review.rating || 5)}</td>
-                        <td>${review.text || ''}</td>
-                        <td>${date}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReview('${child.key}')">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                const catData = child.val();
+                const catName = catData.name || catData;
+                select.innerHTML += `<option value="${child.key}">${catName}</option>`;
             });
-            list.innerHTML = html;
         });
     }
 
-    function deleteReview(reviewId) {
-        if (confirm('Delete this review?')) {
-            database.ref('reviews/' + reviewId).remove()
-                .then(() => {
-                    alert('Review deleted');
-                    loadReviewsList();
-                })
-                .catch(err => alert('Error deleting review'));
+    window.toggleTopCategoriesVisibility = (checkbox) => {
+        const statusSpan = document.getElementById('status-top-categories');
+        if (statusSpan) {
+            statusSpan.innerText = checkbox.checked ? 'Visible' : 'Hidden';
         }
+    };
+
+    function loadTopCategoriesData() {
+        database.ref('sections/topCategories').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('topCategoriesTitle').value = data.title || 'Top Categories';
+            document.getElementById('topCategoriesSubtitle').value = data.subtitle || 'Most popular categories this week';
+            
+            const checkbox = document.getElementById('toggle-top-categories');
+            if (checkbox) {
+                checkbox.checked = data.visible !== false;
+                document.getElementById('status-top-categories').innerText = checkbox.checked ? 'Visible' : 'Hidden';
+            }
+            
+            if (data.columns) {
+                document.getElementById('topCategoriesColumns').value = data.columns;
+            }
+            
+            if (data.showSubcategories !== undefined) {
+                document.getElementById('topCategoriesShowSubs').value = data.showSubcategories ? 'yes' : 'no';
+            }
+            
+            const select = document.getElementById('topCategoriesSelect');
+            if (data.categories && data.categories.length > 0) {
+                Array.from(select.options).forEach(option => {
+                    option.selected = data.categories.includes(option.value);
+                });
+            }
+        });
+    }
+
+    window.saveTopCategories = () => {
+        const title = document.getElementById('topCategoriesTitle').value;
+        const subtitle = document.getElementById('topCategoriesSubtitle').value;
+        const visible = document.getElementById('toggle-top-categories').checked;
+        const columns = document.getElementById('topCategoriesColumns').value;
+        const showSubcategories = document.getElementById('topCategoriesShowSubs').value === 'yes';
+        
+        const select = document.getElementById('topCategoriesSelect');
+        const categoryIds = Array.from(select.selectedOptions).map(opt => opt.value);
+        
+        database.ref('sections/topCategories').set({
+            title: title,
+            subtitle: subtitle,
+            visible: visible,
+            categories: categoryIds,
+            columns: parseInt(columns),
+            showSubcategories: showSubcategories
+        }).then(() => {
+            alert('Top categories saved successfully!');
+        }).catch(err => {
+            console.error('Error saving top categories:', err);
+            alert('Error saving top categories');
+        });
+    };
+
+    // ========== BEST DEALS FUNCTIONS ==========
+    
+    // Load products for best deals selection
+    function loadProductsForBestDeals() {
+        database.ref('products').once('value', (snapshot) => {
+            const select = document.getElementById('bestDealsProductSelect');
+            select.innerHTML = '';
+            let totalProducts = 0;
+            
+            snapshot.forEach(child => {
+                totalProducts++;
+                const product = child.val();
+                const productName = product.name || product.title || 'Unnamed Product';
+                const productPrice = product.price || 0;
+                const isBestDeal = product.bestDeal === true || product.bestDeal === "true" || product.bestDeal === 1;
+                
+                // Create option with product info as data attributes
+                const option = document.createElement('option');
+                option.value = child.key;
+                option.textContent = `${productName} - ৳${productPrice}`;
+                option.setAttribute('data-price', productPrice);
+                option.setAttribute('data-name', productName);
+                option.setAttribute('data-image', product.image || '');
+                
+                if (isBestDeal) {
+                    option.style.fontWeight = 'bold';
+                    option.style.color = '#ff385c';
+                    option.textContent += ' ★';
+                }
+                
+                select.appendChild(option);
+            });
+            
+            document.getElementById('totalBestDealsProducts').innerText = totalProducts;
+            
+            // Load saved selections
+            loadBestDealsData();
+        });
+    }
+    
+    // Toggle best deals visibility
+    window.toggleBestDealsVisibility = (checkbox) => {
+        const statusSpan = document.getElementById('status-best-deals');
+        if (statusSpan) {
+            statusSpan.innerText = checkbox.checked ? 'Visible' : 'Hidden';
+        }
+        updateBestDealsPreview();
+    };
+    
+    // Select all products
+    window.selectAllBestDeals = () => {
+        const select = document.getElementById('bestDealsProductSelect');
+        Array.from(select.options).forEach(option => {
+            option.selected = true;
+        });
+        updateSelectedCount();
+        updateBestDealsPreview();
+    };
+    
+    // Deselect all products
+    window.deselectAllBestDeals = () => {
+        const select = document.getElementById('bestDealsProductSelect');
+        Array.from(select.options).forEach(option => {
+            option.selected = false;
+        });
+        updateSelectedCount();
+        updateBestDealsPreview();
+    };
+    
+    // Filter by category (opens category selection modal)
+    window.filterBestDealsByCategory = () => {
+        // You can implement a category filter modal here
+        // For now, just select products from a specific category
+        const category = prompt('Enter category name to filter (e.g., Fashion, Bags):');
+        if (category) {
+            const select = document.getElementById('bestDealsProductSelect');
+            let found = false;
+            
+            Array.from(select.options).forEach(option => {
+                const productName = option.textContent.toLowerCase();
+                if (productName.includes(category.toLowerCase())) {
+                    option.selected = true;
+                    found = true;
+                }
+            });
+            
+            if (!found) {
+                alert('No products found in this category');
+            }
+            
+            updateSelectedCount();
+            updateBestDealsPreview();
+        }
+    };
+    
+    // Update selected count
+    function updateSelectedCount() {
+        const select = document.getElementById('bestDealsProductSelect');
+        const selectedCount = Array.from(select.selectedOptions).length;
+        document.getElementById('selectedBestDealsCount').innerText = selectedCount;
+    }
+    
+    // Update preview based on settings
+    function updateBestDealsPreview() {
+        const title = document.getElementById('bestDealsTitle').value;
+        const subtitle = document.getElementById('bestDealsSubtitle').value;
+        const badgeColor = document.getElementById('bestDealsBadgeColor').value;
+        const badgeText = document.getElementById('bestDealsBadgeText').value;
+        const showBadge = document.getElementById('bestDealsShowBadge').value === 'yes';
+        const layout = document.getElementById('bestDealsLayout').value;
+        const count = parseInt(document.getElementById('bestDealsCount').value);
+        
+        document.getElementById('previewBestDealsTitle').innerHTML = title;
+        document.getElementById('previewBestDealsSubtitle').innerHTML = subtitle;
+        
+        const previewGrid = document.getElementById('bestDealsPreviewGrid');
+        const select = document.getElementById('bestDealsProductSelect');
+        const selectedOptions = Array.from(select.selectedOptions).slice(0, count);
+        
+        if (selectedOptions.length === 0) {
+            previewGrid.innerHTML = `
+                <div class="col-12 text-center py-4">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No products selected. Select products from the list above.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let previewHtml = '';
+        selectedOptions.forEach(option => {
+            const productName = option.getAttribute('data-name') || option.textContent.split(' -')[0];
+            const productPrice = option.getAttribute('data-price') || '0';
+            const badgeHtml = showBadge ? 
+                `<span style="background: ${badgeColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; position: absolute; top: 10px; left: 10px;">${badgeText}</span>` : '';
+            
+            previewHtml += `
+                <div class="col-4">
+                    <div class="bg-white p-2 rounded text-center position-relative" style="border: 1px solid #eee;">
+                        ${badgeHtml}
+                        <i class="fas fa-box fa-2x text-secondary mb-2"></i>
+                        <h6 class="small fw-bold mb-1">${productName}</h6>
+                        <p class="small text-primary mb-0">৳${productPrice}</p>
+                    </div>
+                </div>
+            `;
+        });
+        
+        previewGrid.innerHTML = previewHtml;
+    }
+    
+    // Load saved best deals data
+    function loadBestDealsData() {
+        database.ref('sections/bestDeals').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('bestDealsTitle').value = data.title || '🔥 Best Deals';
+            document.getElementById('bestDealsSubtitle').value = data.subtitle || 'Limited time offers';
+            document.getElementById('bestDealsLayout').value = data.layout || 'slider';
+            document.getElementById('bestDealsCount').value = data.count || '6';
+            document.getElementById('bestDealsShowBadge').value = data.showBadge ? 'yes' : 'no';
+            document.getElementById('bestDealsBadgeText').value = data.badgeText || 'Best Deal';
+            document.getElementById('bestDealsBadgeColor').value = data.badgeColor || '#ff385c';
+            document.getElementById('bestDealsShowDiscount').value = data.showDiscount ? 'yes' : 'no';
+            document.getElementById('bestDealsShowOriginal').value = data.showOriginal ? 'yes' : 'no';
+            document.getElementById('bestDealsShowTimer').value = data.showTimer ? 'yes' : 'no';
+            document.getElementById('bestDealsAutoRotate').value = data.autoRotate || '5';
+            
+            const checkbox = document.getElementById('toggle-best-deals');
+            if (checkbox) {
+                checkbox.checked = data.visible !== false;
+                document.getElementById('status-best-deals').innerText = checkbox.checked ? 'Visible' : 'Hidden';
+            }
+            
+            // Select products
+            const select = document.getElementById('bestDealsProductSelect');
+            if (data.productIds && data.productIds.length > 0) {
+                Array.from(select.options).forEach(option => {
+                    option.selected = data.productIds.includes(option.value);
+                });
+            }
+            
+            updateSelectedCount();
+            updateBestDealsPreview();
+        });
+    }
+    
+    // Save best deals section
+    window.saveBestDeals = () => {
+        const title = document.getElementById('bestDealsTitle').value;
+        const subtitle = document.getElementById('bestDealsSubtitle').value;
+        const visible = document.getElementById('toggle-best-deals').checked;
+        const layout = document.getElementById('bestDealsLayout').value;
+        const count = document.getElementById('bestDealsCount').value;
+        const showBadge = document.getElementById('bestDealsShowBadge').value === 'yes';
+        const badgeText = document.getElementById('bestDealsBadgeText').value;
+        const badgeColor = document.getElementById('bestDealsBadgeColor').value;
+        const showDiscount = document.getElementById('bestDealsShowDiscount').value === 'yes';
+        const showOriginal = document.getElementById('bestDealsShowOriginal').value === 'yes';
+        const showTimer = document.getElementById('bestDealsShowTimer').value === 'yes';
+        const autoRotate = parseInt(document.getElementById('bestDealsAutoRotate').value) || 0;
+        
+        const select = document.getElementById('bestDealsProductSelect');
+        const productIds = Array.from(select.selectedOptions).map(opt => opt.value);
+        
+        if (productIds.length === 0) {
+            if (!confirm('No products selected. Best Deals section will be empty. Continue?')) {
+                return;
+            }
+        }
+        
+        const bestDealsData = {
+            title: title,
+            subtitle: subtitle,
+            visible: visible,
+            layout: layout,
+            count: parseInt(count),
+            showBadge: showBadge,
+            badgeText: badgeText,
+            badgeColor: badgeColor,
+            showDiscount: showDiscount,
+            showOriginal: showOriginal,
+            showTimer: showTimer,
+            autoRotate: autoRotate,
+            productIds: productIds,
+            updatedAt: new Date().toISOString()
+        };
+        
+        database.ref('sections/bestDeals').set(bestDealsData)
+            .then(() => {
+                alert('Best Deals section saved successfully!');
+                
+                // Also update individual products' bestDeal flag
+                const updates = {};
+                productIds.forEach(id => {
+                    updates[`products/${id}/bestDeal`] = true;
+                });
+                
+                if (productIds.length > 0) {
+                    database.ref().update(updates)
+                        .then(() => console.log('Product bestDeal flags updated'))
+                        .catch(err => console.error('Error updating product flags:', err));
+                }
+            })
+            .catch(err => {
+                console.error('Error saving best deals:', err);
+                alert('Error saving best deals: ' + err.message);
+            });
+    };
+    
+    // Add event listeners for real-time preview
+    document.getElementById('bestDealsTitle')?.addEventListener('input', updateBestDealsPreview);
+    document.getElementById('bestDealsSubtitle')?.addEventListener('input', updateBestDealsPreview);
+    document.getElementById('bestDealsLayout')?.addEventListener('change', updateBestDealsPreview);
+    document.getElementById('bestDealsCount')?.addEventListener('change', updateBestDealsPreview);
+    document.getElementById('bestDealsShowBadge')?.addEventListener('change', updateBestDealsPreview);
+    document.getElementById('bestDealsBadgeText')?.addEventListener('input', updateBestDealsPreview);
+    document.getElementById('bestDealsBadgeColor')?.addEventListener('change', updateBestDealsPreview);
+    document.getElementById('bestDealsProductSelect')?.addEventListener('change', () => {
+        updateSelectedCount();
+        updateBestDealsPreview();
+    });
+
+    // ========== SUBCATEGORIES FUNCTIONS ==========
+    window.manageSubcategories = (catId, catName) => {
+        currentCategoryId = catId;
+        document.getElementById('currentCategoryName').textContent = catName;
+        loadSubcategories(catId);
+        const modal = new bootstrap.Modal(document.getElementById('subcategoriesModal'));
+        modal.show();
+    };
+
+    function loadSubcategories(catId) {
+        database.ref(`categories/${catId}/subcategories`).once('value', (snapshot) => {
+            const list = document.getElementById('subcategoriesList');
+            list.innerHTML = '';
+            
+            snapshot.forEach((child) => {
+                const sub = child.val();
+                list.innerHTML += `
+                    <div class="subcategory-item">
+                        <input type="text" class="form-control subcategory-input" value="${sub.name}" onchange="updateSubcategory('${child.key}', this.value)">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSubcategory('${child.key}')">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    window.addSubcategory = () => {
+        const name = document.getElementById('newSubcategoryName').value.trim();
+        if (!name || !currentCategoryId) return;
+        
+        database.ref(`categories/${currentCategoryId}/subcategories`).push({
+            name: name,
+            count: 0
+        }).then(() => {
+            document.getElementById('newSubcategoryName').value = '';
+            loadSubcategories(currentCategoryId);
+        });
+    };
+
+    window.updateSubcategory = (subId, newName) => {
+        database.ref(`categories/${currentCategoryId}/subcategories/${subId}`).update({
+            name: newName
+        });
+    };
+
+    window.deleteSubcategory = (subId) => {
+        if (confirm('Delete this subcategory?')) {
+            database.ref(`categories/${currentCategoryId}/subcategories/${subId}`).remove();
+            loadSubcategories(currentCategoryId);
+        }
+    };
+
+    // ========== BRANDS FUNCTIONS ==========
+    window.addBrand = () => {
+        const brandsList = document.getElementById('brandsList');
+        const index = brands.length;
+        
+        const brandDiv = document.createElement('div');
+        brandDiv.className = 'feature-item';
+        brandDiv.id = `brand-${index}`;
+        brandDiv.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Icon (e.g., fab fa-apple)" id="brand-icon-${index}">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" placeholder="Brand Name" id="brand-name-${index}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-danger" onclick="removeBrand(${index})">×</button>
+                </div>
+            </div>
+        `;
+        brandsList.appendChild(brandDiv);
+        brands.push({ index });
+    };
+
+    window.removeBrand = (index) => {
+        const brandDiv = document.getElementById(`brand-${index}`);
+        if (brandDiv) {
+            brandDiv.remove();
+            brands = brands.filter(b => b.index !== index);
+        }
+    };
+
+    function loadBrandsData() {
+        database.ref('sections/brands').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('brandsTitle').value = data.title || 'Top Brands';
+            
+            const brandsList = document.getElementById('brandsList');
+            brandsList.innerHTML = '';
+            brands = [];
+            
+            if (data.brands && data.brands.length > 0) {
+                data.brands.forEach((brand, index) => {
+                    const brandDiv = document.createElement('div');
+                    brandDiv.className = 'feature-item';
+                    brandDiv.id = `brand-${index}`;
+                    brandDiv.innerHTML = `
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Icon" value="${brand.icon || ''}" id="brand-icon-${index}">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" placeholder="Brand Name" value="${brand.name || ''}" id="brand-name-${index}">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger" onclick="removeBrand(${index})">×</button>
+                            </div>
+                        </div>
+                    `;
+                    brandsList.appendChild(brandDiv);
+                    brands.push({ index });
+                });
+            }
+        });
+    }
+
+    function saveBrands() {
+        const title = document.getElementById('brandsTitle').value;
+        const brandsData = [];
+        
+        brands.forEach(b => {
+            const icon = document.getElementById(`brand-icon-${b.index}`)?.value;
+            const name = document.getElementById(`brand-name-${b.index}`)?.value;
+            if (icon && name) {
+                brandsData.push({ icon, name });
+            }
+        });
+        
+        database.ref('sections/brands').set({
+            title: title,
+            brands: brandsData
+        }).then(() => alert('Brands saved successfully!'))
+          .catch(err => alert('Error saving brands'));
+    }
+
+    // ========== DEALS FUNCTIONS ==========
+    window.addDeal = () => {
+        const dealsList = document.getElementById('dealsList');
+        const index = deals.length;
+        
+        const dealDiv = document.createElement('div');
+        dealDiv.className = 'feature-item';
+        dealDiv.id = `deal-${index}`;
+        dealDiv.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Title" id="deal-title-${index}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Description" id="deal-desc-${index}">
+                </div>
+                <div class="col-md-1">
+                    <input type="number" class="form-control" placeholder="Price" id="deal-price-${index}">
+                </div>
+                <div class="col-md-1">
+                    <input type="number" class="form-control" placeholder="Original" id="deal-original-${index}">
+                </div>
+                <div class="col-md-1">
+                    <input type="number" class="form-control" placeholder="Discount %" id="deal-discount-${index}">
+                </div>
+                <div class="col-md-1">
+                    <input type="number" class="form-control" placeholder="Sold %" id="deal-sold-${index}">
+                </div>
+                <div class="col-md-1">
+                    <input type="number" class="form-control" placeholder="Sold Count" id="deal-count-${index}">
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-outline-danger" onclick="removeDeal(${index})">×</button>
+                </div>
+            </div>
+        `;
+        dealsList.appendChild(dealDiv);
+        deals.push({ index });
+    };
+
+    window.removeDeal = (index) => {
+        const dealDiv = document.getElementById(`deal-${index}`);
+        if (dealDiv) {
+            dealDiv.remove();
+            deals = deals.filter(d => d.index !== index);
+        }
+    };
+
+    function loadDealsData() {
+        database.ref('sections/deals').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('dealsTitle').value = data.title || 'Deal of the Day';
+            document.getElementById('dealsViewAllLink').value = data.view_all_link || '#';
+            
+            const dealsList = document.getElementById('dealsList');
+            dealsList.innerHTML = '';
+            deals = [];
+            
+            if (data.deals && data.deals.length > 0) {
+                data.deals.forEach((deal, index) => {
+                    const dealDiv = document.createElement('div');
+                    dealDiv.className = 'feature-item';
+                    dealDiv.id = `deal-${index}`;
+                    dealDiv.innerHTML = `
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="Title" value="${deal.title || ''}" id="deal-title-${index}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="Description" value="${deal.description || ''}" id="deal-desc-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <input type="number" class="form-control" placeholder="Price" value="${deal.price || ''}" id="deal-price-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <input type="number" class="form-control" placeholder="Original" value="${deal.original_price || ''}" id="deal-original-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <input type="number" class="form-control" placeholder="Discount %" value="${deal.discount || ''}" id="deal-discount-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <input type="number" class="form-control" placeholder="Sold %" value="${deal.sold_percentage || ''}" id="deal-sold-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <input type="number" class="form-control" placeholder="Sold Count" value="${deal.sold_count || ''}" id="deal-count-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-outline-danger" onclick="removeDeal(${index})">×</button>
+                            </div>
+                        </div>
+                    `;
+                    dealsList.appendChild(dealDiv);
+                    deals.push({ index });
+                });
+            }
+        });
+    }
+
+    function saveDeals() {
+        const title = document.getElementById('dealsTitle').value;
+        const viewAllLink = document.getElementById('dealsViewAllLink').value;
+        const dealsData = [];
+        
+        deals.forEach(d => {
+            const deal = {
+                title: document.getElementById(`deal-title-${d.index}`)?.value,
+                description: document.getElementById(`deal-desc-${d.index}`)?.value,
+                price: document.getElementById(`deal-price-${d.index}`)?.value,
+                original_price: document.getElementById(`deal-original-${d.index}`)?.value,
+                discount: document.getElementById(`deal-discount-${d.index}`)?.value,
+                sold_percentage: document.getElementById(`deal-sold-${d.index}`)?.value,
+                sold_count: document.getElementById(`deal-count-${d.index}`)?.value
+            };
+            if (deal.title) {
+                dealsData.push(deal);
+            }
+        });
+        
+        database.ref('sections/deals').set({
+            title: title,
+            view_all_link: viewAllLink,
+            deals: dealsData
+        }).then(() => alert('Deals saved successfully!'))
+          .catch(err => alert('Error saving deals'));
+    }
+
+    // ========== BLOG FUNCTIONS ==========
+    window.addBlogPost = () => {
+        const blogList = document.getElementById('blogPostsList');
+        const index = blogPosts.length;
+        
+        const postDiv = document.createElement('div');
+        postDiv.className = 'feature-item';
+        postDiv.id = `blog-${index}`;
+        postDiv.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="Image URL" id="blog-image-${index}">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="Date" id="blog-date-${index}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Title" id="blog-title-${index}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Excerpt" id="blog-excerpt-${index}">
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-outline-danger" onclick="removeBlogPost(${index})">×</button>
+                </div>
+            </div>
+        `;
+        blogList.appendChild(postDiv);
+        blogPosts.push({ index });
+    };
+
+    window.removeBlogPost = (index) => {
+        const postDiv = document.getElementById(`blog-${index}`);
+        if (postDiv) {
+            postDiv.remove();
+            blogPosts = blogPosts.filter(p => p.index !== index);
+        }
+    };
+
+    function loadBlogData() {
+        database.ref('sections/blog').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('blogTitle').value = data.title || 'Latest from Blog';
+            document.getElementById('blogViewAllLink').value = data.view_all_link || '#';
+            
+            const blogList = document.getElementById('blogPostsList');
+            blogList.innerHTML = '';
+            blogPosts = [];
+            
+            if (data.posts && data.posts.length > 0) {
+                data.posts.forEach((post, index) => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'feature-item';
+                    postDiv.id = `blog-${index}`;
+                    postDiv.innerHTML = `
+                        <div class="row g-2">
+                            <div class="col-md-2">
+                                <input type="text" class="form-control" placeholder="Image URL" value="${post.image || ''}" id="blog-image-${index}">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control" placeholder="Date" value="${post.date || ''}" id="blog-date-${index}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="Title" value="${post.title || ''}" id="blog-title-${index}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Excerpt" value="${post.excerpt || ''}" id="blog-excerpt-${index}">
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-outline-danger" onclick="removeBlogPost(${index})">×</button>
+                            </div>
+                        </div>
+                    `;
+                    blogList.appendChild(postDiv);
+                    blogPosts.push({ index });
+                });
+            }
+        });
+    }
+
+    function saveBlog() {
+        const title = document.getElementById('blogTitle').value;
+        const viewAllLink = document.getElementById('blogViewAllLink').value;
+        const postsData = [];
+        
+        blogPosts.forEach(p => {
+            const post = {
+                image: document.getElementById(`blog-image-${p.index}`)?.value,
+                date: document.getElementById(`blog-date-${p.index}`)?.value,
+                title: document.getElementById(`blog-title-${p.index}`)?.value,
+                excerpt: document.getElementById(`blog-excerpt-${p.index}`)?.value,
+                link: '#'
+            };
+            if (post.title) {
+                postsData.push(post);
+            }
+        });
+        
+        database.ref('sections/blog').set({
+            title: title,
+            view_all_link: viewAllLink,
+            posts: postsData
+        }).then(() => alert('Blog saved successfully!'))
+          .catch(err => alert('Error saving blog'));
+    }
+
+    // ========== INSTAGRAM FUNCTIONS ==========
+    window.addInstagramPost = () => {
+        const instaList = document.getElementById('instagramPostsList');
+        const index = instagramPosts.length;
+        
+        const postDiv = document.createElement('div');
+        postDiv.className = 'feature-item';
+        postDiv.id = `insta-${index}`;
+        postDiv.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-10">
+                    <input type="text" class="form-control" placeholder="Image URL" id="insta-image-${index}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-danger" onclick="removeInstagramPost(${index})">×</button>
+                </div>
+            </div>
+        `;
+        instaList.appendChild(postDiv);
+        instagramPosts.push({ index });
+    };
+
+    window.removeInstagramPost = (index) => {
+        const postDiv = document.getElementById(`insta-${index}`);
+        if (postDiv) {
+            postDiv.remove();
+            instagramPosts = instagramPosts.filter(p => p.index !== index);
+        }
+    };
+
+    function loadInstagramData() {
+        database.ref('sections/instagram').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('instagramTitle').value = data.title || 'Follow Us @esperamavro';
+            
+            const instaList = document.getElementById('instagramPostsList');
+            instaList.innerHTML = '';
+            instagramPosts = [];
+            
+            if (data.posts && data.posts.length > 0) {
+                data.posts.forEach((post, index) => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'feature-item';
+                    postDiv.id = `insta-${index}`;
+                    postDiv.innerHTML = `
+                        <div class="row g-2">
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" placeholder="Image URL" value="${post.image || ''}" id="insta-image-${index}">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger" onclick="removeInstagramPost(${index})">×</button>
+                            </div>
+                        </div>
+                    `;
+                    instaList.appendChild(postDiv);
+                    instagramPosts.push({ index });
+                });
+            }
+        });
+    }
+
+    function saveInstagram() {
+        const title = document.getElementById('instagramTitle').value;
+        const postsData = [];
+        
+        instagramPosts.forEach(p => {
+            const image = document.getElementById(`insta-image-${p.index}`)?.value;
+            if (image) {
+                postsData.push({ image });
+            }
+        });
+        
+        database.ref('sections/instagram').set({
+            title: title,
+            posts: postsData
+        }).then(() => alert('Instagram feed saved successfully!'))
+          .catch(err => alert('Error saving Instagram feed'));
+    }
+
+    // ========== FEATURED PRODUCTS FUNCTIONS ==========
+    function loadProductsForSelect() {
+        database.ref('products').once('value', (snapshot) => {
+            const select = document.getElementById('featuredProductsSelect');
+            select.innerHTML = '';
+            
+            snapshot.forEach(child => {
+                const product = child.val();
+                const productName = product.name || product.title || 'Unnamed Product';
+                select.innerHTML += `<option value="${child.key}">${productName}</option>`;
+            });
+        });
+    }
+
+    function loadFeaturedProductsData() {
+        database.ref('sections/featuredProducts').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            document.getElementById('featuredTitle').value = data.title || 'Featured Products';
+            
+            const select = document.getElementById('featuredProductsSelect');
+            if (data.product_ids && data.product_ids.length > 0) {
+                Array.from(select.options).forEach(option => {
+                    option.selected = data.product_ids.includes(option.value);
+                });
+            }
+        });
+    }
+
+    function saveFeaturedProducts() {
+        const title = document.getElementById('featuredTitle').value;
+        const select = document.getElementById('featuredProductsSelect');
+        const productIds = Array.from(select.selectedOptions).map(opt => opt.value);
+        
+        database.ref('sections/featuredProducts').set({
+            title: title,
+            product_ids: productIds
+        }).then(() => {
+            alert('Featured products saved successfully!');
+        }).catch(err => {
+            console.error(err);
+            alert('Error saving featured products');
+        });
     }
 
     // ========== SAVE FUNCTIONS ==========
-
     function saveHeroSection() {
         const data = {
             tag: document.getElementById('heroTag').value,
@@ -1790,13 +4057,34 @@
         };
         
         database.ref('sections/hero').set(data)
-            .then(() => {
-                alert('Hero section saved successfully!');
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error saving hero section');
-            });
+            .then(() => alert('Hero section saved successfully!'))
+            .catch(err => alert('Error saving hero section'));
+    }
+
+    function saveFlashSale() {
+        const data = {
+            title: document.getElementById('flashSaleTitle').value,
+            text: document.getElementById('flashSaleText').value,
+            end_time: document.getElementById('flashSaleEndTime').value
+        };
+        
+        database.ref('sections/flashSale').set(data)
+            .then(() => alert('Flash sale saved successfully!'))
+            .catch(err => alert('Error saving flash sale'));
+    }
+
+    function saveAppSection() {
+        const data = {
+            title: document.getElementById('appTitle').value,
+            text: document.getElementById('appText').value,
+            app_store_link: document.getElementById('appStoreLink').value,
+            play_store_link: document.getElementById('playStoreLink').value,
+            qr_code: document.getElementById('qrImage').value
+        };
+        
+        database.ref('sections/app').set(data)
+            .then(() => alert('App section saved successfully!'))
+            .catch(err => alert('Error saving app section'));
     }
 
     function saveBanners() {
@@ -1881,11 +4169,66 @@
         document.getElementById('previewBtn').innerText = document.getElementById('heroBtnText').value || 'SHOP NOW';
     }
 
-    // Add event listeners for preview
     document.getElementById('heroTag')?.addEventListener('input', updateHeroPreview);
     document.getElementById('heroTitle')?.addEventListener('input', updateHeroPreview);
     document.getElementById('heroText')?.addEventListener('input', updateHeroPreview);
     document.getElementById('heroBtnText')?.addEventListener('input', updateHeroPreview);
+
+    // ========== VARIATIONS ==========
+    window.addVariation = () => {
+        variations.push({ 
+            name: '', 
+            value: '', 
+            price: '', 
+            image: null,
+            imagePreview: null 
+        });
+        renderVariations();
+    };
+
+    function renderVariations() {
+        const container = document.getElementById('variationsContainer');
+        container.innerHTML = variations.map((v, i) => `
+            <div class="variation-row">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Type (e.g., Color)" value="${v.name}" onchange="updateVariation(${i}, 'name', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Value (e.g., Red)" value="${v.value}" onchange="updateVariation(${i}, 'value', this.value)">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" placeholder="Price" value="${v.price}" onchange="updateVariation(${i}, 'price', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="file" class="form-control" accept="image/*" onchange="uploadVariationImage(${i}, this)">
+                        ${v.imagePreview ? `<img src="${v.imagePreview}" class="variant-image-preview">` : ''}
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-danger" onclick="removeVariation(${i})">×</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.updateVariation = (index, field, value) => {
+        variations[index][field] = value;
+    };
+
+    window.uploadVariationImage = async (index, input) => {
+        if (input.files && input.files[0]) {
+            const base64 = await toBase64(input.files[0]);
+            variations[index].image = base64;
+            variations[index].imagePreview = base64;
+            renderVariations();
+        }
+    };
+
+    window.removeVariation = (index) => {
+        variations.splice(index, 1);
+        renderVariations();
+    };
 
     // ========== CATEGORIES ==========
     document.getElementById('saveCatBtn').onclick = async () => {
@@ -1900,6 +4243,7 @@
         database.ref('categories').on('value', snapshot => {
             const select = document.getElementById('pCatSel');
             const list = document.getElementById('catList');
+            const subManager = document.getElementById('subcategoryManager');
             select.innerHTML = '<option value="">Select Category</option>';
             list.innerHTML = "";
             allCategories = [];
@@ -1907,14 +4251,28 @@
             snapshot.forEach(child => {
                 const category = child.val();
                 const catName = category.name || category;
-                allCategories.push({ id: child.key, name: catName });
+                allCategories.push({ id: child.key, name: catName, subcategories: category.subcategories || [] });
+                
+                // Add to product category select
                 select.innerHTML += `<option value="${catName}">${catName}</option>`;
-                list.innerHTML += `<span class="badge bg-dark p-2">${catName} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCategory('${child.key}')"></i></span>`;
+                
+                // Add to category list with subcategory management button
+                list.innerHTML += `
+                    <span class="badge bg-dark p-2" style="cursor:pointer" onclick="manageSubcategories('${child.key}', '${catName}')">
+                        ${catName} <i class="fa fa-times ms-2" style="cursor:pointer" onclick="deleteCategory('${child.key}', event)"></i>
+                    </span>
+                `;
             });
+            
+            // Show subcategory manager
+            subManager.innerHTML = `
+                <p class="text-center text-muted">Click on any category above to manage its subcategories</p>
+            `;
         });
     }
 
-    window.deleteCategory = (id) => {
+    window.deleteCategory = (id, event) => {
+        event.stopPropagation();
         if(confirm('Delete this category?')) {
             database.ref('categories/'+id).remove();
         }
@@ -1927,6 +4285,8 @@
         const sku = document.getElementById('pSku').value.trim();
         const price = document.getElementById('pPrice').value;
         const category = document.getElementById('pCatSel').value;
+        const bestDeal = document.getElementById('pBestDeal').value === 'true';
+        const subcategory = document.getElementById('pSubcategory').value.trim();
         const mainImgFile = document.getElementById('pImg').files[0];
         
         if(!name || !mainImgFile || !price) {
@@ -1937,7 +4297,6 @@
         btn.disabled = true; 
         btn.innerText = "Publishing...";
         
-        // Create variations object with images
         const variationsData = {};
         variations.forEach((v, idx) => {
             if (v.name && v.value) {
@@ -1956,6 +4315,8 @@
             sku: sku,
             price: parseFloat(price),
             category: category,
+            subcategory: subcategory,
+            bestDeal: bestDeal,
             description: quill.root.innerHTML,
             image: await toBase64(mainImgFile),
             images: [await toBase64(mainImgFile), ...galleryArr],
@@ -1988,6 +4349,7 @@
                 const productName = product.name || product.title || 'No Name';
                 const productImg = product.image || (product.images ? product.images[0] : 'https://via.placeholder.com/50');
                 const variationsCount = product.variations ? Object.keys(product.variations).length : 0;
+                const bestDeal = product.bestDeal ? '<span class="badge bg-danger">Best Deal</span>' : '-';
                 
                 allProducts.push({ id: child.key, name: productName, category: product.category });
                 
@@ -2000,6 +4362,7 @@
                         </td>
                         <td>${product.sku || '-'}</td>
                         <td>৳${product.price || '0'}</td>
+                        <td>${bestDeal}</td>
                         <td>${variationsCount} variations</td>
                         <td>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${child.key}')">
@@ -2061,7 +4424,6 @@
         const maxDiscountAmount = parseFloat(document.getElementById('maxDiscountAmount').value) || 0;
         const description = document.getElementById('couponDescription').value.trim();
         
-        // Get excluded items
         const excludeProducts = Array.from(document.getElementById('excludeProducts').selectedOptions).map(opt => opt.value);
         const excludeCategories = Array.from(document.getElementById('excludeCategories').selectedOptions).map(opt => opt.value);
         
@@ -2300,11 +4662,9 @@
                 const order = child.val();
                 const payment = order.payment || {};
                 
-                // Only show orders that need verification (pending status)
                 if (payment.status === 'pending') {
                     pendingCount++;
                     
-                    // Apply filter
                     if (currentPaymentFilter !== 'all' && payment.method !== currentPaymentFilter) {
                         return;
                     }
@@ -2417,6 +4777,51 @@
         btn.classList.add('active');
     };
 
+    // ========== REVIEWS ==========
+    function loadReviewsList() {
+        const list = document.getElementById('reviewsList');
+        list.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
+        
+        database.ref('reviews').once('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                list.innerHTML = '<tr><td colspan="5" class="text-center py-4">No reviews yet</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach((child) => {
+                const review = child.val();
+                const date = review.date ? new Date(review.date).toLocaleDateString() : 'N/A';
+                
+                html += `
+                    <tr>
+                        <td>${review.name || 'Anonymous'}</td>
+                        <td>${'★'.repeat(review.rating || 5)}</td>
+                        <td>${review.text || ''}</td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReview('${child.key}')">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            list.innerHTML = html;
+        });
+    }
+
+    window.deleteReview = (reviewId) => {
+        if (confirm('Delete this review?')) {
+            database.ref('reviews/' + reviewId).remove()
+                .then(() => {
+                    alert('Review deleted');
+                    loadReviewsList();
+                })
+                .catch(err => alert('Error deleting review'));
+        }
+    };
+
     // ========== DASHBOARD ==========
     function loadDashboard() {
         database.ref('orders').once('value', (snapshot) => {
@@ -2472,12 +4877,10 @@
             });
         });
         
-        // Load products count
         database.ref('products').once('value', (snapshot) => {
             document.getElementById('totalProducts').innerText = snapshot.numChildren();
         });
         
-        // Load coupons count
         database.ref('coupons').once('value', (snapshot) => {
             let activeCount = 0;
             const now = new Date();
@@ -2532,7 +4935,6 @@
             document.getElementById('analyticsOrders').innerText = totalOrders;
             document.getElementById('couponUsageCount').innerText = couponUsageCount;
 
-            // Payment Methods Stats
             const paymentStats = document.getElementById('paymentStats');
             paymentStats.innerHTML = `
                 <div class="d-flex justify-content-between mb-1">
@@ -2543,7 +4945,6 @@
                 </div>
             `;
 
-            // Status Stats
             const statusStats = document.getElementById('statusStats');
             statusStats.innerHTML = `
                 <div class="d-flex justify-content-between mb-1">
@@ -2566,7 +4967,6 @@
                 </div>
             `;
 
-            // Top Products
             const topProducts = Object.entries(productSales)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 5);
@@ -2581,7 +4981,6 @@
                 `).join('')
                 : '<p class="text-muted">No sales data yet</p>';
 
-            // Charts
             if (ordersChart) ordersChart.destroy();
             if (revenueChart) revenueChart.destroy();
             if (paymentChart) paymentChart.destroy();
@@ -2647,10 +5046,22 @@
         });
     }
 
+    // Check URL parameters
+    function checkUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page');
+        if (page && ['terms', 'privacy', 'refund'].includes(page)) {
+            setTimeout(() => {
+                showSection('pageEditor', document.querySelector('[onclick*="pageEditor"]'));
+                selectPage(page);
+            }, 500);
+        }
+    }
+
     // Initialize
     function init() {
         loadDashboard();
-        // Default to dashboard
+        checkUrlParams();
         showSection('dashboard', document.querySelector('.nav-link.active'));
     }
 
